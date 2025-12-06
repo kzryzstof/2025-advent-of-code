@@ -83,7 +83,7 @@ func (d *Dial) incrementCount(
 	//	Counts all the full turns.
 	fullTurns := d.countFullTurns(distance)
 
-	//	Counts the case when we cross the initial position without doing a full turn.
+	//	Counts the remaining potential partial turn i.e., when we cross the initial position without doing a full turn.
 	crossedZero := false
 
 	if initialPosition != MinimalDialPosition {

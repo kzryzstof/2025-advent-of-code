@@ -70,14 +70,14 @@ The executable entrypoint is `day-1/cmd/main.go` and the flow is:
 From the `day-1` directory you can run the solution with:
 
 ```bash
-cd day-1
+cd day_1
 make run ARGS="input.txt"
 ```
 
 or directly with Go:
 
 ```bash
-cd day-1
+cd day_1
 go run ./cmd input.txt
 ```
 

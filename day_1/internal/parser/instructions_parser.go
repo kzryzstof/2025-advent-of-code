@@ -93,6 +93,11 @@ func (p *InstructionsParser) extractDistance(line string) (int, error) {
 		return 0, err
 	}
 
+	if distanceInt < 0 {
+		fmt.Printf("Unexpected distance '%d'\n", distanceInt)
+		return 0, err
+	}
+
 	return distanceInt, err
 }
 
