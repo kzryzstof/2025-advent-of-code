@@ -25,7 +25,7 @@ func TestDial_Turn(t *testing.T) {
 			direction:        Right,
 			distance:         10,
 			expectedPosition: 5,
-			expectedCount:    0,
+			expectedCount:    1,
 		},
 		{
 			name:             "Full turn right but not at position 0",
@@ -33,7 +33,7 @@ func TestDial_Turn(t *testing.T) {
 			direction:        Right,
 			distance:         100,
 			expectedPosition: 10,
-			expectedCount:    0,
+			expectedCount:    1,
 		},
 		{
 			name:             "Full turn right and at position 0",
@@ -49,7 +49,7 @@ func TestDial_Turn(t *testing.T) {
 			direction:        Right,
 			distance:         200,
 			expectedPosition: 0,
-			expectedCount:    1,
+			expectedCount:    2,
 		},
 		{
 			name:             "Turn right with 2 wraps",
@@ -57,7 +57,7 @@ func TestDial_Turn(t *testing.T) {
 			direction:        Right,
 			distance:         100 + 10,
 			expectedPosition: 5,
-			expectedCount:    0,
+			expectedCount:    2,
 		},
 		{
 			name:             "Turn left without wrap",
@@ -73,7 +73,7 @@ func TestDial_Turn(t *testing.T) {
 			direction:        Left,
 			distance:         10,
 			expectedPosition: 95,
-			expectedCount:    0,
+			expectedCount:    1,
 		},
 		{
 			name:             "Turn left completely wrapped",
@@ -81,7 +81,7 @@ func TestDial_Turn(t *testing.T) {
 			direction:        Left,
 			distance:         100,
 			expectedPosition: 5,
-			expectedCount:    0,
+			expectedCount:    1,
 		},
 		{
 			name:             "Turn left with 2 wrap",
@@ -89,9 +89,9 @@ func TestDial_Turn(t *testing.T) {
 			direction:        Left,
 			distance:         100 + 10,
 			expectedPosition: 95,
-			expectedCount:    0,
+			expectedCount:    2,
 		},
-
+		/* original use cases (part 1) */
 		{
 			name:             "Documented use case #1",
 			initialPosition:  11,
@@ -123,6 +123,39 @@ func TestDial_Turn(t *testing.T) {
 			distance:         1,
 			expectedPosition: 0,
 			expectedCount:    1,
+		},
+		/* new use cases (part 2) */
+		{
+			name:             "Documented use case #1",
+			initialPosition:  50,
+			direction:        Left,
+			distance:         68,
+			expectedPosition: 82,
+			expectedCount:    1,
+		},
+		{
+			name:             "Documented use case #2",
+			initialPosition:  52,
+			direction:        Right,
+			distance:         48,
+			expectedPosition: 0,
+			expectedCount:    1,
+		},
+		{
+			name:             "Documented use case #3",
+			initialPosition:  0,
+			direction:        Left,
+			distance:         5,
+			expectedPosition: 95,
+			expectedCount:    0,
+		},
+		{
+			name:             "Documented use case #3",
+			initialPosition:  50,
+			direction:        Right,
+			distance:         1000,
+			expectedPosition: 50,
+			expectedCount:    10,
 		},
 	}
 

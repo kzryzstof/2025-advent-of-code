@@ -1,5 +1,7 @@
 package abstractions
 
+import "math"
+
 const (
 	MinimalDialPosition int = 0
 	MaximalDialPosition int = 99
@@ -25,6 +27,7 @@ func (d *Dial) turn(
 	direction Direction,
 	distance int,
 ) {
+	var initialPosition int = d.Position
 	var newPosition int
 
 	/* Handle distances larger than the dial size by capping them */
@@ -38,7 +41,17 @@ func (d *Dial) turn(
 
 	d.Position = newPosition
 
-	d.incrementCountIfNeeded()
+	d.incrementCount(
+		direction,
+		distance,
+		initialPosition,
+	)
+}
+
+func (d *Dial) countFullTurns(
+	distance int,
+) int {
+	return int(math.Floor(float64(distance) / float64(PositionsCount)))
 }
 
 func (d *Dial) getCappedDistance(
@@ -62,8 +75,34 @@ func (d *Dial) turnRight(
 	return (d.Position + distance) % PositionsCount
 }
 
-func (d *Dial) incrementCountIfNeeded() {
-	if d.Position == 0 {
-		d.count++
+func (d *Dial) incrementCount(
+	direction Direction,
+	distance int,
+	initialPosition int,
+) {
+	//	Counts all the full turns.
+	fullTurns := d.countFullTurns(distance)
+
+	//	Counts the case when we cross the initial position without doing a full turn.
+	crossedZero := false
+
+	if initialPosition != MinimalDialPosition {
+		//	Only count the case when we are not at the initial position 0.
+		if direction == Left && d.Position > initialPosition {
+			//	Counts the case when we turn left and cross the initial position
+			crossedZero = true
+		} else if direction == Right && d.Position < initialPosition {
+			// 	Counts the case when we turn right and cross the initial position
+			crossedZero = true
+		} else if d.Position == MinimalDialPosition {
+			// 	Count the case when we do end up at the initial position
+			crossedZero = true
+		}
 	}
+
+	if crossedZero {
+		fullTurns += 1
+	}
+
+	d.count += fullTurns
 }

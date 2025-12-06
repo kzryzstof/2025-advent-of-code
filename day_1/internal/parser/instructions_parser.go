@@ -2,11 +2,12 @@ package parser
 
 import (
 	"bufio"
-	"day-1/internal/abstractions"
 	"fmt"
 	"os"
 	"strconv"
 	"sync"
+
+	"day_1/internal/abstractions"
 )
 
 type InstructionsParser struct {

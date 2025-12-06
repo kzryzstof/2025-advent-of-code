@@ -1,7 +1,7 @@
 package processor
 
 import (
-	"day-1/internal/abstractions"
+	"day_1/internal/abstractions"
 	"sync"
 )
 

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"day-1/internal/abstractions"
 	"fmt"
 	"os"
 	"sync"
 
-	"day-1/internal/parser"
-	"day-1/internal/processor"
+	"day_1/internal/abstractions"
+	"day_1/internal/parser"
+	"day_1/internal/processor"
 )
 
 func main() {
