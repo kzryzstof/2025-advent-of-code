@@ -8,6 +8,7 @@ func TestProductId_IsValid(t *testing.T) {
 		productId       string
 		expectedIsValid bool
 	}{
+		/* Initial use cases */
 		{
 			name:            "Valid product id",
 			productId:       "10",
@@ -18,6 +19,56 @@ func TestProductId_IsValid(t *testing.T) {
 			productId:       "11",
 			expectedIsValid: false,
 		},
+		{
+			name:            "Valid product id",
+			productId:       "1011",
+			expectedIsValid: true,
+		},
+		{
+			name:            "Invalid product id",
+			productId:       "1010",
+			expectedIsValid: false,
+		},
+		{
+			name:            "Valid product id",
+			productId:       "1188511884",
+			expectedIsValid: true,
+		},
+		{
+			name:            "Invalid product id",
+			productId:       "1188511885",
+			expectedIsValid: false,
+		},
+		{
+			name:            "Valid product id",
+			productId:       "222223",
+			expectedIsValid: true,
+		},
+		{
+			name:            "Invalid product id",
+			productId:       "222222",
+			expectedIsValid: false,
+		},
+		{
+			name:            "Valid product id",
+			productId:       "445446",
+			expectedIsValid: true,
+		},
+		{
+			name:            "Invalid product id",
+			productId:       "446446",
+			expectedIsValid: false,
+		},
+		{
+			name:            "Valid product id",
+			productId:       "38593858",
+			expectedIsValid: true,
+		},
+		{
+			name:            "Invalid product id",
+			productId:       "38593859",
+			expectedIsValid: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -26,7 +77,7 @@ func TestProductId_IsValid(t *testing.T) {
 			actualIsValid := productId.IsValid()
 
 			if actualIsValid != tt.expectedIsValid {
-				t.Errorf("Expected result %d, got %d", tt.expectedIsValid, actualIsValid)
+				t.Errorf("Expected result %t, got %t", tt.expectedIsValid, actualIsValid)
 			}
 		})
 	}
