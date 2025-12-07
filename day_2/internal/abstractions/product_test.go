@@ -95,6 +95,7 @@ func TestProduct_IsValid(t *testing.T) {
 			productId:       "1111111",
 			expectedIsValid: false,
 		},
+		/* Bugs */
 	}
 
 	for _, tt := range tests {
