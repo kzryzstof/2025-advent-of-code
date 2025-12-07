@@ -19,13 +19,13 @@ func TestRange_FindInvalidProductIds(t *testing.T) {
 			name:                      "Range from 95 to 115",
 			from:                      "95",
 			to:                        "115",
-			expectedInvalidProductIds: []int64{99},
+			expectedInvalidProductIds: []int64{99, 111},
 		},
 		{
 			name:                      "Range from 998 to 1012",
 			from:                      "998",
 			to:                        "1012",
-			expectedInvalidProductIds: []int64{1010},
+			expectedInvalidProductIds: []int64{999, 1010},
 		},
 		{
 			name:                      "Range from 1188511880 to 1188511890",
@@ -56,6 +56,12 @@ func TestRange_FindInvalidProductIds(t *testing.T) {
 			from:                      "38593856",
 			to:                        "38593862",
 			expectedInvalidProductIds: []int64{38593859},
+		},
+		{
+			name:                      "Range from 565653 to 565659",
+			from:                      "565653",
+			to:                        "565659",
+			expectedInvalidProductIds: []int64{565656},
 		},
 	}
 

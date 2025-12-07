@@ -74,6 +74,27 @@ func TestProduct_IsValid(t *testing.T) {
 			productId:       "38593859",
 			expectedIsValid: false,
 		},
+		/* New use cases (Part 2) */
+		{
+			name:            "Invalid product id",
+			productId:       "12341234",
+			expectedIsValid: false,
+		},
+		{
+			name:            "Invalid product id",
+			productId:       "123123123",
+			expectedIsValid: false,
+		},
+		{
+			name:            "Invalid product id",
+			productId:       "1212121212",
+			expectedIsValid: false,
+		},
+		{
+			name:            "Invalid product id",
+			productId:       "1111111",
+			expectedIsValid: false,
+		},
 	}
 
 	for _, tt := range tests {
