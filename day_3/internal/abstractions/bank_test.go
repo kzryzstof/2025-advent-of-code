@@ -14,19 +14,24 @@ func TestBank_(t *testing.T) {
 		/* Initial use cases */
 		{
 			ratings:         "987654321111111",
-			expectedVoltage: 98,
+			expectedVoltage: 987654321111,
 		},
 		{
 			ratings:         "811111111111119",
-			expectedVoltage: 89,
+			expectedVoltage: 811111111119,
 		},
 		{
 			ratings:         "234234234234278",
-			expectedVoltage: 78,
+			expectedVoltage: 434234234278,
 		},
 		{
+			/*
+				 	8 181 81911112111
+					818 18 1911112111
+					818181 911112111
+			*/
 			ratings:         "818181911112111",
-			expectedVoltage: 92,
+			expectedVoltage: 888911112111,
 		},
 	}
 
