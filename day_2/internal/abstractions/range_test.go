@@ -63,6 +63,18 @@ func TestRange_FindInvalidProductIds(t *testing.T) {
 			to:                        "565659",
 			expectedInvalidProductIds: []int64{565656},
 		},
+		{
+			name:                      "Range from 2121212118 to 2121212124",
+			from:                      "2121212118",
+			to:                        "2121212124",
+			expectedInvalidProductIds: []int64{2121212121},
+		},
+		{
+			name:                      "Range from 824824821 to 824824827",
+			from:                      "824824821",
+			to:                        "824824827",
+			expectedInvalidProductIds: []int64{824824824},
+		},
 	}
 
 	for _, tt := range tests {
