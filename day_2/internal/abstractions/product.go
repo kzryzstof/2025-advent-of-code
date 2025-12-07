@@ -78,7 +78,6 @@ func (p Product) checkHasPattern() bool {
 
 	idLength := len(p.Id)
 
-	/* Starts the longest pattern first and then decreases down to a minimum length 2 (since 1 should already have been checked) */
 	for _, patternLength := range p.getDivisors(idLength) {
 		if patternLength <= 0 || idLength%patternLength != 0 {
 			continue
