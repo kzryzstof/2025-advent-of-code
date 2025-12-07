@@ -62,14 +62,23 @@ func (p *SectionsProcessor) countAccessibleRolls(
 			continue
 		}
 
-		totalRolls := p.countRolls(section.Rows[section.RowIndex-1], spotIndex)
-		totalRolls += p.countRolls(section.Rows[section.RowIndex], spotIndex) - 1 // Do not count yourself twice!
+		topRowIndex := section.RowIndex - 1
+		currentRowIndex := section.RowIndex
+		bottomRowIndex := section.RowIndex + 1
 
-		if section.RowIndex < rowsCount {
-			totalRolls += p.countRolls(section.Rows[section.RowIndex+1], spotIndex)
+		surroundingRolls := uint(0)
+
+		if topRowIndex >= 0 {
+			surroundingRolls += p.countRolls(section.Rows[topRowIndex], spotIndex)
 		}
 
-		if totalRolls < minAccessibleRolls {
+		surroundingRolls += p.countRolls(section.Rows[currentRowIndex], spotIndex) - 1 // Do not count yourself twice!
+
+		if section.RowIndex < rowsCount {
+			surroundingRolls += p.countRolls(section.Rows[bottomRowIndex], spotIndex)
+		}
+
+		if surroundingRolls < minAccessibleRolls {
 			accessibleRolls++
 		}
 	}
