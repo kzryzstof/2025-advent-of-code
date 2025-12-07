@@ -1,15 +1,14 @@
 package abstractions
 
-type Spot int32
+type Spot int
 
 const (
 	None  Spot = 0
 	Empty Spot = '.'
 	Roll  Spot = '@'
-	Fork  Spot = 'x'
 )
 
 type Row struct {
-	Number int
+	Number uint
 	Spots  []Spot
 }

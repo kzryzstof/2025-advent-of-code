@@ -2,17 +2,8 @@ package processor
 
 import (
 	"day_4/internal/abstractions"
-	"sync"
 	"testing"
 )
-
-type fakeSectionChannel struct {
-	sectionsChan chan abstractions.Section
-}
-
-func (f *fakeSectionChannel) Sections() <-chan abstractions.Section {
-	return f.sectionsChan
-}
 
 func TestSectionsProcessor(t *testing.T) {
 	tests := []struct {
@@ -151,16 +142,8 @@ func TestSectionsProcessor(t *testing.T) {
 				RowIndex: tt.rowIndex,
 			}
 
-			ch := make(chan abstractions.Section, 1)
-			ch <- section
-			close(ch)
-
-			fakeChan := &fakeSectionChannel{sectionsChan: ch}
-
-			var wg sync.WaitGroup
-			processor := NewProcessor(fakeChan, &wg)
-			processor.Start()
-			wg.Wait()
+			processor := NewProcessor()
+			processor.Analyze(&section)
 
 			actualAccessibleRolls := processor.GetTotalAccessibleRolls()
 			if actualAccessibleRolls != tt.expectedAccessibleRolls {

@@ -3,7 +3,6 @@ package processor
 import (
 	"day_4/internal/abstractions"
 	"fmt"
-	"sync"
 )
 
 const (
@@ -11,18 +10,11 @@ const (
 )
 
 type SectionsProcessor struct {
-	sectionsChannel abstractions.SectionChannel
-	syncWaitGroup   *sync.WaitGroup
-	rollsAccessed   uint
+	rollsAccessed uint
 }
 
-func NewProcessor(
-	sectionsChannel abstractions.SectionChannel,
-	waitGroup *sync.WaitGroup,
-) *SectionsProcessor {
+func NewProcessor() *SectionsProcessor {
 	return &SectionsProcessor{
-		sectionsChannel,
-		waitGroup,
 		0,
 	}
 }
@@ -31,28 +23,16 @@ func (p *SectionsProcessor) GetTotalAccessibleRolls() uint {
 	return p.rollsAccessed
 }
 
-func (p *SectionsProcessor) Start() {
+func (p *SectionsProcessor) Analyze(section *abstractions.Section) {
 
-	p.syncWaitGroup.Add(1)
-
-	go func() {
-
-		defer p.syncWaitGroup.Done()
-
-		p.monitor()
-	}()
-}
-
-func (p *SectionsProcessor) monitor() {
-
-	for section := range p.sectionsChannel.Sections() {
-		accessibleRolls := p.countAccessibleRolls(section)
-		p.rollsAccessed += accessibleRolls
-	}
+	fmt.Printf("Processor | Row %03d | Received\n", section.Rows[section.RowIndex].Number)
+	accessibleRolls := p.countAccessibleRolls(section)
+	p.rollsAccessed += accessibleRolls
+	fmt.Printf("Processor | Rows %03d | Pocessed\n", section.Rows[section.RowIndex].Number)
 }
 
 func (p *SectionsProcessor) countAccessibleRolls(
-	section abstractions.Section,
+	section *abstractions.Section,
 ) uint {
 
 	accessibleRolls := uint(0)
@@ -70,19 +50,17 @@ func (p *SectionsProcessor) countAccessibleRolls(
 		surroundingRolls := uint(0)
 
 		if topRowIndex >= 0 {
-			fmt.Printf("Current row %d | Spot %d | Counting rolls on row %d \n", section.Rows[currentRowIndex].Number, spotIndex, section.Rows[topRowIndex].Number)
-			surroundingRolls += p.countRolls(section.Rows[topRowIndex], spotIndex)
+			surroundingRolls += p.countRolls(&section.Rows[topRowIndex], spotIndex)
 		}
 
-		fmt.Printf("Current row %d | Spot %d | Counting rolls on row %d\n", section.Rows[currentRowIndex].Number, spotIndex, section.Rows[currentRowIndex].Number)
-		surroundingRolls += p.countRolls(section.Rows[currentRowIndex], spotIndex) - 1 // Do not count yourself twice!
+		surroundingRolls += p.countRolls(&section.Rows[currentRowIndex], spotIndex) - 1 // Do not count yourself twice!
 
 		if section.RowIndex < rowsCount {
-			fmt.Printf("Current row %d | Spot %d | Counting rolls on row %d\n", section.Rows[currentRowIndex].Number, spotIndex, section.Rows[bottomRowIndex].Number)
-			surroundingRolls += p.countRolls(section.Rows[bottomRowIndex], spotIndex)
+			surroundingRolls += p.countRolls(&section.Rows[bottomRowIndex], spotIndex)
 		}
 
 		if surroundingRolls < minAccessibleRolls {
+			fmt.Printf("            Row %03d | Found accessible roll at spot %03d (Surrounding rolls %d) \n", section.Rows[section.RowIndex].Number, spotIndex, surroundingRolls)
 			accessibleRolls++
 		}
 	}
@@ -91,7 +69,7 @@ func (p *SectionsProcessor) countAccessibleRolls(
 }
 
 func (p *SectionsProcessor) countRolls(
-	row abstractions.Row,
+	row *abstractions.Row,
 	spotIndex int,
 ) uint {
 	spotsCount := len(row.Spots)

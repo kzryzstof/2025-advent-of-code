@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"sync"
-
 	"day_4/internal/parser"
 	"day_4/internal/processor"
+	"fmt"
+	"os"
 )
 
 func main() {
@@ -14,16 +12,16 @@ func main() {
 	fmt.Println(inputFile)
 
 	/* 	Initializes the parser and processor */
-	waitGroup := &sync.WaitGroup{}
+	sectionsParser := initializeParser(inputFile)
+	sectionsProcessor := initializeProcessor()
 
-	sectionsParser := initializeParser(inputFile, waitGroup)
-	sectionsProcessor := initializeProcessor(sectionsParser, waitGroup)
+	/* Reads each row and analyzes it */
+	section, hasRow := sectionsParser.ReadNextRow()
 
-	/* Starts the parser and processor */
-	sectionsParser.Start()
-	sectionsProcessor.Start()
-
-	waitGroup.Wait()
+	for hasRow {
+		sectionsProcessor.Analyze(section)
+		section, hasRow = sectionsParser.ReadNextRow()
+	}
 
 	/* Prints the total number of accessible rolls */
 	fmt.Printf("Number of accessible rolls in the %d row of the department: %d\n", sectionsParser.GetRowsCount(), sectionsProcessor.GetTotalAccessibleRolls())
@@ -31,23 +29,19 @@ func main() {
 
 func initializeParser(
 	inputFile []string,
-	waitGroup *sync.WaitGroup,
 ) *parser.SectionsParser {
-	parser, err := parser.NewParser(inputFile[0], waitGroup)
+	parser, err := parser.NewParser(inputFile[0])
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Ranges parser initialized: %v\n", parser)
+	fmt.Printf("Section parser initialized: %v\n", parser)
 	return parser
 }
 
-func initializeProcessor(
-	sectionsParser *parser.SectionsParser,
-	waitGroup *sync.WaitGroup,
-) *processor.SectionsProcessor {
-	sectionsProcessor := processor.NewProcessor(sectionsParser, waitGroup)
-	fmt.Printf("Ranges processor initialized: %v\n", sectionsParser)
+func initializeProcessor() *processor.SectionsProcessor {
+	sectionsProcessor := processor.NewProcessor()
+	fmt.Printf("Section processor initialized: %v\n", sectionsProcessor)
 	return sectionsProcessor
 }
