@@ -2,21 +2,22 @@ package processor
 
 import (
 	"day_4/internal/abstractions"
+	"fmt"
 	"sync"
 )
 
 type BanksProcessor struct {
-	banksChannel  abstractions.BanksChannel
-	syncWaitGroup *sync.WaitGroup
-	totalVoltage  uint
+	sectionsChannel abstractions.SectionChannel
+	syncWaitGroup   *sync.WaitGroup
+	totalVoltage    uint
 }
 
 func NewProcessor(
-	banksChannel abstractions.BanksChannel,
+	sectionsChannel abstractions.SectionChannel,
 	waitGroup *sync.WaitGroup,
 ) *BanksProcessor {
 	return &BanksProcessor{
-		banksChannel,
+		sectionsChannel,
 		waitGroup,
 		0,
 	}
@@ -40,7 +41,7 @@ func (p *BanksProcessor) Start() {
 
 func (p *BanksProcessor) monitor() {
 
-	for bank := range p.banksChannel.Banks() {
-		p.totalVoltage += bank.GetHighestVoltage()
+	for section := range p.sectionsChannel.Sections() {
+		fmt.Println(section)
 	}
 }

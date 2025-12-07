@@ -10,17 +10,17 @@ import (
 	"day_4/internal/abstractions"
 )
 
-type BanksParser struct {
-	inputFile     *os.File
-	syncWaitGroup *sync.WaitGroup
-	banksChannel  chan abstractions.Bank
-	banksCount    int
+type SectionsParser struct {
+	inputFile       *os.File
+	syncWaitGroup   *sync.WaitGroup
+	sectionsChannel chan abstractions.Section
+	rowsCount       int
 }
 
 func NewParser(
 	filePath string,
 	waitGroup *sync.WaitGroup,
-) (*BanksParser, error) {
+) (*SectionsParser, error) {
 
 	inputFile, err := os.OpenFile(filePath, os.O_RDONLY, 0644)
 
@@ -29,19 +29,19 @@ func NewParser(
 		return nil, err
 	}
 
-	return &BanksParser{
+	return &SectionsParser{
 		inputFile,
 		waitGroup,
-		make(chan abstractions.Bank),
+		make(chan abstractions.Section),
 		0,
 	}, nil
 }
 
-func (p *BanksParser) GetBanksCount() int {
+func (p *SectionsParser) GetRowsCount() int {
 	return p.banksCount
 }
 
-func (p *BanksParser) Start() {
+func (p *SectionsParser) Start() {
 
 	p.syncWaitGroup.Add(1)
 
@@ -67,8 +67,8 @@ func (p *BanksParser) Start() {
 				batteries = append(batteries, abstractions.Battery{Voltage: abstractions.VoltageRating(batteryVoltageRatingInt)})
 			}
 
-			p.banksCount++
-			p.banksChannel <- abstractions.Bank{Batteries: batteries}
+			p.rowsCount++
+			p.sectionsChannel <- abstractions.Bank{Batteries: batteries}
 		}
 
 		if err := scanner.Err(); err != nil {
@@ -76,10 +76,10 @@ func (p *BanksParser) Start() {
 			os.Exit(1)
 		}
 
-		close(p.banksChannel)
+		close(p.sectionsChannel)
 	}()
 }
 
-func (p *BanksParser) Banks() <-chan abstractions.Bank {
-	return p.banksChannel
+func (p *SectionsParser) Sections() <-chan abstractions.Section {
+	return p.sectionsChannel
 }

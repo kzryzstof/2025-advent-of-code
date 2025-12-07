@@ -19,35 +19,35 @@ func main() {
 	/* 	Initializes the parser and processor */
 	waitGroup := &sync.WaitGroup{}
 
-	banksParser := initializeParser(inputFile, waitGroup)
-	banksProcessor := initializeProcessor(banksParser, waitGroup)
+	sectionsParser := initializeParser(inputFile, waitGroup)
+	banksProcessor := initializeProcessor(sectionsParser, waitGroup)
 
 	/* Starts the parser and processor */
-	banksParser.Start()
+	sectionsParser.Start()
 	banksProcessor.Start()
 
 	waitGroup.Wait()
 
 	/* Prints the total number of consisting of the sum of all the product IDs */
-	fmt.Printf("Sum of all the highest voltage from the %d banks: %d\n", banksParser.GetBanksCount(), banksProcessor.GetTotalVoltage())
+	fmt.Printf("Sum of all the highest voltage from the %d rows: %d\n", sectionsParser.GetRowsCount(), banksProcessor.GetTotalVoltage())
 }
 
 func initializeParser(
 	inputFile []string,
 	waitGroup *sync.WaitGroup,
-) *parser.BanksParser {
-	rangesReader, err := parser.NewParser(inputFile[0], waitGroup)
+) *parser.SectionsParser {
+	parser, err := parser.NewParser(inputFile[0], waitGroup)
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Ranges parser initialized: %v\n", rangesReader)
-	return rangesReader
+	fmt.Printf("Ranges parser initialized: %v\n", parser)
+	return parser
 }
 
 func initializeProcessor(
-	banksParser *parser.BanksParser,
+	banksParser *parser.SectionsParser,
 	waitGroup *sync.WaitGroup,
 ) *processor.BanksProcessor {
 	banksProcessor := processor.NewProcessor(banksParser, waitGroup)
