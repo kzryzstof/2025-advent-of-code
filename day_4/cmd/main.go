@@ -13,23 +13,20 @@ func main() {
 	inputFile := os.Args[1:]
 	fmt.Println(inputFile)
 
-	/*	Initializes the dial */
-	//dial := abstractions.Dial{Position: 50}
-
 	/* 	Initializes the parser and processor */
 	waitGroup := &sync.WaitGroup{}
 
 	sectionsParser := initializeParser(inputFile, waitGroup)
-	banksProcessor := initializeProcessor(sectionsParser, waitGroup)
+	sectionsProcessor := initializeProcessor(sectionsParser, waitGroup)
 
 	/* Starts the parser and processor */
 	sectionsParser.Start()
-	banksProcessor.Start()
+	sectionsProcessor.Start()
 
 	waitGroup.Wait()
 
-	/* Prints the total number of consisting of the sum of all the product IDs */
-	fmt.Printf("Sum of all the highest voltage from the %d rows: %d\n", sectionsParser.GetRowsCount(), banksProcessor.GetTotalVoltage())
+	/* Prints the total number of accessible rolls */
+	fmt.Printf("Number of accessible rolls in the %d row of the department: %d\n", sectionsParser.GetRowsCount(), sectionsProcessor.GetTotalAccessibleRolls())
 }
 
 func initializeParser(
@@ -47,10 +44,10 @@ func initializeParser(
 }
 
 func initializeProcessor(
-	banksParser *parser.SectionsParser,
+	sectionsParser *parser.SectionsParser,
 	waitGroup *sync.WaitGroup,
-) *processor.BanksProcessor {
-	banksProcessor := processor.NewProcessor(banksParser, waitGroup)
-	fmt.Printf("Ranges processor initialized: %v\n", banksParser)
-	return banksProcessor
+) *processor.SectionsProcessor {
+	sectionsProcessor := processor.NewProcessor(sectionsParser, waitGroup)
+	fmt.Printf("Ranges processor initialized: %v\n", sectionsParser)
+	return sectionsProcessor
 }

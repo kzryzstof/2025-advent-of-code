@@ -1,11 +1,12 @@
 package abstractions
 
-type Spot string
+type Spot int32
 
 const (
-	Empty Spot = "."
-	Roll  Spot = "@"
-	Fork  Spot = "x"
+	None  Spot = 0
+	Empty Spot = '.'
+	Roll  Spot = '@'
+	Fork  Spot = 'x'
 )
 
 type Row struct {
