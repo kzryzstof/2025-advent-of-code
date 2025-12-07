@@ -2,15 +2,13 @@ package processor
 
 import (
 	"day_3/internal/abstractions"
-	"fmt"
 	"sync"
 )
 
 type BanksProcessor struct {
-	banksChannel      abstractions.BanksChannel
-	syncWaitGroup     *sync.WaitGroup
-	invalidProductIds []int64
-	totalProductId    int64
+	banksChannel  abstractions.BanksChannel
+	syncWaitGroup *sync.WaitGroup
+	totalVoltage  uint
 }
 
 func NewProcessor(
@@ -20,13 +18,12 @@ func NewProcessor(
 	return &BanksProcessor{
 		banksChannel,
 		waitGroup,
-		make([]int64, 0),
 		0,
 	}
 }
 
-func (p *BanksProcessor) GetTotalProductId() int64 {
-	return p.totalProductId
+func (p *BanksProcessor) GetTotalVoltage() uint {
+	return p.totalVoltage
 }
 
 func (p *BanksProcessor) Start() {
@@ -44,7 +41,6 @@ func (p *BanksProcessor) Start() {
 func (p *BanksProcessor) monitor() {
 
 	for bank := range p.banksChannel.Banks() {
-		fmt.Printf("Processing range: %w to %s\n", bank)
-
+		p.totalVoltage += bank.GetHighestVoltage()
 	}
 }

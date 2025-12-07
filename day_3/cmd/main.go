@@ -29,7 +29,7 @@ func main() {
 	waitGroup.Wait()
 
 	/* Prints the total number of consisting of the sum of all the product IDs */
-	fmt.Printf("Sum of all the invalid product IDs found in %d ranges: %d\n", banksParser.GetRangesCount(), banksProcessor.GetTotalProductId())
+	fmt.Printf("Sum of all the highest voltage from the %d banks: %d\n", banksParser.GetBanksCount(), banksProcessor.GetTotalVoltage())
 }
 
 func initializeParser(

@@ -14,7 +14,7 @@ type BanksParser struct {
 	inputFile     *os.File
 	syncWaitGroup *sync.WaitGroup
 	banksChannel  chan abstractions.Bank
-	rangesCount   int
+	banksCount    int
 }
 
 func NewParser(
@@ -37,8 +37,8 @@ func NewParser(
 	}, nil
 }
 
-func (p *BanksParser) GetRangesCount() int {
-	return p.rangesCount
+func (p *BanksParser) GetBanksCount() int {
+	return p.banksCount
 }
 
 func (p *BanksParser) Start() {
@@ -67,6 +67,7 @@ func (p *BanksParser) Start() {
 				batteries = append(batteries, abstractions.Battery{Voltage: abstractions.VoltageRating(batteryVoltageRatingInt)})
 			}
 
+			p.banksCount++
 			p.banksChannel <- abstractions.Bank{Batteries: batteries}
 		}
 
