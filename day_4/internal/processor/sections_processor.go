@@ -2,6 +2,7 @@ package processor
 
 import (
 	"day_4/internal/abstractions"
+	"fmt"
 	"sync"
 )
 
@@ -69,12 +70,15 @@ func (p *SectionsProcessor) countAccessibleRolls(
 		surroundingRolls := uint(0)
 
 		if topRowIndex >= 0 {
+			fmt.Printf("Current row %d | Spot %d | Counting rolls on row %d \n", section.Rows[currentRowIndex].Number, spotIndex, section.Rows[topRowIndex].Number)
 			surroundingRolls += p.countRolls(section.Rows[topRowIndex], spotIndex)
 		}
 
+		fmt.Printf("Current row %d | Spot %d | Counting rolls on row %d\n", section.Rows[currentRowIndex].Number, spotIndex, section.Rows[currentRowIndex].Number)
 		surroundingRolls += p.countRolls(section.Rows[currentRowIndex], spotIndex) - 1 // Do not count yourself twice!
 
 		if section.RowIndex < rowsCount {
+			fmt.Printf("Current row %d | Spot %d | Counting rolls on row %d\n", section.Rows[currentRowIndex].Number, spotIndex, section.Rows[bottomRowIndex].Number)
 			surroundingRolls += p.countRolls(section.Rows[bottomRowIndex], spotIndex)
 		}
 
@@ -86,7 +90,10 @@ func (p *SectionsProcessor) countAccessibleRolls(
 	return accessibleRolls
 }
 
-func (p *SectionsProcessor) countRolls(row abstractions.Row, spotIndex int) uint {
+func (p *SectionsProcessor) countRolls(
+	row abstractions.Row,
+	spotIndex int,
+) uint {
 	spotsCount := len(row.Spots)
 	rollsCount := uint(0)
 
@@ -101,5 +108,5 @@ func (p *SectionsProcessor) countRolls(row abstractions.Row, spotIndex int) uint
 		}
 	}
 
-	return uint(rollsCount)
+	return rollsCount
 }

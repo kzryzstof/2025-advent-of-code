@@ -10,5 +10,6 @@ const (
 )
 
 type Row struct {
-	Spots []Spot
+	Number int
+	Spots  []Spot
 }

@@ -52,44 +52,40 @@ func (p *SectionsParser) Start() {
 
 		section := abstractions.Section{Rows: make([]abstractions.Row, 3), RowIndex: 1}
 
+		analysisStarted := false
+		rowIndexToFill := 1
+
 		for scanner.Scan() {
 			line := scanner.Text()
 
-			/* Initializes the three rows with the spots upfront */
-			currentRowIndex := 0
-			rowToAnalyze := -1
-
-			if p.rowsCount == 0 && len(section.Rows[0].Spots) == 0 {
-				section.Rows[0] = abstractions.Row{Spots: make([]abstractions.Spot, len(line))}
-				section.Rows[1] = abstractions.Row{Spots: make([]abstractions.Spot, len(line))}
-				section.Rows[2] = abstractions.Row{Spots: make([]abstractions.Spot, len(line))}
-				currentRowIndex = 1
+			if p.rowsCount == 0 {
+				p.allocateRows(section, line)
+				/* We start filling the second row, the first one being empty here */
+				/* The analysis cannot start yet since the row below is not filled yet */
 			} else if p.rowsCount == 1 {
-				currentRowIndex = 2
-				rowToAnalyze = 1
+				/* No copy at this moment */
+				/* From now on, the second row will be the one to be filled */
+				rowIndexToFill = 2
+				/* The analysis can start now */
+				analysisStarted = true
 			} else {
-				/* Copies the second row to the first one */
-				for spotIndex, spot := range section.Rows[1].Spots {
-					section.Rows[0].Spots[spotIndex] = spot
-				}
-				/* Copies the third row to the second one */
-				for spotIndex, spot := range section.Rows[2].Spots {
-					section.Rows[1].Spots[spotIndex] = spot
-				}
-				currentRowIndex = 2
-				rowToAnalyze = 1
+				/* Copies the second row to the first one, and the third to the second one*/
+				p.copyRow(section, 1, 0)
+				p.copyRow(section, 2, 1)
 			}
 
 			/* Parses the current spots */
 			for spotIndex, spot := range line {
-				section.Rows[currentRowIndex].Spots[spotIndex] = abstractions.Spot(spot)
+				section.Rows[rowIndexToFill].Spots[spotIndex] = abstractions.Spot(spot)
 			}
+
+			section.Rows[rowIndexToFill].Number = p.rowsCount + 1
 
 			p.rowsCount++
 
 			/* Sends the section for analysis */
-			if rowToAnalyze != -1 {
-				section.RowIndex = rowToAnalyze
+			if analysisStarted {
+				section.RowIndex = 1
 				p.sectionsChannel <- section
 			}
 		}
@@ -105,6 +101,27 @@ func (p *SectionsParser) Start() {
 
 		close(p.sectionsChannel)
 	}()
+}
+
+func (p *SectionsParser) copyRow(
+	section abstractions.Section,
+	fromRowIndex uint,
+	toRowIndex uint,
+) {
+	section.Rows[toRowIndex].Number = section.Rows[fromRowIndex].Number
+
+	for spotIndex, spot := range section.Rows[fromRowIndex].Spots {
+		section.Rows[toRowIndex].Spots[spotIndex] = spot
+	}
+}
+
+func (p *SectionsParser) allocateRows(
+	section abstractions.Section,
+	line string,
+) {
+	section.Rows[0] = abstractions.Row{Number: 0, Spots: make([]abstractions.Spot, len(line))}
+	section.Rows[1] = abstractions.Row{Number: 1, Spots: make([]abstractions.Spot, len(line))}
+	section.Rows[2] = abstractions.Row{Number: 2, Spots: make([]abstractions.Spot, len(line))}
 }
 
 func (p *SectionsParser) Sections() <-chan abstractions.Section {

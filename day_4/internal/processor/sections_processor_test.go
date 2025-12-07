@@ -34,6 +34,15 @@ func TestSectionsProcessor(t *testing.T) {
 		   @.@.@@@.@.
 		*/
 		{
+			name: "Row 0",
+			rows: []abstractions.Row{
+				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
+				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
+			},
+			rowIndex:                0,
+			expectedAccessibleRolls: 5,
+		},
+		{
 			name: "Row 1",
 			rows: []abstractions.Row{
 				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty}},
