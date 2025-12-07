@@ -71,6 +71,9 @@ func (p Product) hasPattern(
 			return false
 		}
 	}
+
+	fmt.Printf("\t%q | Pattern %q found in product ID\n", p.Id, pattern)
+
 	return true
 }
 

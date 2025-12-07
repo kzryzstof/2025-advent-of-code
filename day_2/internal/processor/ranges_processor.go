@@ -2,6 +2,7 @@ package processor
 
 import (
 	"day_2/internal/abstractions"
+	"fmt"
 	"sync"
 )
 
@@ -43,7 +44,14 @@ func (p *RangesProcessor) Start() {
 func (p *RangesProcessor) monitor() {
 
 	for r := range p.rangesChannel.Ranges() {
+		fmt.Printf("Processing range: %s to %s\n", r.From.Id, r.To.Id)
+
 		invalidProductIds := r.FindInvalidProductIds()
+
+		if len(invalidProductIds) == 0 {
+			fmt.Printf("\tNo invalid product IDs found\n")
+			continue
+		}
 
 		for _, invalidProductId := range invalidProductIds {
 			p.invalidProductIds = append(p.invalidProductIds, invalidProductId)
