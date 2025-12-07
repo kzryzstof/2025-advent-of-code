@@ -30,7 +30,7 @@ func main() {
 	waitGroup.Wait()
 
 	/* Prints the total number of consisting of the sum of all the product IDs */
-	fmt.Printf("Sum of all the invalid product IDs: %d\n", rangesProcessor.GetTotalProductId())
+	fmt.Printf("Sum of all the invalid product IDs found in %d ranges: %d\n", rangesParser.GetRangesCount(), rangesProcessor.GetTotalProductId())
 }
 
 func initializeParser(

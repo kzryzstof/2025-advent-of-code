@@ -14,6 +14,7 @@ type RangesParser struct {
 	inputFile     *os.File
 	syncWaitGroup *sync.WaitGroup
 	rangesChannel chan abstractions.Range
+	rangesCount   int
 }
 
 func NewParser(
@@ -32,7 +33,12 @@ func NewParser(
 		inputFile,
 		waitGroup,
 		make(chan abstractions.Range),
+		0,
 	}, nil
+}
+
+func (p *RangesParser) GetRangesCount() int {
+	return p.rangesCount
 }
 
 func (p *RangesParser) Start() {
@@ -66,6 +72,8 @@ func (p *RangesParser) Start() {
 					fmt.Printf("failed to create to product: %v", err)
 					os.Exit(1)
 				}
+
+				p.rangesCount++
 
 				p.rangesChannel <- abstractions.Range{From: *fromProd, To: *toProd}
 			}
