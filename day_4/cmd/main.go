@@ -5,8 +5,8 @@ import (
 	"os"
 	"sync"
 
-	"day_3/internal/parser"
-	"day_3/internal/processor"
+	"day_4/internal/parser"
+	"day_4/internal/processor"
 )
 
 func main() {
