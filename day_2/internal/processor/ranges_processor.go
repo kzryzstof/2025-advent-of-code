@@ -2,23 +2,30 @@ package processor
 
 import (
 	"day_2/internal/abstractions"
-	"fmt"
 	"sync"
 )
 
 type RangesProcessor struct {
-	rangesChannel abstractions.RangesChannel
-	syncWaitGroup *sync.WaitGroup
+	rangesChannel     abstractions.RangesChannel
+	syncWaitGroup     *sync.WaitGroup
+	invalidProductIds []int64
+	totalProductId    int64
 }
 
-func New(
+func NewProcessor(
 	rangesChannel abstractions.RangesChannel,
 	waitGroup *sync.WaitGroup,
 ) *RangesProcessor {
 	return &RangesProcessor{
 		rangesChannel,
 		waitGroup,
+		make([]int64, 0),
+		0,
 	}
+}
+
+func (p *RangesProcessor) GetTotalProductId() int64 {
+	return p.totalProductId
 }
 
 func (p *RangesProcessor) Start() {
@@ -36,6 +43,11 @@ func (p *RangesProcessor) Start() {
 func (p *RangesProcessor) monitor() {
 
 	for r := range p.rangesChannel.Ranges() {
-		fmt.Printf("Range: %v\n", r)
+		invalidProductIds := r.FindInvalidProductIds()
+
+		for _, invalidProductId := range invalidProductIds {
+			p.invalidProductIds = append(p.invalidProductIds, invalidProductId)
+			p.totalProductId += invalidProductId
+		}
 	}
 }

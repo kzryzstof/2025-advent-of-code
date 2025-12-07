@@ -29,15 +29,15 @@ func main() {
 
 	waitGroup.Wait()
 
-	/* Prints the number of times the dial ended up at position 0 */
-	//fmt.Printf("Number of the times the dial ended up at position 0: %d\n", dial.GetCount())
+	/* Prints the total number of consisting of the sum of all the product IDs */
+	fmt.Printf("Sum of all the invalid product IDs: %d\n", rangesProcessor.GetTotalProductId())
 }
 
 func initializeParser(
 	inputFile []string,
 	waitGroup *sync.WaitGroup,
 ) *parser.RangesParser {
-	rangesReader, err := parser.New(inputFile[0], waitGroup)
+	rangesReader, err := parser.NewParser(inputFile[0], waitGroup)
 
 	if err != nil {
 		os.Exit(1)
@@ -51,7 +51,7 @@ func initializeProcessor(
 	rangesParser *parser.RangesParser,
 	waitGroup *sync.WaitGroup,
 ) *processor.RangesProcessor {
-	rangesProcessor := processor.New(rangesParser, waitGroup)
+	rangesProcessor := processor.NewProcessor(rangesParser, waitGroup)
 	fmt.Printf("Ranges processor initialized: %v\n", rangesParser)
 	return rangesProcessor
 }

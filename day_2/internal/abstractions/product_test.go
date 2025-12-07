@@ -2,13 +2,18 @@ package abstractions
 
 import "testing"
 
-func TestProductId_IsValid(t *testing.T) {
+func TestProduct_IsValid(t *testing.T) {
 	tests := []struct {
 		name            string
 		productId       string
 		expectedIsValid bool
 	}{
 		/* Initial use cases */
+		{
+			name:            "Valid product id",
+			productId:       "101",
+			expectedIsValid: true,
+		},
 		{
 			name:            "Valid product id",
 			productId:       "10",
@@ -73,11 +78,11 @@ func TestProductId_IsValid(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			productId := ProductId(tt.productId)
-			actualIsValid := productId.IsValid()
+			product, _ := New(tt.productId)
+			actualIsValid := product.IsValid()
 
 			if actualIsValid != tt.expectedIsValid {
-				t.Errorf("Expected result %t, got %t", tt.expectedIsValid, actualIsValid)
+				t.Errorf("'%s' | Expected result %t, got %t", tt.productId, tt.expectedIsValid, actualIsValid)
 			}
 		})
 	}

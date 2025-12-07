@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"day_2/internal/abstractions"
@@ -15,7 +16,7 @@ type RangesParser struct {
 	rangesChannel chan abstractions.Range
 }
 
-func New(
+func NewParser(
 	filePath string,
 	waitGroup *sync.WaitGroup,
 ) (*RangesParser, error) {
@@ -47,8 +48,27 @@ func (p *RangesParser) Start() {
 		for scanner.Scan() {
 			line := scanner.Text()
 
-			fmt.Println(line)
-			//p.rangesChannel <- rotation
+			for _, rangeStr := range strings.Split(line, ",") {
+				productIds := strings.Split(rangeStr, "-")
+
+				if len(productIds) != 2 {
+					fmt.Printf("invalid range: %s", rangeStr)
+					os.Exit(1)
+				}
+
+				fromProd, err := abstractions.NewProduct(productIds[0])
+				if err != nil {
+					fmt.Printf("failed to create from product: %v", err)
+					os.Exit(1)
+				}
+				toProd, err := abstractions.NewProduct(productIds[1])
+				if err != nil {
+					fmt.Printf("failed to create to product: %v", err)
+					os.Exit(1)
+				}
+
+				p.rangesChannel <- abstractions.Range{From: *fromProd, To: *toProd}
+			}
 		}
 
 		if err := scanner.Err(); err != nil {
