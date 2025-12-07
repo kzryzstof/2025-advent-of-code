@@ -64,7 +64,7 @@ func (p *BanksParser) Start() {
 					os.Exit(1)
 				}
 
-				batteries = append(batteries, abstractions.Battery{Rating: abstractions.JotageRating(batteryVoltageRatingInt)})
+				batteries = append(batteries, abstractions.Battery{Votalge: abstractions.VoltageRating(batteryVoltageRatingInt)})
 			}
 
 			p.banksChannel <- abstractions.Bank{Batteries: batteries}

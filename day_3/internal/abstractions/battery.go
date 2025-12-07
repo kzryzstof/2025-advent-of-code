@@ -1,8 +1,8 @@
 package abstractions
 
-type JotageRating uint8
+type VoltageRating uint
 
 type Battery struct {
-	Rating JotageRating
-	On     bool
+	Voltage VoltageRating
+	On      bool
 }
