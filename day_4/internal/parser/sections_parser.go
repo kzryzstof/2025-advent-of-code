@@ -59,7 +59,7 @@ func (p *SectionsParser) Start() {
 			line := scanner.Text()
 
 			if p.rowsCount == 0 {
-				p.allocateRows(section, line)
+				p.allocateRows(&section, line)
 				/* We start filling the second row, the first one being empty here */
 				/* The analysis cannot start yet since the row below is not filled yet */
 			} else if p.rowsCount == 1 {
@@ -70,8 +70,8 @@ func (p *SectionsParser) Start() {
 				analysisStarted = true
 			} else {
 				/* Copies the second row to the first one, and the third to the second one*/
-				p.copyRow(section, 1, 0)
-				p.copyRow(section, 2, 1)
+				p.copyRow(&section, 1, 0)
+				p.copyRow(&section, 2, 1)
 			}
 
 			/* Parses the current spots */
@@ -104,7 +104,7 @@ func (p *SectionsParser) Start() {
 }
 
 func (p *SectionsParser) copyRow(
-	section abstractions.Section,
+	section *abstractions.Section,
 	fromRowIndex uint,
 	toRowIndex uint,
 ) {
@@ -116,7 +116,7 @@ func (p *SectionsParser) copyRow(
 }
 
 func (p *SectionsParser) allocateRows(
-	section abstractions.Section,
+	section *abstractions.Section,
 	line string,
 ) {
 	section.Rows[0] = abstractions.Row{Number: 0, Spots: make([]abstractions.Spot, len(line))}
