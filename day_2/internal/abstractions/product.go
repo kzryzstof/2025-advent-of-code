@@ -78,6 +78,10 @@ func (p Product) checkHasPattern() bool {
 
 	idLength := len(p.Id)
 
+	if idLength == 1 {
+		return false
+	}
+
 	for _, patternLength := range p.getDivisors(idLength) {
 		if patternLength <= 0 || idLength%patternLength != 0 {
 			continue
