@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-func TestSectionsProcessor(t *testing.T) {
+func TestDepartmentProcessor_Analyze(t *testing.T) {
 	tests := []struct {
 		name                    string
 		rows                    []abstractions.Row
-		rowIndex                int
+		rowIndex                uint
 		expectedAccessibleRolls uint
 	}{
 		/* Documented use case with full pattern:
@@ -33,6 +33,11 @@ func TestSectionsProcessor(t *testing.T) {
 			rowIndex:                0,
 			expectedAccessibleRolls: 5,
 		},
+		/*
+		   ..@@.@@@@.		..xx.xxxx.
+		   @@@.@.@.@@		@@@.@.@.@@
+
+		*/
 		{
 			name: "Row 1",
 			rows: []abstractions.Row{
@@ -41,7 +46,7 @@ func TestSectionsProcessor(t *testing.T) {
 				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
 			},
 			rowIndex:                0,
-			expectedAccessibleRolls: 5,
+			expectedAccessibleRolls: 6,
 		},
 		{
 			name: "Row 2",
@@ -137,13 +142,12 @@ func TestSectionsProcessor(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			section := abstractions.Section{
-				Rows:     tt.rows,
-				RowIndex: tt.rowIndex,
+			section := abstractions.Department{
+				Rows: tt.rows,
 			}
 
 			processor := NewProcessor()
-			processor.Analyze(&section)
+			processor.Analyze(&section, tt.rowIndex)
 
 			actualAccessibleRolls := processor.GetTotalAccessibleRolls()
 			if actualAccessibleRolls != tt.expectedAccessibleRolls {

@@ -2,13 +2,14 @@
 
 This repository contains my solutions for the **Advent of Code 2025** programming puzzles, implemented in Go, a language I am currently learning.
 
-Each day lives in its own folder (`day_1`, `day_2`, `day_3`, …) with its own `go.mod`, a small command-line entrypoint under `cmd/`, and an `internal` package that holds the core logic.
+Each day lives in its own folder (`day_1`, `day_2`, `day_3`, `day_4`, …) with its own `go.mod`, a small command-line entrypoint under `cmd/`, and an `internal` package that holds the core logic.
 
 ## Structure
 
 - `day_1/` – solution for Day 1 (dial rotations). See `day_1/README.md` for full details.
 - `day_2/` – solution for Day 2 (invalid product ID ranges). See `day_2/README.md` for full details.
 - `day_3/` – solution for Day 3 (battery banks, multi-digit greedy voltage). See `day_3/README.md` for full details.
+- `day_4/` – solution for Day 4 (accessible rolls in a 2D grid using a 3-row sliding window). See `day_4/README.md` for full details.
 
 Each day generally includes:
 
@@ -32,4 +33,4 @@ cd day_1
 go run ./cmd input.txt
 ```
 
-Replace `day_1` with `day_2`, `day_3`, etc., to run other days.
+Replace `day_1` with `day_2`, `day_3`, `day_4`, etc., to run other days.

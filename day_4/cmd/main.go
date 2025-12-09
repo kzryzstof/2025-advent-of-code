@@ -16,31 +16,41 @@ func main() {
 	sectionsProcessor := initializeProcessor()
 
 	/* Reads each row and analyzes it */
-	section, hasRow := sectionsParser.ReadNextRow()
+	accessibleRollsFound := true
+	rowsCount := sectionsParser.GetRowsCount()
+	loopNumber := 1
 
-	for hasRow {
-		sectionsProcessor.Analyze(section)
-		section, hasRow = sectionsParser.ReadNextRow()
+	for accessibleRollsFound {
+		/* Keeps looping until no more accessible roll is found */
+		accessibleRollsFound = false
+		fmt.Printf("LOOP %d...\n", loopNumber)
+		for rowIndex := uint(0); rowIndex < rowsCount; rowIndex++ {
+
+			if sectionsProcessor.Analyze(sectionsParser.Section, rowIndex) {
+				accessibleRollsFound = true
+			}
+		}
+		loopNumber++
 	}
 
 	/* Prints the total number of accessible rolls */
-	fmt.Printf("Number of accessible rolls in the %d row of the department: %d\n", sectionsParser.GetRowsCount(), sectionsProcessor.GetTotalAccessibleRolls())
+	fmt.Printf("Number of accessible rolls in the %d row of the department: %d\n", rowsCount, sectionsProcessor.GetTotalAccessibleRolls())
 }
 
 func initializeParser(
 	inputFile []string,
-) *parser.SectionsParser {
-	parser, err := parser.NewParser(inputFile[0])
+) *parser.DepartmentParser {
+	sectionParser, err := parser.NewParser(inputFile[0])
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Section parser initialized: %v\n", parser)
-	return parser
+	fmt.Printf("Section parser initialized: %v\n", sectionParser)
+	return sectionParser
 }
 
-func initializeProcessor() *processor.SectionsProcessor {
+func initializeProcessor() *processor.DepartmentProcessor {
 	sectionsProcessor := processor.NewProcessor()
 	fmt.Printf("Section processor initialized: %v\n", sectionsProcessor)
 	return sectionsProcessor

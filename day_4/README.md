@@ -1,8 +1,11 @@
-# Day 4 – Accessible Rolls (Part 1)
+# Day 4 – Accessible Rolls (Part 1 & Part 2)
 
-The Day 4 Part 1 solution is implemented in Go in the `day_4` folder. It reads a 2D map of rolls arranged in rows and sections, determines which rolls are **accessible enough** (i.e., not too crowded by neighboring rolls), and counts how many such rolls there are across the whole map.
+The Day 4 solutions are implemented in Go in the `day_4` folder. They read a 2D map of rolls arranged in rows and sections, determine which rolls are **accessible enough** (i.e., not too crowded by neighboring rolls), and aggregate those counts across the whole map.
 
-## Problem model (Part 1)
+- **Part 1** counts how many individual rolls are accessible.
+- **Part 2** is built on the same core accessibility logic, but changes how the final result is interpreted/aggregated (for example, using the same detection logic with a different winning condition).
+
+## Problem model (shared by Part 1 & Part 2)
 
 - The input file contains a **grid of spots**, one **row per line**.
 - Each character in a line represents a **spot**:
@@ -22,11 +25,29 @@ More precisely, for each `@` in the row being analyzed:
 4. Subtract `1` for the roll itself (so it isn’t double-counted in the current row).
 5. If the resulting count of **surrounding rolls** is `< 4`, the roll is counted as **accessible**.
 
-The final answer for Part 1 is the **total number of accessible rolls** across all analyzed rows.
+---
 
-## High-level flow
+## Part 1 – Total number of accessible rolls
 
-The executable entrypoint is `day_4/cmd/main.go`. For Part 1, the flow is:
+For Part 1, the goal is to compute the **total number of accessible rolls** across all rows that can be analyzed (i.e., all rows that appear as the middle row in a full 3-row window, plus the appropriate handling of the final rows).
+
+At the end, the program prints that total count.
+
+## Part 2 – Same accessibility logic, different aggregate result
+
+Part 2 reuses the exact same low-level definition of an **accessible** roll and the same 3-row sliding window, but changes what you do with the result. Examples of such Part 2-style changes (depending on the specific puzzle variant) include:
+
+- Focusing on **specific rows** or regions instead of the entire map.
+- Applying the accessibility logic under a slightly different threshold or rule while keeping the same code structure.
+- Combining the count of accessible rolls with other derived metrics.
+
+In the current code base, the accessibility detection ("is this roll accessible?") and row/section handling are centralized in `SectionsProcessor` and `SectionsParser`, so both Part 1 and Part 2 share the same mechanics and differ only in how the final quantity is interpreted or used.
+
+---
+
+## High-level flow (applies to both parts)
+
+The executable entrypoint is `day_4/cmd/main.go`. The overall flow is:
 
 1. **Read the input file path** from the command‑line arguments.
 2. Create a `SectionsParser` that reads the file row by row and builds a sliding window of **three rows**.
@@ -34,7 +55,7 @@ The executable entrypoint is `day_4/cmd/main.go`. For Part 1, the flow is:
 4. Repeatedly:
    - Ask the parser for the **next section** via `ReadNextRow()`.
    - Pass that section to `SectionsProcessor.Analyze()`.
-5. After all rows have been processed, print the final total of accessible rolls.
+5. After all rows have been processed, print the final total of accessible rolls (Part 1) or the adjusted aggregate for Part 2.
 
 ## Packages and responsibilities
 
@@ -43,7 +64,7 @@ The executable entrypoint is `day_4/cmd/main.go`. For Part 1, the flow is:
   - Reads the input path from `os.Args`.
   - Creates the `SectionsParser` and `SectionsProcessor`.
   - Loops over sections until the parser reports there are no more rows to analyze.
-  - Prints the total number of accessible rolls at the end.
+  - Prints the final result at the end.
 
 - `internal/parser`
   - `SectionsParser` opens the input file and holds:
@@ -80,7 +101,7 @@ The executable entrypoint is `day_4/cmd/main.go`. For Part 1, the flow is:
     - Logs which row is being processed.
     - Calls `countAccessibleRolls(section)`.
     - Adds the result to `rollsAccessed`.
-  - `countAccessibleRolls(section *Section)` implements the core Part 1 accessibility logic:
+  - `countAccessibleRolls(section *Section)` implements the core accessibility logic:
     - The `Section` contains three rows, and `RowIndex` tells which row is currently under analysis (initially 1, later 1 or 2 at the end).
     - For each spot in the analyzed row:
       - Skip if it’s not a roll (`@`).
@@ -101,10 +122,10 @@ The executable entrypoint is `day_4/cmd/main.go`. For Part 1, the flow is:
     - `Number` – the 1-based index of the row in the original file.
     - `Spots` – the sequence of `Spot` values for that row.
   - `Section` – the sliding window of three rows:
-    - `Rows []Row` – always length 3 for Part 1.
+    - `Rows []Row` – always length 3 for this puzzle.
     - `RowIndex int` – which row in `Rows` is currently being analyzed.
 
-## Running Day 4 Part 1
+## Running Day 4
 
 From the `day_4` directory you can run the solution with:
 
@@ -119,4 +140,3 @@ or directly with Go:
 cd day_4
 go run ./cmd input.txt
 ```
-
