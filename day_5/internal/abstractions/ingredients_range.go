@@ -1,6 +1,6 @@
 package abstractions
 
-type IngredientId uint
+type IngredientId uint64
 
 type IngredientRange struct {
 	From IngredientId

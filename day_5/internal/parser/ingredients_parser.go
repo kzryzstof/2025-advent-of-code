@@ -83,33 +83,37 @@ func readIngredients(
 					return nil, nil, fmt.Errorf("invalid range: %s", line)
 				}
 
-				from, err := strconv.Atoi(rangesSlice[0])
+				from, err := strconv.ParseUint(rangesSlice[0], 10, 64)
 
 				if err != nil {
 					return nil, nil, err
 				}
 
-				to, err := strconv.Atoi(rangesSlice[1])
+				to, err := strconv.ParseUint(rangesSlice[1], 10, 64)
 
 				if err != nil {
 					return nil, nil, err
+				}
+
+				if from > to {
+					return nil, nil, fmt.Errorf("invalid range: %s", line)
 				}
 
 				freshIngredients.Ranges = append(freshIngredients.Ranges, abstractions.IngredientRange{
-					From: abstractions.IngredientId(uint(from)),
-					To:   abstractions.IngredientId(uint(to)),
+					From: abstractions.IngredientId(from),
+					To:   abstractions.IngredientId(to),
 				})
 				break
 			}
 		case availableIngredientsSection:
 			{
-				ingredientId, err := strconv.Atoi(line)
+				ingredientId, err := strconv.ParseUint(line, 10, 64)
 
 				if err != nil {
 					return nil, nil, err
 				}
 
-				availableIngredients.Ids = append(availableIngredients.Ids, abstractions.IngredientId(uint(ingredientId)))
+				availableIngredients.Ids = append(availableIngredients.Ids, abstractions.IngredientId(ingredientId))
 				break
 			}
 		}

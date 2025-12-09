@@ -12,7 +12,12 @@ func main() {
 	fmt.Println(inputFile)
 
 	/* 	Initializes the parser and processor */
-	initializeParser(inputFile)
+	ingredientsParser := initializeParser(inputFile)
+
+	for _, ingredientId := range ingredientsParser.Available.Ids {
+		fmt.Printf("%d ", ingredientId)
+	}
+
 	//sectionsProcessor := initializeProcessor()
 
 	///* Reads each row and analyzes it */
