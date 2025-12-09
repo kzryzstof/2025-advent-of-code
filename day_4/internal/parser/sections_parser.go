@@ -62,7 +62,7 @@ func (p *SectionsParser) readRow() bool {
 	eof := p.scanner.Scan()
 
 	if !eof {
-		/* No more rows but we still have the last row to analyze */
+		/* No more rows, but we still have the last row to analyze */
 		if p.section.RowIndex == 2 {
 			return false
 		}
