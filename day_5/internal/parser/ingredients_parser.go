@@ -99,10 +99,15 @@ func readIngredients(
 					return nil, nil, fmt.Errorf("invalid range: %s", line)
 				}
 
-				freshIngredients.Ranges = append(freshIngredients.Ranges, abstractions.IngredientRange{
-					From: abstractions.IngredientId(from),
-					To:   abstractions.IngredientId(to),
-				})
+				fromIngredientId := abstractions.IngredientId(from)
+				toIngredientId := abstractions.IngredientId(to)
+
+				newRange := abstractions.IngredientRange{
+					From: fromIngredientId,
+					To:   toIngredientId,
+				}
+
+				freshIngredients.Ranges = append(freshIngredients.Ranges, newRange)
 				break
 			}
 		case availableIngredientsSection:
@@ -113,7 +118,9 @@ func readIngredients(
 					return nil, nil, err
 				}
 
-				availableIngredients.Ids = append(availableIngredients.Ids, abstractions.IngredientId(ingredientId))
+				availableIngredientId := abstractions.IngredientId(ingredientId)
+
+				availableIngredients.Ids = append(availableIngredients.Ids, availableIngredientId)
 				break
 			}
 		}
