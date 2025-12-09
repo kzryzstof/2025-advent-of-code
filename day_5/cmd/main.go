@@ -1,8 +1,8 @@
 package main
 
 import (
-	"day_4/internal/parser"
-	"day_4/internal/processor"
+	"day_5/internal/parser"
+	"day_5/internal/processor"
 	"fmt"
 	"os"
 )
