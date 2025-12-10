@@ -1,7 +1,5 @@
 package abstractions
 
-import "fmt"
-
 type IngredientId uint64
 
 type IngredientRange struct {
@@ -95,8 +93,6 @@ func (f *FreshIngredients) Compact() *FreshIngredients {
 					excludedRanges = append(excludedRanges, otherRange)
 				}
 			}
-
-			fmt.Printf("Updated ranges %d\n", len(newRanges))
 		}
 
 		for _, outdatedRange := range excludedRanges {
