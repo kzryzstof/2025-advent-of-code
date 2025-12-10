@@ -100,6 +100,23 @@ func TestFreshIngredients_Compact(t *testing.T) {
 				{From: 1, To: 6},
 			},
 		},
+		{
+			name: "documented use case",
+			input: FreshIngredients{
+				Ranges: []IngredientRange{
+					{From: 3, To: 5},
+					{From: 10, To: 14},
+					{From: 16, To: 20},
+					{From: 12, To: 18},
+				},
+			},
+			// if Compact should merge touching ranges, expect [1,6],
+			// otherwise expect two ranges; adjust accordingly
+			expected: []IngredientRange{
+				{From: 3, To: 5},
+				{From: 10, To: 20},
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -192,9 +209,19 @@ func TestFreshIngredients_Count(t *testing.T) {
 					{From: 2, To: 5},
 				},
 			},
-			// if Compact should merge touching ranges, expect [1,6],
-			// otherwise expect two ranges; adjust accordingly
 			expected: 10,
+		},
+		{
+			name: "documented use case",
+			input: FreshIngredients{
+				Ranges: []IngredientRange{
+					{From: 3, To: 5},
+					{From: 10, To: 14},
+					{From: 16, To: 20},
+					{From: 12, To: 18},
+				},
+			},
+			expected: 14,
 		},
 	}
 
