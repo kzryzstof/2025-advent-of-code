@@ -10,17 +10,15 @@ func main() {
 	inputFile := os.Args[1:]
 	fmt.Println(inputFile)
 
-	/* 	Initializes the parser and processor */
+	//	336790092076631 --> Too high
+
+	/* 	Initializes the parser */
 	ingredientsParser := initializeParser(inputFile)
 
-	/* Founds out all the fresh ingredients */
-	freshIngredientsCount := 0
+	/* Compacts the ranges */
+	compactedFreshIngredients := ingredientsParser.Fresh.Compact()
 
-	for _, ingredientId := range ingredientsParser.Available.Ids {
-		if ingredientsParser.Fresh.IsFresh(ingredientId) {
-			freshIngredientsCount++
-		}
-	}
+	freshIngredientsCount := compactedFreshIngredients.Count()
 
 	/* Prints the result */
 	fmt.Printf("Number of fresh ingredients: %d\n", freshIngredientsCount)

@@ -9,11 +9,6 @@ import (
 	"strings"
 )
 
-const (
-	freshIngredientsSection = iota
-	availableIngredientsSection
-)
-
 type IngredientsParser struct {
 	Fresh     *abstractions.FreshIngredients
 	Available *abstractions.AvailableIngredients
@@ -47,7 +42,7 @@ func readIngredients(
 	}
 
 	freshIngredients := abstractions.FreshIngredients{
-		Ranges: make([]abstractions.IngredientRange, 0, 1000),
+		Ranges: make([]abstractions.IngredientRange, 0, 500),
 	}
 
 	availableIngredients := abstractions.AvailableIngredients{
@@ -61,8 +56,6 @@ func readIngredients(
 		}
 	}(inputFile)
 
-	processingSection := freshIngredientsSection
-
 	scanner := bufio.NewScanner(inputFile)
 
 	for scanner.Scan() {
@@ -70,61 +63,41 @@ func readIngredients(
 		line := scanner.Text()
 
 		if strings.Trim(line, " \n\t") == "" {
-			processingSection = availableIngredientsSection
-			continue
+			break
 		}
 
-		switch processingSection {
-		case freshIngredientsSection:
-			{
-				rangesSlice := strings.Split(line, "-")
+		rangesSlice := strings.Split(line, "-")
 
-				if len(rangesSlice) != 2 {
-					return nil, nil, fmt.Errorf("invalid range: %s", line)
-				}
-
-				from, err := strconv.ParseUint(rangesSlice[0], 10, 64)
-
-				if err != nil {
-					return nil, nil, err
-				}
-
-				to, err := strconv.ParseUint(rangesSlice[1], 10, 64)
-
-				if err != nil {
-					return nil, nil, err
-				}
-
-				if from > to {
-					return nil, nil, fmt.Errorf("invalid range: %s", line)
-				}
-
-				fromIngredientId := abstractions.IngredientId(from)
-				toIngredientId := abstractions.IngredientId(to)
-
-				newRange := abstractions.IngredientRange{
-					From: fromIngredientId,
-					To:   toIngredientId,
-				}
-
-				freshIngredients.Ranges = append(freshIngredients.Ranges, newRange)
-				break
-			}
-		case availableIngredientsSection:
-			{
-				ingredientId, err := strconv.ParseUint(line, 10, 64)
-
-				if err != nil {
-					return nil, nil, err
-				}
-
-				availableIngredientId := abstractions.IngredientId(ingredientId)
-
-				availableIngredients.Ids = append(availableIngredients.Ids, availableIngredientId)
-				break
-			}
+		if len(rangesSlice) != 2 {
+			return nil, nil, fmt.Errorf("invalid range: %s", line)
 		}
+
+		from, err := strconv.ParseUint(rangesSlice[0], 10, 64)
+
+		if err != nil {
+			return nil, nil, err
+		}
+
+		to, err := strconv.ParseUint(rangesSlice[1], 10, 64)
+
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if from > to {
+			return nil, nil, fmt.Errorf("invalid range: %s", line)
+		}
+
+		fromIngredientId := abstractions.IngredientId(from)
+		toIngredientId := abstractions.IngredientId(to)
+
+		newRange := abstractions.IngredientRange{
+			From: fromIngredientId,
+			To:   toIngredientId,
+		}
+
+		freshIngredients.Ranges = append(freshIngredients.Ranges, newRange)
 	}
 
-	return &freshIngredients, &availableIngredients, nil
+	return &abstractions.FreshIngredients{Ranges: freshIngredients.Ranges}, &availableIngredients, nil
 }
