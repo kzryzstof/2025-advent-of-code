@@ -14,16 +14,12 @@ func (r *IngredientRange) Replace(ingredientRange IngredientRange) {
 	r.To = ingredientRange.To
 }
 
-func (r IngredientRange) IsIncluded(id IngredientId) bool {
+func (r *IngredientRange) IsIncluded(id IngredientId) bool {
 	return id >= r.From && id <= r.To
 }
 
-func (r IngredientRange) Count() uint64 {
+func (r *IngredientRange) Count() uint64 {
 	return uint64(r.To - r.From + 1)
-}
-
-type AvailableIngredients struct {
-	Ids []IngredientId
 }
 
 type FreshIngredients struct {
@@ -89,13 +85,11 @@ func (f *FreshIngredients) Compact() *FreshIngredients {
 					excludedRanges = append(excludedRanges, otherRange)
 				} else if sourceRange.From < otherRange.To && sourceRange.To > otherRange.To {
 					//	Source range overlaps the other range partially from the right: extend the other range
-					fmt.Printf("Overlapping ranges\n")
 					newRanges = append(newRanges, IngredientRange{From: otherRange.From, To: sourceRange.To})
 					excludedRanges = append(excludedRanges, sourceRange)
 					excludedRanges = append(excludedRanges, otherRange)
 				} else if sourceRange.To+1 == otherRange.From {
-					//	Source range touch the other range from the right: extend the other range
-					fmt.Printf("Overlapping ranges\n")
+					//	Source range touches the other range from the right: extend the other range
 					newRanges = append(newRanges, IngredientRange{From: sourceRange.From, To: otherRange.To})
 					excludedRanges = append(excludedRanges, sourceRange)
 					excludedRanges = append(excludedRanges, otherRange)
@@ -106,12 +100,11 @@ func (f *FreshIngredients) Compact() *FreshIngredients {
 		}
 
 		for _, outdatedRange := range excludedRanges {
-			copyRange = removeAt(copyRange, outdatedRange)
+			removeAt(copyRange, outdatedRange)
 		}
 
 		for _, newRange := range newRanges {
-			updated := append(*copyRange, newRange)
-			*copyRange = updated
+			*copyRange = append(*copyRange, newRange)
 		}
 
 		compactingDone = len(newRanges) == 0 && len(excludedRanges) == 0
@@ -136,14 +129,13 @@ func exists(
 func removeAt(
 	ranges *[]IngredientRange,
 	removedRange IngredientRange,
-) *[]IngredientRange {
+) {
 
 	isFound, index := exists(ranges, removedRange)
 
 	if !isFound || index < 0 || index >= len(*ranges) {
-		return ranges
+		return
 	}
 
-	updated := append((*ranges)[:index], (*ranges)[index+1:]...)
-	return &updated
+	*ranges = append((*ranges)[:index], (*ranges)[index+1:]...)
 }

@@ -10,15 +10,14 @@ import (
 )
 
 type IngredientsParser struct {
-	Fresh     *abstractions.FreshIngredients
-	Available *abstractions.AvailableIngredients
+	Fresh *abstractions.FreshIngredients
 }
 
 func NewParser(
 	filePath string,
 ) (*IngredientsParser, error) {
 
-	freshIngredients, availableIngredients, err := readIngredients(filePath)
+	freshIngredients, err := readIngredients(filePath)
 
 	if err != nil {
 		return nil, err
@@ -26,27 +25,22 @@ func NewParser(
 
 	return &IngredientsParser{
 		freshIngredients,
-		availableIngredients,
 	}, nil
 }
 
 func readIngredients(
 	filePath string,
-) (*abstractions.FreshIngredients, *abstractions.AvailableIngredients, error) {
+) (*abstractions.FreshIngredients, error) {
 
 	inputFile, err := os.OpenFile(filePath, os.O_RDONLY, 0644)
 
 	if err != nil {
 		fmt.Printf("Error opening file: %v\n", err)
-		return nil, nil, err
+		return nil, err
 	}
 
 	freshIngredients := abstractions.FreshIngredients{
 		Ranges: make([]abstractions.IngredientRange, 0, 500),
-	}
-
-	availableIngredients := abstractions.AvailableIngredients{
-		Ids: make([]abstractions.IngredientId, 0, 2500),
 	}
 
 	defer func(inputFile *os.File) {
@@ -69,23 +63,23 @@ func readIngredients(
 		rangesSlice := strings.Split(line, "-")
 
 		if len(rangesSlice) != 2 {
-			return nil, nil, fmt.Errorf("invalid range: %s", line)
+			return nil, fmt.Errorf("invalid range: %s", line)
 		}
 
 		from, err := strconv.ParseUint(rangesSlice[0], 10, 64)
 
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		to, err := strconv.ParseUint(rangesSlice[1], 10, 64)
 
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		if from > to {
-			return nil, nil, fmt.Errorf("invalid range: %s", line)
+			return nil, fmt.Errorf("invalid range: %s", line)
 		}
 
 		fromIngredientId := abstractions.IngredientId(from)
@@ -99,5 +93,5 @@ func readIngredients(
 		freshIngredients.Ranges = append(freshIngredients.Ranges, newRange)
 	}
 
-	return &abstractions.FreshIngredients{Ranges: freshIngredients.Ranges}, &availableIngredients, nil
+	return &abstractions.FreshIngredients{Ranges: freshIngredients.Ranges}, nil
 }

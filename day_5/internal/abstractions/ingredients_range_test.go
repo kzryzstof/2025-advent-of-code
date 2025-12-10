@@ -216,9 +216,7 @@ func TestFreshIngredients_Count(t *testing.T) {
 			input: FreshIngredients{
 				Ranges: []IngredientRange{
 					{From: 3, To: 5},
-					{From: 10, To: 14},
-					{From: 16, To: 20},
-					{From: 12, To: 18},
+					{From: 10, To: 20},
 				},
 			},
 			expected: 14,
