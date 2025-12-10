@@ -21,6 +21,17 @@ func TestFreshIngredients_Compact(t *testing.T) {
 			expected: []IngredientRange{},
 		},
 		{
+			name: "one item range",
+			input: FreshIngredients{
+				Ranges: []IngredientRange{
+					{From: 1, To: 1},
+				},
+			},
+			expected: []IngredientRange{
+				{From: 1, To: 1},
+			},
+		},
+		{
 			name: "single range",
 			input: FreshIngredients{
 				Ranges: []IngredientRange{
@@ -151,6 +162,15 @@ func TestFreshIngredients_Count(t *testing.T) {
 				Ranges: []IngredientRange{},
 			},
 			expected: 0,
+		},
+		{
+			name: "one item range",
+			input: FreshIngredients{
+				Ranges: []IngredientRange{
+					{From: 1, To: 1},
+				},
+			},
+			expected: 1,
 		},
 		{
 			name: "single range",
