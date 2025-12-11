@@ -1,7 +1,5 @@
 package abstractions
 
-import "fmt"
-
 type IngredientId uint64
 
 type IngredientRange struct {
@@ -55,7 +53,9 @@ func (f *FreshIngredients) Compact() *FreshIngredients {
 
 		rangesCount := len(*copyRange)
 
+		/* Lists all the new ranges resulting from the merging of overlapping ranges */
 		newRanges := make([]IngredientRange, 0, rangesCount)
+		/* Lists all the ranges that must be removed after having merged ranges together */
 		excludedRanges := make([]IngredientRange, 0, rangesCount)
 
 		for sourceIndex := 0; sourceIndex < rangesCount; sourceIndex++ {
@@ -63,42 +63,44 @@ func (f *FreshIngredients) Compact() *FreshIngredients {
 			sourceRange := (*copyRange)[sourceIndex]
 
 			if isFound, _ := exists(&excludedRanges, sourceRange); isFound == true {
+				/* Do not process a range that has already been excluded */
 				continue
 			}
 
+			/* For each range, check if it overlaps with any other range */
 			for otherIndex := 0; otherIndex < rangesCount; otherIndex++ {
 
 				if sourceIndex == otherIndex {
+					/* Do not process a range against itself */
 					continue
 				}
 
 				otherRange := (*copyRange)[otherIndex]
 
 				if sourceRange.From <= otherRange.From && sourceRange.To >= otherRange.To {
-					//	Source range overlaps the other range entirely: we just remove the other range.
+					/* Source range overlaps the other range entirely: we just remove the other range */
 					excludedRanges = append(excludedRanges, otherRange)
 					break
 				} else if sourceRange.From < otherRange.From && sourceRange.To > otherRange.From {
-					//	Source range overlaps the other range partially from the left: extend the source range
+					/* Source range overlaps the other range partially from the left: extend the source range */
 					newRanges = append(newRanges, IngredientRange{From: sourceRange.From, To: otherRange.To})
 					excludedRanges = append(excludedRanges, sourceRange)
 					excludedRanges = append(excludedRanges, otherRange)
 				} else if sourceRange.From < otherRange.To && sourceRange.To > otherRange.To {
-					//	Source range overlaps the other range partially from the right: extend the other range
+					/* Source range overlaps the other range partially from the right: extend the other range */
 					newRanges = append(newRanges, IngredientRange{From: otherRange.From, To: sourceRange.To})
 					excludedRanges = append(excludedRanges, sourceRange)
 					excludedRanges = append(excludedRanges, otherRange)
-				} else if sourceRange.To+1 == otherRange.From {
+				} else if sourceRange.To == otherRange.From || sourceRange.To+1 == otherRange.From {
 					//	Source range touches the other range from the right: extend the other range
 					newRanges = append(newRanges, IngredientRange{From: sourceRange.From, To: otherRange.To})
 					excludedRanges = append(excludedRanges, sourceRange)
 					excludedRanges = append(excludedRanges, otherRange)
 				}
 			}
-
-			fmt.Printf("Updated ranges %d\n", len(newRanges))
 		}
 
+		/* Updates the list of ranges by removing outdated ranges and adding new ones */
 		for _, outdatedRange := range excludedRanges {
 			removeAt(copyRange, outdatedRange)
 		}
@@ -107,6 +109,7 @@ func (f *FreshIngredients) Compact() *FreshIngredients {
 			*copyRange = append(*copyRange, newRange)
 		}
 
+		/* Checks if we have finished compacting the list of ranges: if no range has been either added or removed, we are done*/
 		compactingDone = len(newRanges) == 0 && len(excludedRanges) == 0
 	}
 

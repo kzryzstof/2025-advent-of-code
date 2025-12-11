@@ -128,6 +128,18 @@ func TestFreshIngredients_Compact(t *testing.T) {
 				{From: 10, To: 20},
 			},
 		},
+		{
+			name: "other",
+			input: FreshIngredients{
+				Ranges: []IngredientRange{
+					{From: 854928928779, To: 854928928779},
+					{From: 854928928779, To: 8566391540121},
+				},
+			},
+			expected: []IngredientRange{
+				{From: 854928928779, To: 8566391540121},
+			},
+		},
 	}
 
 	for _, tc := range tests {

@@ -10,8 +10,6 @@ func main() {
 	inputFile := os.Args[1:]
 	fmt.Println(inputFile)
 
-	//	336790092076631 --> Too high
-
 	/* 	Initializes the parser */
 	ingredientsParser := initializeParser(inputFile)
 
