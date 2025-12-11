@@ -11,26 +11,23 @@ func main() {
 	fmt.Println(inputFile)
 
 	/* 	Initializes the parser */
-	ingredientsParser := initializeParser(inputFile)
+	problemsParser := initializeParser(inputFile)
 
-	/* Compacts the ranges */
-	compactedFreshIngredients := ingredientsParser.Fresh.Compact()
-
-	freshIngredientsCount := compactedFreshIngredients.Count()
+	total := problemsParser.Problems.ComputeTotal()
 
 	/* Prints the result */
-	fmt.Printf("Number of fresh ingredients: %d\n", freshIngredientsCount)
+	fmt.Printf("Total = %d\n", total)
 }
 
 func initializeParser(
 	inputFile []string,
-) *parser.IngredientsParser {
-	ingredientsParser, err := parser.NewParser(inputFile[0])
+) *parser.ProblemsParser {
+	problemsParser, err := parser.NewParser(inputFile[0])
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Parser initialized: %v\n", ingredientsParser)
-	return ingredientsParser
+	fmt.Printf("Parser initialized: %v\n", problemsParser)
+	return problemsParser
 }
