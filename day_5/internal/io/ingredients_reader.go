@@ -1,36 +1,22 @@
-package parser
+package io
 
 import (
 	"bufio"
-	"day_5/internal/abstractions"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+
+	"day_5/internal/abstractions"
 )
 
-type IngredientsParser struct {
-	Fresh *abstractions.FreshIngredients
+type IngredientsReader struct {
+	inputFile *os.File
 }
 
-func NewParser(
+func NewReader(
 	filePath string,
-) (*IngredientsParser, error) {
-
-	freshIngredients, err := readIngredients(filePath)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &IngredientsParser{
-		freshIngredients,
-	}, nil
-}
-
-func readIngredients(
-	filePath string,
-) (*abstractions.FreshIngredients, error) {
+) (*IngredientsReader, error) {
 
 	inputFile, err := os.OpenFile(filePath, os.O_RDONLY, 0644)
 
@@ -39,18 +25,18 @@ func readIngredients(
 		return nil, err
 	}
 
+	return &IngredientsReader{
+		inputFile,
+	}, nil
+}
+
+func (r *IngredientsReader) Read() (*abstractions.FreshIngredients, error) {
+
 	freshIngredients := abstractions.FreshIngredients{
 		Ranges: make([]abstractions.IngredientRange, 0, 500),
 	}
 
-	defer func(inputFile *os.File) {
-		err := inputFile.Close()
-		if err != nil {
-			fmt.Printf("Error closing file: %v\n", err)
-		}
-	}(inputFile)
-
-	scanner := bufio.NewScanner(inputFile)
+	scanner := bufio.NewScanner(r.inputFile)
 
 	for scanner.Scan() {
 

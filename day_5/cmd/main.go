@@ -1,9 +1,10 @@
 package main
 
 import (
-	"day_5/internal/parser"
 	"fmt"
 	"os"
+
+	"day_5/internal/io"
 )
 
 func main() {
@@ -11,26 +12,32 @@ func main() {
 	fmt.Println(inputFile)
 
 	/* 	Initializes the parser */
-	ingredientsParser := initializeParser(inputFile)
+	reader := initializeReader(inputFile)
 
-	/* Compacts the ranges */
-	compactedFreshIngredients := ingredientsParser.Fresh.Compact()
+	/* Reads all the ingredients */
+	ingredients, err := reader.Read()
 
+	if err != nil {
+		os.Exit(1)
+	}
+
+	/* Compacts the ranges and counts all the fresh ingredients */
+	compactedFreshIngredients := ingredients.Compact()
 	freshIngredientsCount := compactedFreshIngredients.Count()
 
 	/* Prints the result */
 	fmt.Printf("Number of fresh ingredients: %d\n", freshIngredientsCount)
 }
 
-func initializeParser(
+func initializeReader(
 	inputFile []string,
-) *parser.IngredientsParser {
-	ingredientsParser, err := parser.NewParser(inputFile[0])
+) *io.IngredientsReader {
+	reader, err := io.NewReader(inputFile[0])
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Parser initialized: %v\n", ingredientsParser)
-	return ingredientsParser
+	fmt.Printf("Reader initialized: %v\n", reader)
+	return reader
 }
