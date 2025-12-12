@@ -35,7 +35,7 @@ func (r *ManifoldReader) Read() (*abstractions.Manifold, error) {
 
 	scanner := bufio.NewScanner(r.inputFile)
 
-	locations := make([][]abstractions.Location, 0, DefaultSize)
+	locations := make([][]string, 0, DefaultSize)
 
 	/* Reads all the lines first because we need to figure out width of each cell first */
 	/* The width will be read from the last line */
@@ -43,16 +43,46 @@ func (r *ManifoldReader) Read() (*abstractions.Manifold, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		locationRow := make([]abstractions.Location, 0, len(line))
+		locationRow := make([]string, 0, len(line))
 
 		for _, char := range line {
-			locationRow = append(locationRow, abstractions.Location(char))
+			locationRow = append(locationRow, string(char))
 		}
 
 		locations = append(locations, locationRow)
 	}
 
+	tachyons := r.findTachyons(locations)
+
 	return &abstractions.Manifold{
 		Locations: locations,
+		Tachyons:  tachyons,
 	}, nil
+}
+
+func (r *ManifoldReader) findTachyons(
+	locations [][]string,
+) []*abstractions.Tachyon {
+
+	tachyons := make([]*abstractions.Tachyon, 0, 10)
+
+	startingPointLocation := abstractions.StartingPoint
+
+	for rowIndex, row := range locations {
+		for colIndex, location := range row {
+			if location == startingPointLocation {
+				newTachyon := abstractions.Tachyon{
+					Position: abstractions.Position{
+						RowIndex: rowIndex,
+						ColIndex: colIndex,
+					},
+				}
+				newTachyon.Start()
+
+				tachyons = append(tachyons, &newTachyon)
+			}
+		}
+	}
+
+	return tachyons
 }
