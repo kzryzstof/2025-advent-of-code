@@ -5,154 +5,64 @@ import (
 	"testing"
 )
 
-func TestForklift_RemoveRolls(t *testing.T) {
-	tests := []struct {
-		name                    string
-		rows                    []abstractions.Row
-		rowIndex                uint
-		expectedAccessibleRolls uint
-	}{
-		/* Documented use case with full pattern:
-		   ..@@.@@@@.
-		   @@@.@.@.@@
-		   @@@@@.@.@@
-		   @.@@@@..@.
-		   @@.@@@@.@@
-		   .@@@@@@@.@
-		   .@.@.@.@@@
-		   @.@@@.@@@@
-		   .@@@@@@@@.
-		   @.@.@@@.@.
-		*/
-		{
-			name: "Row 0",
-			rows: []abstractions.Row{
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-			},
-			rowIndex:                0,
-			expectedAccessibleRolls: 5,
-		},
-		/*
-		   ..@@.@@@@.		..xx.xxxx.
-		   @@@.@.@.@@		@@@.@.@.@@
+// Helper to build a Department from a slice of ASCII rows where
+// '.' maps to abstractions.Empty and '@' maps to abstractions.Roll.
+func buildDepartment(lines []string) *abstractions.Department {
+	rows := make([]abstractions.Row, len(lines))
+	for i, line := range lines {
+		spots := make([]abstractions.Spot, len(line))
+		for j, ch := range line {
+			if ch == '.' {
+				spots[j] = abstractions.Empty
+			} else if ch == '@' {
+				spots[j] = abstractions.Roll
+			}
+		}
+		rows[i] = abstractions.Row{
+			Number: uint(i + 1),
+			Spots:  spots,
+		}
+	}
+	return &abstractions.Department{Rows: rows}
+}
 
-		*/
-		{
-			name: "Row 1",
-			rows: []abstractions.Row{
-				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-			},
-			rowIndex:                0,
-			expectedAccessibleRolls: 6,
-		},
-		{
-			name: "Row 2",
-			rows: []abstractions.Row{
-				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-			},
-			rowIndex:                1,
-			expectedAccessibleRolls: 1,
-		},
-		{
-			name: "Row 3",
-			rows: []abstractions.Row{
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Empty, abstractions.Roll, abstractions.Empty}},
-			},
-			rowIndex:                1,
-			expectedAccessibleRolls: 1,
-		},
-		{
-			name: "Row 4",
-			rows: []abstractions.Row{
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Empty, abstractions.Roll, abstractions.Empty}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-			},
-			rowIndex:                1,
-			expectedAccessibleRolls: 0,
-		},
-		{
-			name: "Row 5",
-			rows: []abstractions.Row{
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Empty, abstractions.Roll, abstractions.Empty}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll}},
-			},
-			rowIndex:                1,
-			expectedAccessibleRolls: 2,
-		},
-		{
-			name: "Row 6",
-			rows: []abstractions.Row{
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll}},
-			},
-			rowIndex:                1,
-			expectedAccessibleRolls: 0,
-		},
-		{
-			name: "Row 7",
-			rows: []abstractions.Row{
-				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll}},
-			},
-			rowIndex:                1,
-			expectedAccessibleRolls: 0,
-		},
-		{
-			name: "Row 8",
-			rows: []abstractions.Row{
-				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty}},
-			},
-			rowIndex:                1,
-			expectedAccessibleRolls: 1,
-		},
-		{
-			name: "Row 9",
-			rows: []abstractions.Row{
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty}},
-			},
-			rowIndex:                1,
-			expectedAccessibleRolls: 0,
-		},
-		{
-			name: "Row 10",
-			rows: []abstractions.Row{
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll}},
-				{Spots: []abstractions.Spot{abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty}},
-				{Spots: []abstractions.Spot{abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Roll, abstractions.Roll, abstractions.Empty, abstractions.Roll, abstractions.Empty}},
-			},
-			rowIndex:                2,
-			expectedAccessibleRolls: 3,
-		},
+func TestForklift_RemoveRolls(t *testing.T) {
+	// Documented use case with full pattern:
+	// ..@@.@@@@.
+	// @@@.@.@.@@
+	// @@@@@.@.@@
+	// @.@@@@..@.
+	// @@.@@@@.@@
+	// .@@@@@@@.@
+	// .@.@.@.@@@
+	// @.@@@.@@@@
+	// .@@@@@@@@.
+	// @.@.@@@.@.
+	lines := []string{
+		"..@@.@@@@.",
+		"@@@.@.@.@@",
+		"@@@@@.@.@@",
+		"@.@@@@..@.",
+		"@@.@@@@.@@",
+		".@@@@@@@.@",
+		".@.@.@.@@@",
+		"@.@@@.@@@@",
+		".@@@@@@@@.",
+		"@.@.@@@.@.",
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			section := abstractions.Department{
-				Rows: tt.rows,
-			}
+	department := buildDepartment(lines)
 
-			processor := NewProcessor()
-			processor.Analyze(&section, tt.rowIndex)
+	forklift := NewForklift(false)
+	forklift.RemoveRolls(department)
 
-			actualAccessibleRolls := processor.GetTotalAccessibleRolls()
-			if actualAccessibleRolls != tt.expectedAccessibleRolls {
-				t.Fatalf("expected %d accessible rolls, got %d", tt.expectedAccessibleRolls, actualAccessibleRolls)
-			}
-		})
+	// This expected value should match the total number of accessible rolls
+	// removed when applying the forklift rules to the full pattern. If the
+	// rules change, update this constant accordingly.
+	const expectedAccessibleRolls uint = 43
+
+	actualAccessibleRolls := forklift.GetAccessedRollsCount()
+	if actualAccessibleRolls != expectedAccessibleRolls {
+		t.Fatalf("expected %d accessible rolls, got %d", expectedAccessibleRolls, actualAccessibleRolls)
 	}
 }
