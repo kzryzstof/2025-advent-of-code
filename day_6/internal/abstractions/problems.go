@@ -1,7 +1,7 @@
 package abstractions
 
 import (
-	"day_6/internal/business_logic"
+	"day_6/internal/app"
 )
 
 //	10337550451352: too low
@@ -22,10 +22,10 @@ func (p *Problems) ComputeTotal() (uint64, error) {
 		cells := p.readNumbers(columnIndex)
 
 		/* Transposes the values to get the numbers in each row */
-		numbers := business_logic.TransposeColumns(cells)
+		numbers := app.TransposeColumns(cells)
 
 		/* Performs the operation on the numbers */
-		columnTotal, err := business_logic.Compute(operation, numbers)
+		columnTotal, err := app.Compute(operation, numbers)
 
 		if err != nil {
 			return 0, err

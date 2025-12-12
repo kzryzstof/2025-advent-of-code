@@ -1,7 +1,7 @@
 package main
 
 import (
-	"day_6/internal/parser"
+	"day_6/internal/io"
 	"fmt"
 	"os"
 )
@@ -10,10 +10,18 @@ func main() {
 	inputFile := os.Args[1:]
 	fmt.Println(inputFile)
 
-	/* 	Initializes the parser */
-	problemsParser := initializeParser(inputFile)
+	/* 	Initializes the reader */
+	reader := initializeReader(inputFile)
 
-	total, err := problemsParser.Problems.ComputeTotal()
+	/* Read all the problems */
+	problems, err := reader.Read()
+
+	if err != nil {
+		os.Exit(1)
+	}
+
+	/* Computes the total */
+	total, err := problems.ComputeTotal()
 
 	if err != nil {
 		fmt.Printf("Error computing total: %v\n", err)
@@ -24,15 +32,15 @@ func main() {
 	fmt.Printf("Total = %d\n", total)
 }
 
-func initializeParser(
+func initializeReader(
 	inputFile []string,
-) *parser.ProblemsParser {
-	problemsParser, err := parser.NewParser(inputFile[0])
+) *io.ProblemsReader {
+	reader, err := io.NewReader(inputFile[0])
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Parser initialized: %v\n", problemsParser)
-	return problemsParser
+	fmt.Printf("Parser initialized: %v\n", reader)
+	return reader
 }

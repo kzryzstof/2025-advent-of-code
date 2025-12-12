@@ -1,4 +1,4 @@
-package business_logic
+package app
 
 import (
 	"day_6/internal/extensions"

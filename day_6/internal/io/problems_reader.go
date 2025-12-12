@@ -1,4 +1,4 @@
-package parser
+package io
 
 import (
 	"bufio"
@@ -13,28 +13,13 @@ const (
 	DefaultSize = 4
 )
 
-type ProblemsParser struct {
-	Problems *abstractions.Problems
+type ProblemsReader struct {
+	inputFile *os.File
 }
 
-func NewParser(
+func NewReader(
 	filePath string,
-) (*ProblemsParser, error) {
-
-	problems, err := readProblems(filePath)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &ProblemsParser{
-		problems,
-	}, nil
-}
-
-func readProblems(
-	filePath string,
-) (*abstractions.Problems, error) {
+) (*ProblemsReader, error) {
 
 	inputFile, err := os.OpenFile(filePath, os.O_RDONLY, 0644)
 
@@ -43,18 +28,18 @@ func readProblems(
 		return nil, err
 	}
 
+	return &ProblemsReader{
+		inputFile,
+	}, nil
+}
+
+func (r *ProblemsReader) Read() (*abstractions.Problems, error) {
+
 	problems := abstractions.Problems{
 		Numbers: make([][]string, DefaultSize),
 	}
 
-	defer func(inputFile *os.File) {
-		err := inputFile.Close()
-		if err != nil {
-			fmt.Printf("Error closing file: %v\n", err)
-		}
-	}(inputFile)
-
-	scanner := bufio.NewScanner(inputFile)
+	scanner := bufio.NewScanner(r.inputFile)
 	index := 0
 
 	for scanner.Scan() {
