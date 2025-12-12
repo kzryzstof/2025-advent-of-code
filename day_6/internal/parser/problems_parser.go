@@ -77,7 +77,7 @@ func readProblems(
 		} else {
 			problems.Numbers[index] = make([]string, cellsCount)
 
-			for cellIndex, cell := range columns {
+			for cellIndex, cell := range strings.SplitN(line, " ", 0) {
 				/* Keep the cell as a string so that we can manipulate it later */
 				problems.Numbers[index][cellIndex] = cell
 			}
