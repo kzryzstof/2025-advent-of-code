@@ -13,28 +13,19 @@ func main() {
 	/* 	Initializes the reader */
 	reader := initializeReader(inputFile)
 
-	/* Read all the problems */
-	problems, err := reader.Read()
+	manifold, err := reader.Read()
 
 	if err != nil {
-		os.Exit(1)
-	}
-
-	/* Computes the total */
-	total, err := problems.ComputeTotal()
-
-	if err != nil {
-		fmt.Printf("Error computing total: %v\n", err)
 		os.Exit(1)
 	}
 
 	/* Prints the result */
-	fmt.Printf("Total = %d\n", total)
+	fmt.Printf("Total = %d\n", manifold)
 }
 
 func initializeReader(
 	inputFile []string,
-) *io.ProblemsReader {
+) *io.ManifoldReader {
 	reader, err := io.NewReader(inputFile[0])
 
 	if err != nil {
