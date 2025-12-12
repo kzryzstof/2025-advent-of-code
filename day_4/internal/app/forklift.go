@@ -1,40 +1,60 @@
-package processor
+package app
 
 import (
 	"day_4/internal/abstractions"
+	"fmt"
 )
 
 const (
 	minAccessibleRolls = 4
 )
 
-type DepartmentProcessor struct {
+type Forklift struct {
+	verbose       bool
 	rollsAccessed uint
 }
 
-func NewProcessor() *DepartmentProcessor {
-	return &DepartmentProcessor{
+func NewForklift(verbose bool) *Forklift {
+	return &Forklift{
+		verbose,
 		0,
 	}
 }
 
-func (p *DepartmentProcessor) GetTotalAccessibleRolls() uint {
+func (p *Forklift) GetAccessedRollsCount() uint {
 	return p.rollsAccessed
 }
 
-func (p *DepartmentProcessor) Analyze(
-	section *abstractions.Department,
-	rowIndex uint,
-) bool {
+func (p *Forklift) RemoveRolls(
+	department *abstractions.Department,
+) {
 
-	//fmt.Printf("Processor | Row %03d\n", section.Rows[rowIndex].Number)
-	accessibleRolls := p.countAccessibleRolls(section, rowIndex)
-	p.rollsAccessed += accessibleRolls
+	accessibleRollsFound := true
+	rowsCount := uint(len(department.Rows))
+	loopNumber := 1
 
-	return accessibleRolls > 0
+	for accessibleRollsFound {
+		/* Keeps looping until no more accessible roll is found */
+		accessibleRollsFound = false
+
+		if p.verbose {
+			fmt.Printf("LOOP %d...\n", loopNumber)
+		}
+
+		for rowIndex := uint(0); rowIndex < rowsCount; rowIndex++ {
+
+			rollsAccessed := p.countAccessibleRolls(department, rowIndex)
+			p.rollsAccessed += rollsAccessed
+
+			if rollsAccessed > 0 {
+				accessibleRollsFound = true
+			}
+		}
+		loopNumber++
+	}
 }
 
-func (p *DepartmentProcessor) countAccessibleRolls(
+func (p *Forklift) countAccessibleRolls(
 	section *abstractions.Department,
 	rowIndex uint,
 ) uint {
@@ -65,7 +85,9 @@ func (p *DepartmentProcessor) countAccessibleRolls(
 		}
 
 		if surroundingRolls < minAccessibleRolls {
-			//fmt.Printf("            Row %03d | Found accessible roll at spot %03d (Surrounding rolls %d) \n", section.Rows[rowIndex].Number, spotIndex, surroundingRolls)
+			if p.verbose {
+				fmt.Printf("            Row %03d | Found accessible roll at spot %03d (Surrounding rolls %d) \n", section.Rows[rowIndex].Number, spotIndex, surroundingRolls)
+			}
 			accessibleRolls++
 			section.Rows[currentRowIndex].Spots[spotIndex] = abstractions.Empty
 		}
@@ -74,7 +96,7 @@ func (p *DepartmentProcessor) countAccessibleRolls(
 	return accessibleRolls
 }
 
-func (p *DepartmentProcessor) countRolls(
+func (p *Forklift) countRolls(
 	row *abstractions.Row,
 	spotIndex int,
 ) uint {

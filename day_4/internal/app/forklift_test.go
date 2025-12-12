@@ -1,11 +1,11 @@
-package processor
+package app
 
 import (
 	"day_4/internal/abstractions"
 	"testing"
 )
 
-func TestDepartmentProcessor_Analyze(t *testing.T) {
+func TestForklift_RemoveRolls(t *testing.T) {
 	tests := []struct {
 		name                    string
 		rows                    []abstractions.Row

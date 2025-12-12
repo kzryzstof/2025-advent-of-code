@@ -1,8 +1,8 @@
 package main
 
 import (
-	"day_4/internal/parser"
-	"day_4/internal/processor"
+	"day_4/internal/app"
+	"day_4/internal/io"
 	"fmt"
 	"os"
 )
@@ -12,46 +12,31 @@ func main() {
 	fmt.Println(inputFile)
 
 	/* 	Initializes the parser and processor */
-	sectionsParser := initializeParser(inputFile)
-	sectionsProcessor := initializeProcessor()
+	reader := initializeReader(inputFile)
 
-	/* Reads each row and analyzes it */
-	accessibleRollsFound := true
-	rowsCount := sectionsParser.GetRowsCount()
-	loopNumber := 1
-
-	for accessibleRollsFound {
-		/* Keeps looping until no more accessible roll is found */
-		accessibleRollsFound = false
-		fmt.Printf("LOOP %d...\n", loopNumber)
-		for rowIndex := uint(0); rowIndex < rowsCount; rowIndex++ {
-
-			if sectionsProcessor.Analyze(sectionsParser.Section, rowIndex) {
-				accessibleRollsFound = true
-			}
-		}
-		loopNumber++
-	}
-
-	/* Prints the total number of accessible rolls */
-	fmt.Printf("Number of accessible rolls in the %d row of the department: %d\n", rowsCount, sectionsProcessor.GetTotalAccessibleRolls())
-}
-
-func initializeParser(
-	inputFile []string,
-) *parser.DepartmentParser {
-	sectionParser, err := parser.NewParser(inputFile[0])
+	/* Reads all the rows */
+	department, err := reader.Read()
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Section parser initialized: %v\n", sectionParser)
-	return sectionParser
+	forklift := app.NewForklift(false)
+	forklift.RemoveRolls(department)
+
+	/* Prints the total number of accessible rolls */
+	fmt.Printf("Number of accessible rolls in the %d rows of the department: %d\n", len(department.Rows), forklift.GetAccessedRollsCount())
 }
 
-func initializeProcessor() *processor.DepartmentProcessor {
-	sectionsProcessor := processor.NewProcessor()
-	fmt.Printf("Section processor initialized: %v\n", sectionsProcessor)
-	return sectionsProcessor
+func initializeReader(
+	inputFile []string,
+) *io.DepartmentParser {
+	reader, err := io.NewReader(inputFile[0])
+
+	if err != nil {
+		os.Exit(1)
+	}
+
+	fmt.Printf("Reader initialized: %v\n", reader)
+	return reader
 }
