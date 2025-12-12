@@ -33,7 +33,14 @@ func Simulate(
 				continue
 			}
 
-			tachyon.Move(manifold, beamDirection)
+			if manifold.IsNextLocationEmpty(*tachyon, beamDirection) {
+				tachyon.Move(manifold, beamDirection)
+			} else {
+				tachyon.Stop()
+				movingTachyons--
+				continue
+			}
+
 		}
 	}
 }

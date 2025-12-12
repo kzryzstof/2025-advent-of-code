@@ -30,6 +30,15 @@ func (m *Manifold) CanMove(
 		direction,
 	)
 }
+
+func (m *Manifold) IsNextLocationEmpty(
+	t Tachyon,
+	direction Direction,
+) bool {
+	nextLocation := m.GetNextPosition(&t, direction)
+	return nextLocation == Empty
+}
+
 func (m *Manifold) GetLocation(
 	position Position,
 ) string {
