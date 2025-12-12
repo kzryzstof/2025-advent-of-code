@@ -59,6 +59,13 @@ func TestCompute(t *testing.T) {
 			want:      0,
 			wantErr:   true,
 		},
+		{
+			name:      "invalid operation",
+			operation: "-",
+			numbers:   []uint64{4, 431, 623},
+			want:      401,
+			wantErr:   true,
+		},
 	}
 
 	for _, tt := range tests {

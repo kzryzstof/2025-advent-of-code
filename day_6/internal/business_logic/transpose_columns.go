@@ -4,6 +4,7 @@ import (
 	"day_6/internal/extensions"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 func TransposeColumns(cells []string) []uint64 {
@@ -36,7 +37,7 @@ func TransposeColumns(cells []string) []uint64 {
 			numberText += accumulator[digitIndex][numberIndex]
 		}
 
-		value, err := strconv.ParseUint(numberText, 10, 64)
+		value, err := strconv.ParseUint(strings.Trim(numberText, " "), 10, 64)
 
 		if err != nil {
 			panic(fmt.Errorf("Error parsing number '%s': %v\n", numberText, err))

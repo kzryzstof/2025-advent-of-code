@@ -12,44 +12,24 @@ func TestTransposeColumns(t *testing.T) {
 		expected []uint64
 	}{
 		{
-			name:     "All digits in a single column",
-			cells:    []string{"1", "2", "3", "4"},
-			expected: []uint64{1234},
-		},
-		{
-			name:     "Different length numbers - 10, 2, 3, 4",
-			cells:    []string{"10", "2", "3", "4"},
-			expected: []uint64{0, 1234},
-		},
-		{
-			name:     "Different length numbers - 1, 2, 3, 40",
-			cells:    []string{"1", "2", "3", "40"},
-			expected: []uint64{0, 1234},
-		},
-		{
-			name:     "Different length numbers - 1, 2, 3, 04",
-			cells:    []string{"1", "2", "3", "04"},
-			expected: []uint64{4, 1230},
-		},
-		{
-			name:     "example case with 9, 15, 84, 942",
-			cells:    []string{"9", "15", "84", "942"},
-			expected: []uint64{2, 544, 9189},
-		},
-		{
-			name:     "empty second cell",
-			cells:    []string{"9", "", "84", "942"},
-			expected: []uint64{2, 44, 989},
-		},
-		{
-			name:     "empty third cell",
-			cells:    []string{"1", "2", "", "3"},
-			expected: []uint64{123},
-		},
-		{
-			name:     "three numbers 64, 23, 314",
-			cells:    []string{"64", "23", "314"},
+			name:     "trailing spaces in first two numbers",
+			cells:    []string{"64 ", "23 ", "314"},
 			expected: []uint64{4, 431, 623},
+		},
+		{
+			name:     "leading spaces in first number",
+			cells:    []string{" 51", "387", "215"},
+			expected: []uint64{175, 581, 32},
+		},
+		{
+			name:     "trailing spaces in second and third numbers",
+			cells:    []string{"328", "64 ", "98 "},
+			expected: []uint64{8, 248, 369},
+		},
+		{
+			name:     "mixed leading spaces in second and third numbers",
+			cells:    []string{"123", " 45", "  6"},
+			expected: []uint64{356, 24, 1},
 		},
 	}
 
