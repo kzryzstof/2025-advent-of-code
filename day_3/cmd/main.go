@@ -1,56 +1,44 @@
 package main
 
 import (
+	"day_3/internal/io"
 	"fmt"
 	"os"
-	"sync"
-
-	"day_3/internal/parser"
-	"day_3/internal/processor"
 )
 
 func main() {
 	inputFile := os.Args[1:]
 	fmt.Println(inputFile)
 
-	/*	Initializes the dial */
-	//dial := abstractions.Dial{Position: 50}
+	/* 	Initializes the reader */
+	banksReader := initializeReader(inputFile)
 
-	/* 	Initializes the parser and processor */
-	waitGroup := &sync.WaitGroup{}
-
-	banksParser := initializeParser(inputFile, waitGroup)
-	banksProcessor := initializeProcessor(banksParser, waitGroup)
-
-	/* Starts the parser and processor */
-	banksParser.Start()
-	banksProcessor.Start()
-
-	waitGroup.Wait()
-
-	/* Prints the total number of consisting of the sum of all the product IDs */
-	fmt.Printf("Sum of all the highest voltage from the %d banks: %d\n", banksParser.GetBanksCount(), banksProcessor.GetTotalVoltage())
-}
-
-func initializeParser(
-	inputFile []string,
-	waitGroup *sync.WaitGroup,
-) *parser.BanksParser {
-	rangesReader, err := parser.NewParser(inputFile[0], waitGroup)
+	/* Reads all the banks */
+	banks, err := banksReader.Read()
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Ranges parser initialized: %v\n", rangesReader)
-	return rangesReader
+	totalVoltage := uint(0)
+
+	for _, bank := range banks {
+		totalVoltage += bank.GetHighestVoltage()
+	}
+
+	/* Prints the result */
+	fmt.Printf("Sum of all the highest voltage from the %d banks: %d\n", len(banks), totalVoltage)
 }
 
-func initializeProcessor(
-	banksParser *parser.BanksParser,
-	waitGroup *sync.WaitGroup,
-) *processor.BanksProcessor {
-	banksProcessor := processor.NewProcessor(banksParser, waitGroup)
-	fmt.Printf("Ranges processor initialized: %v\n", banksParser)
-	return banksProcessor
+func initializeReader(
+	inputFile []string,
+) *io.BanksReader {
+	reader, err := io.NewReader(inputFile[0])
+
+	if err != nil {
+		os.Exit(1)
+	}
+
+	fmt.Printf("Reader initialized: %v\n", reader)
+	return reader
 }

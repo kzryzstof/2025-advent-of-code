@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestBank_(t *testing.T) {
+func TestBank_GetHighestVoltage(t *testing.T) {
 	tests := []struct {
 		ratings         string
 		expectedVoltage uint
