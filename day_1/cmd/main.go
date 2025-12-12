@@ -3,11 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"sync"
 
 	"day_1/internal/abstractions"
-	"day_1/internal/parser"
-	"day_1/internal/processor"
+	"day_1/internal/io"
 )
 
 func main() {
@@ -17,41 +15,30 @@ func main() {
 	/*	Initializes the dial */
 	dial := abstractions.Dial{Position: 50}
 
-	/* 	Initializes the parser and processor */
-	waitGroup := &sync.WaitGroup{}
+	/* 	Initializes the parser */
+	instructionsParser := newParser(inputFile)
 
-	instructionsParser := initializeParser(inputFile, waitGroup)
-	instructionsProcessor := initializeProcessor(instructionsParser, waitGroup)
+	/* Reads all the instructions at once */
+	instructions := instructionsParser.Read()
 
-	/* Starts the parser and processor */
-	instructionsParser.Start()
-	instructionsProcessor.Start(&dial)
+	for _, rotation := range instructions.Rotations {
+		dial.Rotate(rotation)
+	}
 
-	waitGroup.Wait()
-
-	/* Prints the number of times the dial ended up at position 0 */
-	fmt.Printf("Number of the times the dial ended up at position 0: %d\n", dial.GetCount())
+	/* Prints the results */
+	fmt.Printf("Number of the times the dial passed by position 0: %d\n", dial.GetCount())
 }
 
-func initializeParser(
+func newParser(
 	inputFile []string,
-	waitGroup *sync.WaitGroup,
-) *parser.InstructionsParser {
-	instructionsReader, err := parser.New(inputFile[0], waitGroup)
+) *io.InstructionsReader {
+	instructionsReader, err := io.New(inputFile[0])
 
 	if err != nil {
+		fmt.Printf("Error parsing input file: %s\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Instructions parser initialized: %v\n", instructionsReader)
+	fmt.Printf("Parser initialized: %v\n", instructionsReader)
 	return instructionsReader
-}
-
-func initializeProcessor(
-	parser *parser.InstructionsParser,
-	waitGroup *sync.WaitGroup,
-) *processor.InstructionsProcessor {
-	instructionsProcessor := processor.New(parser, waitGroup)
-	fmt.Printf("Instructions processor initialized: %v\n", instructionsProcessor)
-	return instructionsProcessor
 }
