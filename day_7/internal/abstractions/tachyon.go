@@ -20,7 +20,7 @@ func (t *Tachyon) Stop() {
 func (t *Tachyon) Move(
 	manifold *Manifold,
 	direction Direction,
-) bool {
+) {
 
 	result, newPosition := manifold.SetBeamAt(
 		t.Position,
@@ -30,6 +30,4 @@ func (t *Tachyon) Move(
 	if result == true {
 		t.Position = newPosition
 	}
-
-	return result
 }

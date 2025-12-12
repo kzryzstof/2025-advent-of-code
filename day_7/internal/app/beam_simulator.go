@@ -2,7 +2,6 @@ package app
 
 import (
 	"day_7/internal/abstractions"
-	"fmt"
 )
 
 func Simulate(
@@ -13,15 +12,11 @@ func Simulate(
 		ColDelta: 0,
 	}
 
-	movingTachyons := len(manifold.Tachyons)
+	movingTachyons := true
 
-	for movingTachyons > 0 {
+	for movingTachyons {
 
 		for _, tachyon := range manifold.Tachyons {
-
-			if tachyon.Position.RowIndex == 140 {
-				fmt.Println("Tachyon", tachyon)
-			}
 
 			if !tachyon.IsMoving() {
 				continue
@@ -29,18 +24,24 @@ func Simulate(
 
 			if manifold.CanMove(*tachyon, beamDirection) == false {
 				tachyon.Stop()
-				movingTachyons--
 				continue
 			}
 
 			if manifold.IsNextLocationEmpty(*tachyon, beamDirection) {
 				tachyon.Move(manifold, beamDirection)
+			} else if manifold.IsNextLocationSplitter(*tachyon, beamDirection) {
+				manifold.SplitBeamAt(tachyon, beamDirection)
 			} else {
 				tachyon.Stop()
-				movingTachyons--
 				continue
 			}
 
+		}
+
+		movingTachyons = false
+
+		for _, tachyon := range manifold.Tachyons {
+			movingTachyons = movingTachyons || tachyon.IsMoving()
 		}
 	}
 }

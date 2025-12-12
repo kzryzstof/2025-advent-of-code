@@ -39,6 +39,22 @@ func (m *Manifold) IsNextLocationEmpty(
 	return nextLocation == Empty
 }
 
+func (m *Manifold) IsNextLocationSplitter(
+	t Tachyon,
+	direction Direction,
+) bool {
+	nextLocation := m.GetNextPosition(&t, direction)
+	return nextLocation == Splitter
+}
+
+func (m *Manifold) IsNextLocationOtherTachyon(
+	t Tachyon,
+	direction Direction,
+) bool {
+	nextLocation := m.GetNextPosition(&t, direction)
+	return nextLocation == Beam
+}
+
 func (m *Manifold) GetLocation(
 	position Position,
 ) string {
@@ -72,6 +88,17 @@ func (m *Manifold) isWithinBoundary(
 	return true
 }
 
+func (m *Manifold) Draw() {
+	for _, row := range m.Locations {
+		for _, location := range row {
+			print(location)
+		}
+		println()
+	}
+}
+
+/* Beam functionalities */
+
 func (m *Manifold) SetBeamAt(
 	position Position,
 	direction Direction,
@@ -87,11 +114,55 @@ func (m *Manifold) SetBeamAt(
 	return true, newPosition
 }
 
-func (m *Manifold) Draw() {
-	for _, row := range m.Locations {
-		for _, location := range row {
-			print(location)
-		}
-		println()
+func (m *Manifold) SplitBeamAt(
+	tachyon *Tachyon,
+	direction Direction,
+) {
+
+	/* Adds a new tachyon and move it to the right if there is no other tachyon */
+
+	newTachyonDirection := Direction{
+		RowDelta: direction.RowDelta,
+		ColDelta: direction.ColDelta + 1,
 	}
+
+	if !m.IsNextLocationOtherTachyon(*tachyon, newTachyonDirection) {
+
+		newTachyon := m.createNewTachyon(tachyon)
+
+		newTachyon.Move(
+			m,
+			newTachyonDirection,
+		)
+	}
+
+	/* Takes the existing tachyon and move it to the left */
+
+	existingTachyonDirection := Direction{
+		RowDelta: direction.RowDelta,
+		ColDelta: direction.ColDelta - 1,
+	}
+
+	if !m.IsNextLocationOtherTachyon(*tachyon, existingTachyonDirection) {
+
+		tachyon.Move(
+			m,
+			existingTachyonDirection,
+		)
+	}
+}
+
+func (m *Manifold) createNewTachyon(
+	tachyon *Tachyon,
+) *Tachyon {
+
+	newTachyon := Tachyon{
+		Position: tachyon.Position,
+	}
+
+	newTachyon.Start()
+
+	m.Tachyons = append(m.Tachyons, &newTachyon)
+
+	return &newTachyon
 }
