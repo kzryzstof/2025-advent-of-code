@@ -1,68 +1,69 @@
-# Day 6 – Column-wise Arithmetic Problems (Part 1)
+# Day 6 – Column-wise Arithmetic Problems
 
-The Day 6 Part 1 solution is implemented in Go in the `day_6` folder. It reads a grid of numbers with associated operations for each column, applies those operations (multiplication or addition) down each column, and sums the column results to produce a final total.
+The Day 6 solution is implemented in Go in the `day_6` folder. It reads a grid of numbers with associated operations for each column, applies those operations (multiplication or addition) down each column, and sums the column results to produce a final total.
 
-## Problem model (Part 1)
+The unique twist in this puzzle is that the numbers in the grid are represented as **fixed-width text cells** that must be **transposed** before arithmetic operations can be applied.
 
-The input file contains a **grid of numbers** arranged in rows and columns, followed by a final row that specifies an **operation** for each column.
+---
+
+## Problem model
+
+The input file contains a **grid of fixed-width text cells** arranged in rows and columns, followed by a final row that specifies an **operation** for each column.
 
 ### Input structure
 
-- The file contains several lines of whitespace-separated numbers forming a rectangular grid.
-- The **last line** contains operation symbols (either `+` or `*`) instead of numbers, one for each column.
+- The file contains several lines of fixed-width text representing numbers.
+- Each column has a fixed width, and numbers within a column are aligned.
+- The **last line** contains operation symbols (either `+` or `*`) instead of numbers, one symbol positioned within each column's width.
 
 Example input:
 
 ```text
 10  20  5
-2   3   4
-5   1   2
+2    3  4
+5    1  2
 +   *   +
 ```
 
 In this example:
 
 - There are 3 rows of numbers and 3 columns.
+- Each column is delimited by the position of the operation symbols on the last line.
 - The last row specifies:
   - Column 0: use `+` (addition)
   - Column 1: use `*` (multiplication)
   - Column 2: use `+` (addition)
 
+### Key insight: Column transposition
+
+The numbers in each column are stored as **text cells** that must be read **digit by digit** and **transposed** to form actual numbers before applying operations.
+
+For example, if a column contains the cells:
+
+```text
+123
+45
+6
+```
+
+These are transposed by reading digits column-wise (right to left within each cell) to potentially form multiple numbers, which are then combined using the column's operation.
+
+This transposition is implemented in `app.TransposeColumns`, which:
+
+1. Converts each cell to its constituent digits (reversed).
+2. Rebuilds numbers by reading digits column-wise across all cells.
+3. Returns a slice of `uint64` numbers ready for arithmetic operations.
+
 ### Computation rules
 
 For each column:
 
-1. Start with the first number in that column.
-2. Apply the column's operation to combine all subsequent numbers in that column, working top to bottom.
-3. The result is the **column total**.
+1. Extract the text cells from that column (one per row).
+2. **Transpose** the cells using `TransposeColumns` to get a slice of actual numbers.
+3. Apply the column's operation (`+` or `*`) to combine all numbers in the slice.
+4. The result is the **column total**.
 
 After computing the total for each column, **sum all column totals** to get the final answer.
-
-#### Example walkthrough
-
-Using the example input above:
-
-- **Column 0** (operation `+`):
-  - Start: `10`
-  - `10 + 2 = 12`
-  - `12 + 5 = 17`
-  - Column total: `17`
-
-- **Column 1** (operation `*`):
-  - Start: `20`
-  - `20 * 3 = 60`
-  - `60 * 1 = 60`
-  - Column total: `60`
-
-- **Column 2** (operation `+`):
-  - Start: `5`
-  - `5 + 4 = 9`
-  - `9 + 2 = 11`
-  - Column total: `11`
-
-- **Final total**: `17 + 60 + 11 = 88`
-
-The program prints this final total as the Part 1 answer.
 
 ---
 
@@ -71,11 +72,13 @@ The program prints this final total as the Part 1 answer.
 The executable entrypoint is `day_6/cmd/main.go`. The high-level steps are:
 
 1. **Read input file path** from the command‑line arguments.
-2. **Initialize the problems parser** with that file path via `NewParser`.
-3. The parser reads the file and builds a `Problems` structure containing:
-   - `Numbers` – a 2D slice of `uint64` representing the grid.
+2. **Initialize the problems reader** with that file path via `io.NewReader`.
+3. Call `reader.Read()` to parse the file and build a `Problems` structure containing:
+   - `Numbers` – a 2D slice of `string` representing the text cells.
    - `Operations` – a slice of operation strings (`"+"` or `"*"`) for each column.
-4. Call `Problems.ComputeTotal()` to compute the answer.
+4. Call `problems.ComputeTotal()` to:
+   - For each column, read the cells, transpose them to numbers, apply the operation, and accumulate the column total.
+   - Sum all column totals.
 5. Print the final result:
 
    ```text
@@ -89,8 +92,9 @@ The executable entrypoint is `day_6/cmd/main.go`. The high-level steps are:
 ### `cmd/main.go`
 
 - Reads the input path from `os.Args`.
-- Calls `initializeParser` to build a `ProblemsParser` from the input file.
-- Calls `problemsParser.Problems.ComputeTotal()` to get the final total.
+- Calls `initializeReader` to build a `ProblemsReader` from the input file.
+- Calls `reader.Read()` to obtain a `*Problems` value.
+- Calls `problems.ComputeTotal()` to get the final total.
 - Prints the result:
 
   ```go
@@ -105,97 +109,106 @@ Defined in `problems.go`:
 
   ```go
   type Problems struct {
-      Numbers    [][]uint64
+      Numbers    [][]string
       Operations []string
   }
   ```
 
-  - `Numbers` is a 2D slice where `Numbers[rowIndex][columnIndex]` is the number at that position.
+  - `Numbers` is a 2D slice where `Numbers[rowIndex][columnIndex]` is the text cell at that position.
   - `Operations[columnIndex]` is the operation string for that column (`"+"` or `"*"`).
 
-- `ComputeTotal() uint64` – implements the core computation logic:
+- `ComputeTotal() (uint64, error)` – implements the core computation logic:
 
   ```go
-  func (p *Problems) ComputeTotal() uint64 {
-      rowsCount := len(p.Numbers)
+  func (p *Problems) ComputeTotal() (uint64, error) {
       total := uint64(0)
 
       for columnIndex, operation := range p.Operations {
-          columnTotal := uint64(0)
+          // Read all the text cells from the current column
+          cells := p.readNumbers(columnIndex)
 
-          switch operation {
-          case "*":
-              for rowIndex := 0; rowIndex < rowsCount; rowIndex++ {
-                  number := p.Numbers[rowIndex][columnIndex]
-                  if rowIndex == 0 {
-                      columnTotal = number
-                  } else {
-                      columnTotal *= number
-                  }
-              }
-          case "+":
-              for rowIndex := 0; rowIndex < rowsCount; rowIndex++ {
-                  number := p.Numbers[rowIndex][columnIndex]
-                  if rowIndex == 0 {
-                      columnTotal = number
-                  } else {
-                      columnTotal += number
-                  }
-              }
+          // Transpose the cells to get actual numbers
+          numbers := app.TransposeColumns(cells)
+
+          // Perform the operation on the numbers
+          columnTotal, err := app.Compute(operation, numbers)
+          if err != nil {
+              return 0, err
           }
 
           total += columnTotal
       }
 
-      return total
+      return total, nil
   }
   ```
 
   For each column:
 
-  - Iterate through all rows in that column.
-  - Start with the first number, then apply the column's operation to each subsequent number.
-  - Accumulate the result in `columnTotal`.
-  - Add `columnTotal` to the running `total`.
+  - Calls `readNumbers(columnIndex)` to extract the text cells from that column.
+  - Calls `app.TransposeColumns(cells)` to convert cells to a slice of `uint64` numbers.
+  - Calls `app.Compute(operation, numbers)` to apply the column's operation.
+  - Accumulates the result in `total`.
 
-  Finally, return the sum of all column totals.
+- `readNumbers(columnIndex int) []string` – helper that extracts all cells from a given column into a slice.
 
-### `internal/parser`
+### `internal/io`
 
-Defined in `problems_parser.go`.
+Defined in `problems_reader.go`.
 
-- `ProblemsParser` wraps the parsed `Problems`:
+- `ProblemsReader` encapsulates reading problems from the input file:
 
   ```go
-  type ProblemsParser struct {
-      Problems *abstractions.Problems
+  type ProblemsReader struct {
+      inputFile *os.File
   }
   ```
 
-- `NewParser(filePath string)`:
-  - Opens the input file.
-  - Delegates to `readProblems(filePath)` to build the `Problems` structure.
-  - Returns a `ProblemsParser` that exposes the parsed data.
+- `NewReader(filePath string)`:
+  - Opens the input file read-only.
+  - Returns a `ProblemsReader` bound to that file.
 
-- `readProblems(filePath string)`:
-  - Opens the file using `os.OpenFile` and creates a `bufio.Scanner`.
-  - Initializes `Problems` with:
-    - `Numbers` – a 2D slice preallocated to `DefaultSize` (4) rows.
-    - `Operations` – initially empty, allocated when the last line is encountered.
-  - Scans the file line by line using `strings.Fields` to split each line into whitespace-separated tokens.
-  - For each line:
-    - Attempts to parse the first token as a `uint64` using `strconv.ParseUint`.
-    - If parsing **succeeds** → the line contains numbers:
-      - Allocates a new row slice for that row.
-      - Parses each token as a `uint64` and stores it in `Numbers[rowIndex][columnIndex]`.
-    - If parsing **fails** → the line contains operations (last line):
-      - Allocates `Operations` slice with length equal to the number of tokens.
-      - Stores each operation string (e.g. `"+"` or `"*"`) in `Operations[columnIndex]`.
-  - Returns the populated `Problems` structure.
+- `Read() (*abstractions.Problems, error)`:
+  - Uses a `bufio.Scanner` to read all lines into memory first (needed to determine column widths from the last line).
+  - Identifies the last line as the operations line.
+  - Parses the operations line character by character to determine:
+    - Where each column starts and ends (delimited by operation symbols and spaces).
+    - The operation symbol for each column.
+  - For each identified column:
+    - Extracts the corresponding substring from each number row.
+    - Stores it as a text cell in `Numbers[rowIndex][columnIndex]`.
+  - Returns a `*Problems` with:
+    - `Numbers` – 2D slice of text cells.
+    - `Operations` – slice of operation strings.
+
+### `internal/app`
+
+Defined in `operations.go` and `transpose_columns.go`:
+
+- `Compute(operation string, numbers []uint64) (uint64, error)`:
+  - Takes an operation (`"+"` or `"*"`) and a slice of numbers.
+  - Uses `applyOperation` with a corresponding lambda to compute the result:
+    - `*` → multiply all numbers together.
+    - `+` → sum all numbers together.
+  - Returns the final result.
+
+- `applyOperation(numbers []uint64, operation func(uint64, uint64) uint64) uint64`:
+  - Starts with the first number.
+  - Iterates through remaining numbers, applying the given operation function cumulatively.
+
+- `TransposeColumns(cells []string) []uint64`:
+  - Converts each text cell to its digits (reversed).
+  - Determines how many numbers to produce (based on the longest cell).
+  - Rebuilds numbers digit by digit, reading column-wise across all cells.
+  - Returns a slice of `uint64` numbers.
+
+### `internal/extensions`
+
+Utility functions for string/slice manipulation (e.g., `ToDigits`, `Reverse`).
 
 ---
 
-## Running Day 6 Part 1
+## Running Day 6
 
 From the `day_6` directory you can run the solution with:
 
@@ -207,6 +220,7 @@ make run ARGS="input.txt"
 or directly with Go:
 
 ```bash
+cd day_6
 go run ./cmd input.txt
 ```
 

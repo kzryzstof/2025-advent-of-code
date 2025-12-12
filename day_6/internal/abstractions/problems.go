@@ -4,8 +4,9 @@ import (
 	"day_6/internal/app"
 )
 
-//	10337550451352: too low
-//	11759359657848: too high
+// 10337550451352: too low
+// 11759359657848: too high
+// 11708563457309
 
 type Problems struct {
 	Numbers    [][]string
