@@ -1,42 +1,51 @@
 package abstractions
 
+import (
+	"day_6/internal/business_logic"
+)
+
+//	10337550451352: too low
+//	11759359657848: too high
+
 type Problems struct {
-	Numbers    [][]uint64
+	Numbers    [][]string
 	Operations []string
 }
 
-func (p *Problems) ComputeTotal() uint64 {
+func (p *Problems) ComputeTotal() (uint64, error) {
 
-	rowsCount := len(p.Numbers)
 	total := uint64(0)
 
 	for columnIndex, operation := range p.Operations {
 
-		columnTotal := uint64(0)
+		/* Reads all the numbers from the current column */
+		cells := p.readNumbers(columnIndex)
 
-		switch operation {
-		case "*":
-			for rowIndex := 0; rowIndex < rowsCount; rowIndex++ {
-				number := p.Numbers[rowIndex][columnIndex]
-				if rowIndex == 0 {
-					columnTotal = number
-				} else {
-					columnTotal *= number
-				}
-			}
-		case "+":
-			for rowIndex := 0; rowIndex < rowsCount; rowIndex++ {
-				number := p.Numbers[rowIndex][columnIndex]
-				if rowIndex == 0 {
-					columnTotal = number
-				} else {
-					columnTotal += number
-				}
-			}
+		/* Transposes the values to get the numbers in each row */
+		numbers := business_logic.TransposeColumns(cells)
+
+		/* Performs the operation on the numbers */
+		columnTotal, err := business_logic.Compute(operation, numbers)
+
+		if err != nil {
+			return 0, err
 		}
 
 		total += columnTotal
 	}
 
-	return total
+	return total, nil
+}
+
+func (p *Problems) readNumbers(columnIndex int) []string {
+
+	numbersCount := len(p.Numbers)
+
+	cells := make([]string, numbersCount)
+
+	for rowIndex := 0; rowIndex < numbersCount; rowIndex++ {
+		cells[rowIndex] = p.Numbers[rowIndex][columnIndex]
+	}
+
+	return cells
 }

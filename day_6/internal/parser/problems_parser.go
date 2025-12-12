@@ -44,7 +44,7 @@ func readProblems(
 	}
 
 	problems := abstractions.Problems{
-		Numbers: make([][]uint64, DefaultSize),
+		Numbers: make([][]string, DefaultSize),
 	}
 
 	defer func(inputFile *os.File) {
@@ -75,17 +75,11 @@ func readProblems(
 				problems.Operations[cellIndex] = operation
 			}
 		} else {
-			problems.Numbers[index] = make([]uint64, cellsCount)
+			problems.Numbers[index] = make([]string, cellsCount)
 
 			for cellIndex, cell := range columns {
-				number, err := strconv.ParseUint(cell, 10, 64)
-
-				if err != nil {
-					fmt.Printf("Error parsing number: %v\n", err)
-					return nil, err
-				}
-
-				problems.Numbers[index][cellIndex] = number
+				/* Keep the cell as a string so that we can manipulate it later */
+				problems.Numbers[index][cellIndex] = cell
 			}
 		}
 

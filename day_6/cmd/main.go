@@ -13,7 +13,12 @@ func main() {
 	/* 	Initializes the parser */
 	problemsParser := initializeParser(inputFile)
 
-	total := problemsParser.Problems.ComputeTotal()
+	total, err := problemsParser.Problems.ComputeTotal()
+
+	if err != nil {
+		fmt.Printf("Error computing total: %v\n", err)
+		os.Exit(1)
+	}
 
 	/* Prints the result */
 	fmt.Printf("Total = %d\n", total)
