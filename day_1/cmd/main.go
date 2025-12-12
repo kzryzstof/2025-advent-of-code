@@ -32,7 +32,7 @@ func main() {
 func newParser(
 	inputFile []string,
 ) *io.InstructionsReader {
-	instructionsReader, err := io.New(inputFile[0])
+	instructionsReader, err := io.NewReader(inputFile[0])
 
 	if err != nil {
 		fmt.Printf("Error parsing input file: %s\n", err)

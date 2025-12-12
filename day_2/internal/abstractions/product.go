@@ -56,25 +56,25 @@ func NewProduct(id string) (*Product, error) {
 	}, nil
 }
 
-func (p Product) GetNumber() int64 {
+func (p *Product) GetNumber() int64 {
 	return p.internalId
 }
 
-func (p Product) IsLast(lastProduct *Product) bool {
+func (p *Product) IsLast(lastProduct *Product) bool {
 	return p.internalId > lastProduct.internalId
 }
 
-func (p Product) Next() *Product {
+func (p *Product) Next() *Product {
 	nextInternalId := p.internalId + 1
 	return &Product{fmt.Sprint(nextInternalId), nextInternalId}
 }
 
-func (p Product) IsValid() bool {
+func (p *Product) IsValid() bool {
 
 	return !p.checkHasPattern()
 }
 
-func (p Product) checkHasPattern() bool {
+func (p *Product) checkHasPattern() bool {
 
 	idLength := len(p.Id)
 
@@ -95,13 +95,13 @@ func (p Product) checkHasPattern() bool {
 	return false
 }
 
-func (p Product) getPattern(
+func (p *Product) getPattern(
 	length int,
 ) string {
 	return p.Id[:length]
 }
 
-func (p Product) hasPattern(
+func (p *Product) hasPattern(
 	pattern string,
 ) bool {
 	patternLength := len(pattern)
@@ -114,12 +114,10 @@ func (p Product) hasPattern(
 		}
 	}
 
-	fmt.Printf("\t%q | Pattern %q found in product ID\n", p.Id, pattern)
-
 	return true
 }
 
-func (p Product) getDivisors(
+func (p *Product) getDivisors(
 	length int,
 ) []int {
 	return divisors[length]

@@ -17,7 +17,7 @@ type InstructionsReader struct {
 	inputFile *os.File
 }
 
-func New(
+func NewReader(
 	filePath string,
 ) (*InstructionsReader, error) {
 

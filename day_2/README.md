@@ -22,12 +22,13 @@ At the end of the run, the program prints the total sum of all invalid product I
 The executable entrypoint is `day_2/cmd/main.go` and the flow is:
 
 1. **Read input file path** from the command‑line arguments.
-2. **Set up a ranges parser** that reads the file and turns each `A-B` fragment into a `Range` (`From` and `To` products).
-3. **Set up a ranges processor** that listens on a ranges channel and, for each range, enumerates the product IDs and checks each for validity.
-4. Run the parser and processor concurrently using a `sync.WaitGroup`:
-   - The parser streams parsed `Range` values into a channel.
-   - The processor consumes from that channel and collects invalid product IDs.
-5. Wait for all goroutines to finish, then print:
+2. **Use the ranges parser** to read the file and turn each `A-B` fragment into a `Range` (`From` and `To` products), returning a slice of ranges.
+3. Call the application helper `FindInvalidProductIds(ranges)` to:
+   - Walk every range.
+   - Enumerate each product ID in that range.
+   - Check if the ID is invalid (made of a smaller repeated digit pattern).
+   - Accumulate the sum of all invalid IDs.
+4. Print:
    - `Sum of all the invalid product IDs found in <rangesCount> ranges: <total>`
 
 ## Packages and responsibilities
@@ -35,36 +36,32 @@ The executable entrypoint is `day_2/cmd/main.go` and the flow is:
 - `cmd/main.go`
   - Wires everything together.
   - Reads the input path from `os.Args`.
-  - Creates the ranges parser and processor.
-  - Starts them concurrently and waits for completion.
+  - Uses the parser to obtain all ranges from the input file.
+  - Calls `app.FindInvalidProductIds` with that slice.
   - Prints the final sum of all invalid IDs.
 
-- `internal/parser`
+- `internal/io` (or `internal/parser`, depending on naming)
   - `RangesParser` opens the input file and scans it line by line.
   - Each line is split on `","` into range strings like `"A-B"`.
   - Each range string is split on `"-"` into `from` and `to` product IDs.
   - For each valid `A-B` pair it:
     - Builds `Product` values via `NewProduct`.
     - Wraps them in a `Range` (`From`, `To`).
-    - Sends the `Range` into an internal channel.
-  - Maintains a `rangesCount` of how many ranges were parsed.
-  - Exposes the channel via `Ranges()` and closes it when parsing is done.
+  - Returns the full slice of parsed ranges.
 
-- `internal/processor`
-  - `RangesProcessor` takes something that implements `RangesChannel` and a `*sync.WaitGroup`.
-  - Runs a goroutine that ranges over the emitted `Range` values.
-  - For each range it calls `Range.FindInvalidProductIds()`.
-  - Accumulates all invalid product IDs into an internal slice and maintains their **sum** in `totalProductId`.
-  - Exposes the final sum via `GetTotalProductId()`.
+- `internal/app`
+  - `FindInvalidProductIds(ranges []abstractions.Range) uint64` – core application logic used by both `main` and tests:
+    - Iterates over each `Range`.
+    - Calls `Range.FindInvalidProductIds()` to get all invalid IDs in that range.
+    - Sums their numeric values into a single `uint64` result.
 
 - `internal/abstractions`
   - `Product` – wraps a product ID string and its integer value.
     - `IsValid` returns whether the ID **does not** consist solely of a repeated digit pattern.
     - Internally, `checkHasPattern` checks whether the ID’s length has divisors and tries each possible pattern length.
     - For a given pattern length, it takes the prefix as the candidate pattern and verifies the entire string is made by repeating that pattern at least twice.
-  - `Range` – represents a half‑open range of products: `From` and `To`.
+  - `Range` – represents an inclusive range of products: `From` and `To`.
     - `FindInvalidProductIds` walks from `From` up to `To`, calling `IsValid` on each `Product` and collecting those that are invalid.
-  - `RangesChannel` – a small interface that exposes a `Ranges() <-chan Range` method so that the processor only depends on the interface, not the concrete parser.
 
 ## Running Day 2
 
@@ -81,84 +78,3 @@ or directly with Go:
 cd day_2
 go run ./cmd input.txt
 ```
-# Day 1 – Dial Rotations
-
-The Day 1 solution is implemented in Go in the `day_1` folder. It models a dial that can be rotated left or right based on a list of textual instructions, and counts how many times the dial lands exactly on position `0`.
-
-## Problem model
-
-- The dial has positions from `0` to `99` (100 positions in total).
-- It starts at position `50`.
-- Each instruction in the input describes a **rotation**:
-  - The first character is the **direction**: `L` for left, `R` for right.
-  - The rest of the line is an integer **distance** to rotate.
-- Rotations wrap around the dial:
-  - Turning right increases the position.
-  - Turning left decreases the position.
-  - Both directions wrap within `[0, 99]` using modular arithmetic.
-- Every time the dial’s position becomes `0` or crosses it, an internal counter is incremented.
-
-At the end of the run, the program prints how many times the dial ended up at position `0` while processing all instructions.
-
-## High-level flow
-
-The executable entrypoint is `day_1/cmd/main.go` and the flow is:
-
-1. **Read input file path** from the command-line arguments.
-2. **Initialize the dial** at position `50`.
-3. **Set up a parser** that reads the input file and converts each line into a `Rotation` value (`Direction` + `Distance`).
-4. **Set up a processor** that listens on a rotations channel and applies each rotation to the dial.
-5. Run the parser and processor concurrently using a `sync.WaitGroup`:
-   - The parser streams parsed `Rotation` values into a channel.
-   - The processor consumes from that channel and calls `Dial.Rotate`.
-6. Wait for both goroutines to finish, then print:
-   - `Number of the times the dial ended up at position 0: <count>`
-
-## Packages and responsibilities
-
-- `cmd/main.go`
-  - Wires everything together.
-  - Creates the dial, parser, and processor.
-  - Starts the concurrent work and prints the final result.
-
-- `internal/parser`
-  - `InstructionsParser` opens the input file and reads it line by line using a scanner.
-  - For each non-empty line, it:
-    - Parses the direction (`L`/`R`) into a `Direction` enum.
-    - Parses the integer distance using `strconv.Atoi`.
-    - Emits a `Rotation` on an internal channel.
-  - Exposes that channel via the `Rotations()` method, and closes the channel when parsing is done.
-
-- `internal/processor`
-  - `InstructionsProcessor` takes something that implements `RotationsChannel` and a `*Dial`.
-  - Runs a goroutine that ranges over the rotations channel and, for each rotation, calls `dial.Rotate(rotation)`.
-
-- `internal/abstractions`
-  - `Direction` – simple enum-like type: `Left`, `Right`.
-  - `Rotation` – a single rotation instruction: `Direction` + `Distance`.
-  - `Dial` – keeps track of:
-    - `Position` – current dial position in `[0, 99]`.
-    - `count` – how many times the position has been exactly `0`.
-  - `Dial.Rotate` delegates to internal helpers:
-    - Distances are first reduced modulo the number of positions.
-    - `turnRight` moves clockwise: `(Position + distance) % 100`.
-    - `turnLeft` moves counter‑clockwise: `(Position - distance + 100) % 100`.
-    - After each move, if `Position == 0`, `count` is incremented.
-  - `RotationsChannel` – a small interface that exposes a `Rotations() <-chan Rotation` method, so the processor doesn’t depend directly on the parser type.
-
-## Running Day 1
-
-From the `day_1` directory you can run the solution with:
-
-```bash
-cd day_1
-make run ARGS="input.txt"
-```
-
-or directly with Go:
-
-```bash
-cd day_1
-go run ./cmd input.txt
-```
-
