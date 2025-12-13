@@ -21,11 +21,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	/* Connects pairs of junction boxes */
+	/* Connects pairs of junction boxes with only the specific number of cables */
 	circuits := app.CreateCircuits(playground, 1000, true)
 
 	/* Prints the result */
-	fmt.Printf("The elves have creates %d circuits\n", len(circuits))
+	fmt.Printf("The elves have creates %d circuits\n", circuits.Count())
 }
 
 func initializeReader(

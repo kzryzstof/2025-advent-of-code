@@ -18,19 +18,6 @@ func (c *Circuit) HasSingleJunctionBox() bool {
 	return len(c.junctionBoxes) == 1
 }
 
-func GetCircuit(
-	circuits []*Circuit,
-	junctionBox *JunctionBox,
-) *Circuit {
-	for _, circuit := range circuits {
-		if circuit.ContainsJunctionBox(junctionBox) {
-			return circuit
-		}
-	}
-
-	return nil
-}
-
 func (c *Circuit) ContainsJunctionBox(
 	junctionBox *JunctionBox,
 ) bool {
