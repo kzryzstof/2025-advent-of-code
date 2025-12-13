@@ -7,7 +7,7 @@ import (
 
 func ConnectJunctionBoxes(
 	playground *abstractions.Playground,
-	availableCablesCount uint,
+	availableConnectionsCount uint,
 	verbose bool,
 ) *abstractions.Circuits {
 
@@ -28,24 +28,23 @@ func ConnectJunctionBoxes(
 
 	for _, pair := range orderedPairs {
 
-		if availableCablesCount == 0 {
-			logNoMoreCables(verbose)
+		if availableConnectionsCount == 0 {
+			logAllConnectionsMade(verbose)
 			break
 		}
 
-		logRemainingCables(availableCablesCount, verbose)
+		logRemainingConnections(availableConnectionsCount, verbose)
 		logPairDistance(*pair, verbose)
 
 		circuitA := circuits.Get(pair.A)
 		circuitB := circuits.Get(pair.B)
 
 		if circuitA == circuitB {
+
 			/* Already in the same circuit */
 			logSameCircuit(verbose)
-			continue
-		}
 
-		if circuitA.IsDisconnected() {
+		} else if circuitA.IsDisconnected() {
 
 			/* Connects the junction box from circuit A to circuit B */
 			logJunctionBoxNotInAnyCircuit(*pair.A, verbose)
@@ -60,12 +59,14 @@ func ConnectJunctionBoxes(
 			logCircuits(circuits, circuitA, verbose)
 
 		} else {
+
 			/* Merge the circuits together with one cable */
 			circuits.Merge(circuitA, circuitB)
 			logCircuits(circuits, circuitB, verbose)
+
 		}
 
-		availableCablesCount--
+		availableConnectionsCount--
 	}
 
 	logDetailsCircuits(circuits, verbose)
@@ -75,11 +76,11 @@ func ConnectJunctionBoxes(
 
 /* Logging */
 
-func logNoMoreCables(
+func logAllConnectionsMade(
 	verbose bool,
 ) {
 	if verbose {
-		fmt.Println("No more available cables to connect junction boxes")
+		fmt.Println("No more available connections to make.")
 	}
 }
 
@@ -97,12 +98,12 @@ func logPairDistance(
 	}
 }
 
-func logRemainingCables(
+func logRemainingConnections(
 	availableCablesCount uint,
 	verbose bool,
 ) {
 	if verbose {
-		fmt.Printf("%d available cables to connect junction boxes\n", availableCablesCount)
+		fmt.Printf("%d available connections\n", availableCablesCount)
 	}
 }
 
@@ -122,20 +123,6 @@ func logJunctionBoxNotInAnyCircuit(
 		fmt.Printf(
 			"\tJunction box is not in a circuit: %v\n",
 			junctionBox.Position,
-		)
-	}
-}
-
-func logJunctionBoxAlreadyInCircuits(
-	a abstractions.JunctionBox,
-	b abstractions.JunctionBox,
-	verbose bool,
-) {
-	if verbose {
-		fmt.Printf(
-			"\tJunction boxes are already each in a circuit: %v %v. Skipping\n",
-			a.Position,
-			b.Position,
 		)
 	}
 }
