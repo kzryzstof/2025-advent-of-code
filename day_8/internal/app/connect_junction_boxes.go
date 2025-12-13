@@ -59,11 +59,8 @@ func ConnectJunctionBoxes(
 
 		} else {
 			/* Merge the circuits together with one cable */
-
-			/*
-				circuits.Merge(fromCircuit, toCircuit)
-				logCircuits(circuits, toCircuit, verbose)
-			*/
+			circuits.Merge(fromCircuit, toCircuit)
+			logCircuits(circuits, toCircuit, verbose)
 		}
 
 		availableCablesCount--
@@ -123,6 +120,20 @@ func logJunctionBoxNotInAnyCircuit(
 		fmt.Printf(
 			"\tJunction box is not in a circuit: %v\n",
 			junctionBox.Position,
+		)
+	}
+}
+
+func logJunctionBoxAlreadyInCircuits(
+	fromJunctionBox abstractions.JunctionBox,
+	toJunctionBox abstractions.JunctionBox,
+	verbose bool,
+) {
+	if verbose {
+		fmt.Printf(
+			"\tJunction boxes are already each in a circuit: %v %v. Skipping\n",
+			fromJunctionBox.Position,
+			toJunctionBox.Position,
 		)
 	}
 }

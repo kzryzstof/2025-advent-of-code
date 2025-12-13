@@ -35,6 +35,8 @@ func main() {
 		biggestCircuits[1].Count(),
 		biggestCircuits[2].Count(),
 		biggestCircuits[0].Count()*biggestCircuits[1].Count()*biggestCircuits[2].Count())
+
+	//	28594	Too low
 }
 
 func initializeReader(
