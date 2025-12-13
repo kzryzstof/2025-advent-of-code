@@ -1,64 +1,133 @@
-# Day 7 – Tachyon Beam Splitter
+# Day 7 – Multiverse Timeline Splitter
 
-This day simulates a **tachyon beam** travelling through a 2D grid (the *manifold*).
+This solution simulates **tachyon beams** traveling downward through a 2D grid (the *manifold*), splitting into multiple timelines when they encounter splitter obstacles.
 
-## Problem overview
+## Problem Overview
 
-The input (`input.txt`) is a rectangular grid of characters:
+### Input Format
 
-- `S` – starting point of the beam
-- `.` – empty space
-- `^` – splitter
-- `|` – beam path (only appears in the output, not in the input)
+The input file (`input.txt`) is a rectangular grid with:
 
-Example (shortened):
+- `S` – Starting point where the initial tachyon beam originates
+- `.` – Empty space (passable)
+- `^` – Splitter (causes the beam to split into two timelines)
+- `|` – Beam path marker (written during simulation)
+
+Example input:
 
 ```text
-....S....
-.........
-....^....
-.........
+......S......
+.............
+.....^.^.....
+.............
+....^...^....
+.............
 ```
 
-From the single `S`, a **tachyon** starts moving **downwards** one cell at a time:
+### Simulation Rules
 
-- If the next cell is **empty** (`.`), the beam moves into it and marks it as `|`.
-- If the next cell is a **splitter** (`^`), the beam **splits** into two beams that diverge horizontally (left and right), continuing from the splitter’s position.
-- If the next cell is **outside the manifold** or already contains another beam, that tachyon **stops**.
+The simulation starts with a single tachyon at position `S`, moving **downward** (row + 1):
 
-The simulation runs until **all tachyons have stopped**. At the end, the program:
+1. **Empty cell (`.`)**: The tachyon moves forward and marks the cell as `|`
+2. **Splitter (`^`)**: The beam splits into two new beams that diverge horizontally:
+   - One beam moves **left** (col - 1)
+   - One beam moves **right** (col + 1)
+   - Both continue moving downward from their new positions
+   - A new **timeline** is created (à la Marvel multiverse)
+3. **Another beam (`|`)**: The tachyons **merge** — we track that multiple beams follow the same path rather than simulating them separately (optimization)
+4. **Out of bounds or obstacle**: The tachyon stops
 
-1. Draws the final manifold (with all paths marked as `|`).
-2. Prints how many times the beam has been **split** in total.
+The simulation continues until **all tachyons have stopped moving**.
 
-## Code structure
+### Timeline Counting
 
-- `internal/io/manifold_reader.go` – reads the grid from `input.txt` into a `Manifold`.
-  - Finds the starting point `S` and creates an initial moving tachyon.
-- `internal/abstractions/manifold.go` – represents the grid and the beam operations:
-  - Queries and updates locations
-  - Checks boundaries
-  - Splits beams and tracks all tachyons
-- `internal/abstractions/tachyon.go` – represents a single moving tachyon (position + moving/stopped state).
-- `internal/abstractions/direction.go` – small helper for row/column deltas.
-- `internal/app/beam_simulator.go` – core simulation loop (`Simulate`):
-  - Keeps stepping all moving tachyons until none are moving.
-- `cmd/main.go` – CLI entrypoint that wires everything together.
+Each time a beam hits a splitter, a new timeline branches off. The program tracks:
 
-## Running the solution
+- How many beams hit each splitter position
+- The total number of timelines created across the entire simulation
+- The initial "sacred timeline" (always counts as 1)
 
-From the `day_7` directory:
+**Final output**: Total timelines = 1 (original) + sum of all beams that hit splitters.
+
+## Code Structure
+
+### Core Abstractions (`internal/abstractions/`)
+
+- **`manifold.go`** – The grid and simulation state:
+  - `Locations [][]string` – 2D grid of cells
+  - `Tachyons []*Tachyon` – All active/stopped tachyons
+  - `timelines [][]uint64` – Tracks how many beams hit each splitter position
+  - Methods: `SetBeamAt`, `SplitBeamAt`, `Merge`, `CountTimelines`
+  
+- **`tachyon.go`** – Represents a single beam:
+  - `Position` – Current row/column
+  - `isMoving bool` – Whether still active
+  - `mergedBeams uint64` – Tracks how many beams merged into this one
+  - Methods: `Move`, `Stop`, `Split`, `MergeTo`
+
+- **`position.go`** – Simple (row, col) struct with `MoveTo(direction)` helper
+
+- **`direction.go`** – Delta struct for movement (RowDelta, ColDelta)
+
+### Application Logic (`internal/app/`)
+
+- **`beam_simulator.go`** – Main simulation loop:
+  - `Simulate(manifold, drawProgress bool)` – Steps all tachyons until none are moving
+  - Optionally clears and redraws the grid each iteration for animation
+
+### I/O (`internal/io/`)
+
+- **`manifold_reader.go`** – Parses `input.txt`:
+  - Reads grid into 2D string array
+  - Finds all `S` positions and creates initial tachyons
+  - Returns a `Manifold` ready for simulation
+
+### Entry Point (`cmd/`)
+
+- **`main.go`** – CLI that:
+  1. Reads the manifold from the input file
+  2. Runs the simulation with live drawing enabled
+  3. Prints the total number of timelines created
+
+## Running the Solution
 
 ```bash
 cd day_7
-# Run with the provided input file
 go run ./cmd ./input.txt
 ```
 
-The program will print the final manifold and a line like:
+### Output
 
-```text
-The beam has been splitted X times
+The program will:
+1. Animate the simulation (clearing and redrawing the grid as tachyons move)
+2. Print the final grid state with all beam paths marked as `|`
+3. Display:
+   ```
+   The beam has created X timelines
+   ```
+   where `X` is the total timeline count (1 original + all splits)
+
+## Key Implementation Details
+
+### Beam Merging Optimization
+
+When multiple beams converge on the same path, instead of simulating each one:
+- The beams **merge** into a single tachyon
+- The `mergedBeams` counter tracks how many actual beams this tachyon represents
+- When this merged tachyon hits a splitter, all its constituent beams contribute to the timeline count
+
+### Timeline Tracking
+
+The `timelines` 2D array stores beam counts at each splitter position:
+```go
+m.timelines[row][col] += tachyon.GetMergedBeams()
 ```
+This ensures that if 5 merged beams hit a single splitter, it creates 5 new timelines (not just 1).
 
-where `X` is the total number of splits that occurred during the simulation.
+### Animation
+
+When `drawProgress` is true:
+- Each iteration clears the terminal: `fmt.Print("\033[2J\033[H")`
+- Redraws the entire grid with current beam positions
+- Creates a visual animation of the beam propagation
+

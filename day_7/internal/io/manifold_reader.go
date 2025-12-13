@@ -54,10 +54,10 @@ func (r *ManifoldReader) Read() (*abstractions.Manifold, error) {
 
 	tachyons := r.findTachyons(locations)
 
-	return &abstractions.Manifold{
-		Locations: locations,
-		Tachyons:  tachyons,
-	}, nil
+	return abstractions.NewManifold(
+		locations,
+		tachyons,
+	), nil
 }
 
 func (r *ManifoldReader) findTachyons(
@@ -71,15 +71,14 @@ func (r *ManifoldReader) findTachyons(
 	for rowIndex, row := range locations {
 		for colIndex, location := range row {
 			if location == startingPointLocation {
-				newTachyon := abstractions.Tachyon{
-					Position: abstractions.Position{
+				newTachyon := abstractions.NewTachyon(
+					abstractions.Position{
 						RowIndex: rowIndex,
 						ColIndex: colIndex,
 					},
-				}
-				newTachyon.Start()
+				)
 
-				tachyons = append(tachyons, &newTachyon)
+				tachyons = append(tachyons, newTachyon)
 			}
 		}
 	}

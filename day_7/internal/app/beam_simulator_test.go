@@ -23,29 +23,134 @@ func buildManifoldFromSingleLine(input string) *abstractions.Manifold {
 			if cell == abstractions.StartingPoint {
 				// create a moving tachyon at this position
 				pos := abstractions.Position{RowIndex: r, ColIndex: c}
-				t := &abstractions.Tachyon{Position: pos}
-				t.Start()
+				t := abstractions.NewTachyon(
+					pos,
+				)
 				tachyons = append(tachyons, t)
 			}
 		}
 	}
 
-	return &abstractions.Manifold{
-		Locations: locations,
-		Tachyons:  tachyons,
-	}
+	return abstractions.NewManifold(
+		locations,
+		tachyons,
+	)
 }
 
 func TestSimulate_WithGivenManifoldLayout(t *testing.T) {
 	tests := []struct {
-		name           string
-		layout         string
-		expectedSplits uint
+		name              string
+		layout            string
+		expectedTimelines uint64
 	}{
 		{
-			name:           "given splitter pattern without explicit start",
-			layout:         ".......S....... ............... .......^....... ............... ......^.^...... ............... .....^.^.^..... ............... ....^.^...^.... ............... ...^.^...^.^... ............... ..^...^.....^.. ............... .^.^.^.^.^...^. ...............",
-			expectedSplits: 21,
+			name: "1 level of splits",
+			layout: "" +
+				".......S....... " +
+				"............... " +
+				".......^....... " +
+				"...............",
+			expectedTimelines: uint64(2),
+		},
+		{
+			name: "2 levels of splits",
+			layout: "" +
+				".......S....... " +
+				"............... " +
+				".......^....... " +
+				"............... " +
+				"......^.^...... " +
+				"............... ",
+			expectedTimelines: uint64(4),
+		},
+		{
+			name: "3 levels of splits (1)",
+			layout: "" +
+				".......S....... " +
+				"............... " +
+				".......^....... " +
+				"............... " +
+				"......^........ " +
+				"............... " +
+				".....^......... " +
+				"............... ",
+			expectedTimelines: uint64(4),
+		},
+		{
+			name: "3 levels of splits (2)",
+			layout: "" +
+				".......S....... " +
+				"............... " +
+				".......^....... " +
+				"............... " +
+				"......^........ " +
+				"............... " +
+				".....^.^....... " +
+				"............... ",
+			expectedTimelines: uint64(5),
+		},
+		{
+			name: "3 levels of splits (3)",
+			layout: "" +
+				".......S....... " +
+				"............... " +
+				".......^....... " +
+				"............... " +
+				"......^........ " +
+				"............... " +
+				".....^......... " +
+				"........^...... " +
+				"...............",
+			expectedTimelines: uint64(5),
+		},
+		{
+			name: "3 levels of splits",
+			layout: "" +
+				".......S....... " +
+				"............... " +
+				".......^....... " +
+				"............... " +
+				"......^.^...... " +
+				"............... " +
+				".....^.^.^..... " +
+				"............... ",
+			expectedTimelines: uint64(8),
+		},
+		{
+			name: "4 levels of splits",
+			layout: "" +
+				".......S....... " +
+				"............... " +
+				".......^....... " +
+				"............... " +
+				"......^.^...... " +
+				"............... " +
+				".....^.^.^..... " +
+				"............... " +
+				"....^.^...^.... " +
+				"............... ",
+			expectedTimelines: uint64(13),
+		},
+		{
+			name: "documented used case",
+			layout: "" +
+				".......S....... " +
+				"............... " +
+				".......^....... " +
+				"............... " +
+				"......^.^...... " +
+				"............... " +
+				".....^.^.^..... " +
+				"............... " +
+				"....^.^...^.... " +
+				"............... " +
+				"...^.^...^.^... " +
+				"............... " +
+				"..^...^.....^.. " +
+				"............... " +
+				".^.^.^.^.^...^. " +
+				"...............",
+			expectedTimelines: uint64(40),
 		},
 	}
 
@@ -55,15 +160,15 @@ func TestSimulate_WithGivenManifoldLayout(t *testing.T) {
 
 			manifold.Draw()
 
-			Simulate(manifold)
+			Simulate(manifold, false)
 
-			if tt.expectedSplits != manifold.GetSplitsCount() {
-				t.Fatalf("expected at least one starting tachyon, got 0")
+			manifold.Draw()
+
+			actualTimelines := manifold.CountTimelines()
+
+			if tt.expectedTimelines != actualTimelines {
+				t.Fatalf("expected %d timelines, got %d", tt.expectedTimelines, actualTimelines)
 			}
-
-			// Run the simulation; the primary assertion is that it terminates
-			// without panic or infinite loop.
-			Simulate(manifold)
 		})
 	}
 }

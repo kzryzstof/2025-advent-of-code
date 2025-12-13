@@ -5,12 +5,11 @@ type Position struct {
 	ColIndex int
 }
 
-func ChangePosition(
-	position Position,
+func (p Position) MoveTo(
 	direction Direction,
 ) Position {
 	return Position{
-		RowIndex: position.RowIndex + direction.RowDelta,
-		ColIndex: position.ColIndex + direction.ColDelta,
+		RowIndex: p.RowIndex + direction.RowDelta,
+		ColIndex: p.ColIndex + direction.ColDelta,
 	}
 }

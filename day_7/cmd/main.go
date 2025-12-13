@@ -22,12 +22,10 @@ func main() {
 	}
 
 	/* Simulates the beam paths */
-	app.Simulate(manifold)
-
-	manifold.Draw()
+	app.Simulate(manifold, true)
 
 	/* Prints the result */
-	fmt.Printf("The beam has been splitted %d times\n", manifold.GetSplitsCount())
+	fmt.Printf("The beam has created %d timelines\n", manifold.CountTimelines())
 }
 
 func initializeReader(
