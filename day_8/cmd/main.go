@@ -22,22 +22,15 @@ func main() {
 	}
 
 	/* Connects pairs of junction boxes with only the specific number of cables */
-	circuits := app.ConnectJunctionBoxes(playground, 1000, true)
+	lastConnectedPair := app.ConnectJunctionBoxes(playground, 1000, true)
 
-	biggestCircuits := circuits.GetBiggestCircuits(3)
+	if lastConnectedPair == nil {
+		fmt.Println("No solution found")
+		os.Exit(1)
+	}
 
 	/* Prints the result */
-	fmt.Printf("The elves have created %d circuits\n", circuits.Count())
-
-	fmt.Printf(
-		"Biggest circuits have %d, %d and %d junction boxes (%d)\n",
-		biggestCircuits[0].Count(),
-		biggestCircuits[1].Count(),
-		biggestCircuits[2].Count(),
-		biggestCircuits[0].Count()*biggestCircuits[1].Count()*biggestCircuits[2].Count())
-
-	//	28594	too low
-	//	990		too low
+	fmt.Printf("The last connected pair X are: %d and %d (%d)", lastConnectedPair.A.Position.X, lastConnectedPair.B.Position.X, lastConnectedPair.A.Position.X*lastConnectedPair.B.Position.X)
 }
 
 func initializeReader(

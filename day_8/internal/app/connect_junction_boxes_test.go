@@ -10,9 +10,7 @@ func TestConnectJunctionBoxes(t *testing.T) {
 		name                 string
 		playground           *abstractions.Playground
 		availableCablesCount uint
-		expectedCircuitCount int
-		expectedSize         int
-		validate             func(t *testing.T, playground *abstractions.Playground, circuits *abstractions.Circuits)
+		expectedPair         *abstractions.JunctionBoxPair
 	}{
 		{
 			name: "Documented Use Case",
@@ -41,42 +39,27 @@ func TestConnectJunctionBoxes(t *testing.T) {
 				},
 			},
 			availableCablesCount: 10,
-			expectedSize:         40,
-			expectedCircuitCount: 11,
-			validate: func(t *testing.T, playground *abstractions.Playground, circuits *abstractions.Circuits) {
-				// Verify all junction boxes are accounted for
-				totalBoxes := 0
-				for _, circuit := range circuits.GetAll() {
-					totalBoxes += circuit.Count()
-				}
-				if totalBoxes != len(playground.JunctionBoxes) {
-					t.Errorf("Expected total of %d junction boxes across all circuits, got %d", len(playground.JunctionBoxes), totalBoxes)
-				}
+			expectedPair: &abstractions.JunctionBoxPair{
+				A: &abstractions.JunctionBox{Position: abstractions.Position{X: 216, Y: 146, Z: 977}},
+				B: &abstractions.JunctionBox{Position: abstractions.Position{X: 117, Y: 168, Z: 530}},
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			circuits := ConnectJunctionBoxes(tt.playground, tt.availableCablesCount, true)
+			actualLastPair := ConnectJunctionBoxes(tt.playground, tt.availableCablesCount, true)
 
-			if circuits == nil {
-				t.Fatal("Expected non-nil circuits slice")
+			if actualLastPair == nil {
+				t.Fatal("Expected non-nil pair")
 			}
 
-			if circuits.Count() != tt.expectedCircuitCount {
-				t.Errorf("Expected %d circuits, got %d", tt.expectedCircuitCount, circuits.Count())
+			if actualLastPair.A.Position != tt.expectedPair.A.Position {
+				t.Errorf("Expected last pair junction box A of %v, got %v", tt.expectedPair.A, actualLastPair.A)
 			}
 
-			// Verify all circuits are the expected size
-			biggestCircuits := circuits.GetBiggestCircuits(3)
-			actualSize := biggestCircuits[0].Count() * biggestCircuits[1].Count() * biggestCircuits[2].Count()
-			if actualSize != tt.expectedSize {
-				t.Errorf("Expected size of %d, got %d", tt.expectedSize, actualSize)
-			}
-
-			if tt.validate != nil {
-				tt.validate(t, tt.playground, circuits)
+			if actualLastPair.B.Position != tt.expectedPair.B.Position {
+				t.Errorf("Expected last pair junction box B of %v, got %v", tt.expectedPair.B, actualLastPair.B)
 			}
 		})
 	}

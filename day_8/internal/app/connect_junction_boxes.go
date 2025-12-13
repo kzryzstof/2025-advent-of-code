@@ -9,7 +9,7 @@ func ConnectJunctionBoxes(
 	playground *abstractions.Playground,
 	availableConnectionsCount uint,
 	verbose bool,
-) *abstractions.Circuits {
+) *abstractions.JunctionBoxPair {
 
 	circuits := abstractions.NewCircuits()
 
@@ -26,14 +26,16 @@ func ConnectJunctionBoxes(
 
 	logPairs(orderedPairs, 30, verbose)
 
+	var lastPair *abstractions.JunctionBoxPair
+
 	for _, pair := range orderedPairs {
 
-		if availableConnectionsCount == 0 {
+		if circuits.Count() == 1 {
 			logAllConnectionsMade(verbose)
 			break
 		}
 
-		logRemainingConnections(availableConnectionsCount, verbose)
+		logNewConnection(verbose)
 		logPairDistance(*pair, verbose)
 
 		circuitA := circuits.Get(pair.A)
@@ -66,12 +68,14 @@ func ConnectJunctionBoxes(
 
 		}
 
-		availableConnectionsCount--
+		if circuits.Count() == 1 {
+			lastPair = pair
+		}
 	}
 
 	logDetailsCircuits(circuits, verbose)
 
-	return circuits
+	return lastPair
 }
 
 /* Logging */
@@ -80,7 +84,7 @@ func logAllConnectionsMade(
 	verbose bool,
 ) {
 	if verbose {
-		fmt.Println("No more available connections to make.")
+		fmt.Println("No more junction box available.")
 	}
 }
 
@@ -98,12 +102,11 @@ func logPairDistance(
 	}
 }
 
-func logRemainingConnections(
-	availableCablesCount uint,
+func logNewConnection(
 	verbose bool,
 ) {
 	if verbose {
-		fmt.Printf("%d available connections\n", availableCablesCount)
+		fmt.Printf("New connection\n")
 	}
 }
 
