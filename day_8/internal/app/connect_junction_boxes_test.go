@@ -12,7 +12,7 @@ func TestConnectJunctionBoxes(t *testing.T) {
 		availableCablesCount uint
 		expectedCircuitCount int
 		expectedSize         int
-		validate             func(t *testing.T, circuits *abstractions.Circuits)
+		validate             func(t *testing.T, playground *abstractions.Playground, circuits *abstractions.Circuits)
 	}{
 		{
 			name: "Documented Use Case",
@@ -43,18 +43,14 @@ func TestConnectJunctionBoxes(t *testing.T) {
 			availableCablesCount: 10,
 			expectedSize:         40,
 			expectedCircuitCount: 11,
-			validate: func(t *testing.T, circuits *abstractions.Circuits) {
-				if circuits.Count() != 11 {
-					t.Errorf("Expected 11 circuits, got %d", circuits.Count())
-				}
-
-				// Verify all 20 junction boxes are accounted for
+			validate: func(t *testing.T, playground *abstractions.Playground, circuits *abstractions.Circuits) {
+				// Verify all junction boxes are accounted for
 				totalBoxes := 0
 				for _, circuit := range circuits.GetAll() {
 					totalBoxes += circuit.Count()
 				}
-				if totalBoxes != 20 {
-					t.Errorf("Expected total of 20 junction boxes across all circuits, got %d", totalBoxes)
+				if totalBoxes != len(playground.JunctionBoxes) {
+					t.Errorf("Expected total of %d junction boxes across all circuits, got %d", len(playground.JunctionBoxes), totalBoxes)
 				}
 			},
 		},
@@ -80,7 +76,7 @@ func TestConnectJunctionBoxes(t *testing.T) {
 			}
 
 			if tt.validate != nil {
-				tt.validate(t, circuits)
+				tt.validate(t, tt.playground, circuits)
 			}
 		})
 	}

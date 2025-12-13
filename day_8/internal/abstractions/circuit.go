@@ -12,7 +12,7 @@ func NewCircuit(
 	return &Circuit{junctionBoxes: junctionBoxes}
 }
 
-func (c *Circuit) AddJunctionBox(
+func (c *Circuit) Add(
 	junctionBox *JunctionBox,
 ) {
 	c.junctionBoxes = append(c.junctionBoxes, junctionBox)
@@ -22,7 +22,7 @@ func (c *Circuit) HasSingleJunctionBox() bool {
 	return len(c.junctionBoxes) == 1
 }
 
-func (c *Circuit) ContainsJunctionBox(
+func (c *Circuit) Contains(
 	junctionBox *JunctionBox,
 ) bool {
 	for _, jb := range c.junctionBoxes {
@@ -38,6 +38,6 @@ func (c *Circuit) Count() int {
 	return len(c.junctionBoxes)
 }
 
-func (c *Circuit) GetJunctionBoxes() []*JunctionBox {
+func (c *Circuit) Get() []*JunctionBox {
 	return c.junctionBoxes
 }

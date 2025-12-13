@@ -1,6 +1,8 @@
 package abstractions
 
-import "slices"
+import (
+	"slices"
+)
 
 type Circuits struct {
 	circuits []*Circuit
@@ -36,7 +38,7 @@ func (c *Circuits) Get(
 	junctionBox *JunctionBox,
 ) *Circuit {
 	for _, circuit := range c.circuits {
-		if circuit.ContainsJunctionBox(junctionBox) {
+		if circuit.Contains(junctionBox) {
 			return circuit
 		}
 	}
@@ -58,4 +60,22 @@ func (c *Circuits) GetBiggestCircuits(
 	})
 
 	return c.circuits[:count]
+}
+
+func (c *Circuits) Merge(
+	fromCircuit *Circuit,
+	toCircuit *Circuit,
+) {
+	for _, fromJunctionBox := range fromCircuit.Get() {
+		toCircuit.Add(fromJunctionBox)
+	}
+
+	c.Remove(fromCircuit)
+}
+
+func (c *Circuits) AddTo(
+	fromCircuit *Circuit,
+	toCircuit *Circuit,
+) {
+	c.Merge(fromCircuit, toCircuit)
 }
