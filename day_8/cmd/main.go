@@ -1,7 +1,6 @@
 package main
 
 import (
-	"day_8/internal/app"
 	"day_8/internal/io"
 	"fmt"
 	"os"
@@ -14,29 +13,26 @@ func main() {
 	/* 	Initializes the reader */
 	reader := initializeReader(inputFile)
 
-	/* Reads the manifold from the file */
-	manifold, err := reader.Read()
+	/* Reads all the junction boxes from the playground */
+	playground, err := reader.Read()
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	/* Simulates the beam paths */
-	app.Simulate(manifold, true)
-
 	/* Prints the result */
-	fmt.Printf("The beam has created %d timelines\n", manifold.CountTimelines())
+	fmt.Printf("The playground has created %v junction boxes\n", len(playground.JunctionBoxes))
 }
 
 func initializeReader(
 	inputFile []string,
-) *io.ManifoldReader {
+) *io.PlaygroundReader {
 	reader, err := io.NewReader(inputFile[0])
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Parser initialized: %v\n", reader)
+	fmt.Printf("Reader initialized: %v\n", reader)
 	return reader
 }

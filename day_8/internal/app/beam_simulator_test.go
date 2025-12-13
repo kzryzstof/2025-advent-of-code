@@ -22,7 +22,7 @@ func buildManifoldFromSingleLine(input string) *abstractions.Manifold {
 			locations[r][c] = cell
 			if cell == abstractions.StartingPoint {
 				// create a moving tachyon at this position
-				pos := abstractions.Position{RowIndex: r, ColIndex: c}
+				pos := abstractions.LegacyPosition{RowIndex: r, ColIndex: c}
 				t := abstractions.NewTachyon(
 					pos,
 				)

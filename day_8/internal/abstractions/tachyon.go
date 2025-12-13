@@ -1,14 +1,14 @@
 package abstractions
 
 type Tachyon struct {
-	Position Position
+	Position LegacyPosition
 	isMoving bool
 	/* Tracks how many beams are actually following the same trajectory */
 	mergedBeams uint64
 }
 
 func NewTachyon(
-	position Position,
+	position LegacyPosition,
 ) *Tachyon {
 	return &Tachyon{
 		Position:    position,

@@ -97,7 +97,7 @@ func (m *Manifold) Merge(
 }
 
 func (m *Manifold) GetLocation(
-	position Position,
+	position LegacyPosition,
 ) string {
 
 	if position.RowIndex < 0 || position.RowIndex >= len(m.Locations) {
@@ -112,7 +112,7 @@ func (m *Manifold) GetLocation(
 }
 
 func (m *Manifold) isWithinBoundary(
-	position Position,
+	position LegacyPosition,
 	direction Direction,
 ) bool {
 
@@ -139,9 +139,9 @@ func (m *Manifold) Draw() {
 }
 
 func (m *Manifold) SetBeamAt(
-	position Position,
+	position LegacyPosition,
 	direction Direction,
-) (bool, Position) {
+) (bool, LegacyPosition) {
 
 	if !m.isWithinBoundary(position, direction) {
 		return false, position
@@ -225,7 +225,7 @@ func (m *Manifold) AreTachyonsMoving() bool {
 
 func (m *Manifold) createTimeline(
 	tachyon Tachyon,
-	position Position,
+	position LegacyPosition,
 ) {
 	/* A new MCU timeline is created each time a splitter is encountered */
 
@@ -263,7 +263,7 @@ func (m *Manifold) CountTimelines() uint64 {
 }
 
 func (m *Manifold) GetTachyonAt(
-	position Position,
+	position LegacyPosition,
 ) *Tachyon {
 	for _, tachyon := range m.Tachyons {
 		if tachyon.Position == position {
