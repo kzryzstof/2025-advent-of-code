@@ -35,6 +35,9 @@ func (c *Circuit) Contains(
 }
 
 func (c *Circuit) Count() int {
+	if c == nil {
+		return 0
+	}
 	return len(c.junctionBoxes)
 }
 

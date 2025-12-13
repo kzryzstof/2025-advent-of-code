@@ -27,7 +27,7 @@ func main() {
 	biggestCircuits := circuits.GetBiggestCircuits(3)
 
 	/* Prints the result */
-	fmt.Printf("The elves have creates %d circuits\n", circuits.Count())
+	fmt.Printf("The elves have created %d circuits\n", circuits.Count())
 
 	fmt.Printf(
 		"Biggest circuits are %d, %d and %d junction boxes (%d)\n",
@@ -36,7 +36,8 @@ func main() {
 		biggestCircuits[2].Count(),
 		biggestCircuits[0].Count()*biggestCircuits[1].Count()*biggestCircuits[2].Count())
 
-	//	28594	Too low
+	//	28594	too low
+	//	990		too low
 }
 
 func initializeReader(

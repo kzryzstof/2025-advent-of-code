@@ -18,13 +18,15 @@ func ConnectJunctionBoxes(
 		circuits.Add(abstractions.NewCircuit(junctionBox))
 	}
 
-	/* Pre-computes all the closest distances up-front */
-	distanceRegistry := abstractions.NewDistanceRegistry(playground.JunctionBoxes)
+	/* Pairs all the junction boxes */
+	unorderedPairs := Pair(playground.JunctionBoxes)
 
 	/* Connects pairs of junction boxes as long as there are available cables */
-	orderedDistances := distanceRegistry.GetOrderedDistances()
+	orderedPairs := abstractions.Order(unorderedPairs)
 
-	for _, closestJunctionBoxes := range orderedDistances {
+	logPairs(orderedPairs, 30, verbose)
+
+	for _, pair := range orderedPairs {
 
 		if availableCablesCount == 0 {
 			logNoMoreCables(verbose)
@@ -32,35 +34,36 @@ func ConnectJunctionBoxes(
 		}
 
 		logRemainingCables(availableCablesCount, verbose)
-		logShortestConnection(*closestJunctionBoxes, verbose)
+		logPairDistance(*pair, verbose)
 
-		fromCircuit := circuits.Get(closestJunctionBoxes.FromJunctionBox)
-		toCircuit := circuits.Get(closestJunctionBoxes.ToJunctionBox)
+		circuitA := circuits.Get(pair.A)
+		circuitB := circuits.Get(pair.B)
 
-		if fromCircuit == toCircuit {
+		if circuitA == circuitB {
 			/* Already in the same circuit */
 			logSameCircuit(verbose)
 			continue
 		}
 
-		if toCircuit.HasSingleJunctionBox() {
+		if circuitB.HasSingleJunctionBox() {
 
 			/* Include the TO junction box in the FROM circuit */
-			logJunctionBoxNotInAnyCircuit(*closestJunctionBoxes.ToJunctionBox, verbose)
-			circuits.AddTo(toCircuit, fromCircuit)
-			logCircuits(circuits, fromCircuit, verbose)
+			logJunctionBoxNotInAnyCircuit(*pair.B, verbose)
+			circuits.AddTo(circuitB, circuitA)
+			logCircuits(circuits, circuitA, verbose)
 
-		} else if fromCircuit.HasSingleJunctionBox() {
+		} else if circuitA.HasSingleJunctionBox() {
 
 			/* Include the FROM junction box in the TO circuit */
-			logJunctionBoxNotInAnyCircuit(*closestJunctionBoxes.FromJunctionBox, verbose)
-			circuits.AddTo(fromCircuit, toCircuit)
-			logCircuits(circuits, toCircuit, verbose)
+			logJunctionBoxNotInAnyCircuit(*pair.A, verbose)
+			circuits.AddTo(circuitA, circuitB)
+			logCircuits(circuits, circuitB, verbose)
 
 		} else {
 			/* Merge the circuits together with one cable */
-			circuits.Merge(fromCircuit, toCircuit)
-			logCircuits(circuits, toCircuit, verbose)
+			circuits.Merge(circuitA, circuitB)
+			logCircuits(circuits, circuitB, verbose)
+			//continue
 		}
 
 		availableCablesCount--
@@ -81,16 +84,16 @@ func logNoMoreCables(
 	}
 }
 
-func logShortestConnection(
-	closestJunctionBoxes abstractions.ClosestJunctionBox,
+func logPairDistance(
+	pair abstractions.JunctionBoxPair,
 	verbose bool,
 ) {
 	if verbose {
 		fmt.Printf(
-			"\tShortest distance: %f. Connecting junction boxes: %v %v\n",
-			closestJunctionBoxes.Distance,
-			closestJunctionBoxes.FromJunctionBox.Position,
-			closestJunctionBoxes.ToJunctionBox.Position,
+			"\tShortest distance: %f. Pair: %v %v\n",
+			pair.Distance,
+			pair.A.Position,
+			pair.B.Position,
 		)
 	}
 }
@@ -125,15 +128,15 @@ func logJunctionBoxNotInAnyCircuit(
 }
 
 func logJunctionBoxAlreadyInCircuits(
-	fromJunctionBox abstractions.JunctionBox,
-	toJunctionBox abstractions.JunctionBox,
+	a abstractions.JunctionBox,
+	b abstractions.JunctionBox,
 	verbose bool,
 ) {
 	if verbose {
 		fmt.Printf(
 			"\tJunction boxes are already each in a circuit: %v %v. Skipping\n",
-			fromJunctionBox.Position,
-			toJunctionBox.Position,
+			a.Position,
+			b.Position,
 		)
 	}
 }
@@ -158,4 +161,21 @@ func logDetailsCircuits(
 			fmt.Printf("\tCircuit %d has now %d junction boxes\n", circuitIndex+1, circuit.Count())
 		}
 	}
+}
+
+func logPairs(
+	pairs []*abstractions.JunctionBoxPair,
+	count int,
+	verbose bool,
+) {
+	if verbose {
+		for pairIndex, pair := range pairs {
+			if pairIndex >= count {
+				break
+			}
+			fmt.Printf("%02d | Distance: %f | %v - %v\n", pairIndex+1, pair.Distance, pair.A.Position, pair.B.Position)
+		}
+	}
+
+	fmt.Println()
 }
