@@ -30,7 +30,7 @@ func main() {
 	fmt.Printf("The elves have created %d circuits\n", circuits.Count())
 
 	fmt.Printf(
-		"Biggest circuits are %d, %d and %d junction boxes (%d)\n",
+		"Biggest circuits have %d, %d and %d junction boxes (%d)\n",
 		biggestCircuits[0].Count(),
 		biggestCircuits[1].Count(),
 		biggestCircuits[2].Count(),

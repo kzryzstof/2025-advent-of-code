@@ -18,7 +18,7 @@ func (c *Circuit) Add(
 	c.junctionBoxes = append(c.junctionBoxes, junctionBox)
 }
 
-func (c *Circuit) HasSingleJunctionBox() bool {
+func (c *Circuit) IsDisconnected() bool {
 	return len(c.junctionBoxes) == 1
 }
 

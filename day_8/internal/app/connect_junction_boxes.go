@@ -45,25 +45,24 @@ func ConnectJunctionBoxes(
 			continue
 		}
 
-		if circuitB.HasSingleJunctionBox() {
+		if circuitA.IsDisconnected() {
 
-			/* Include the TO junction box in the FROM circuit */
-			logJunctionBoxNotInAnyCircuit(*pair.B, verbose)
-			circuits.AddTo(circuitB, circuitA)
-			logCircuits(circuits, circuitA, verbose)
-
-		} else if circuitA.HasSingleJunctionBox() {
-
-			/* Include the FROM junction box in the TO circuit */
+			/* Connects the junction box from circuit A to circuit B */
 			logJunctionBoxNotInAnyCircuit(*pair.A, verbose)
-			circuits.AddTo(circuitA, circuitB)
+			circuits.Connect(circuitA, circuitB)
 			logCircuits(circuits, circuitB, verbose)
+
+		} else if circuitB.IsDisconnected() {
+
+			/* Connects the junction box from circuit B to circuit A */
+			logJunctionBoxNotInAnyCircuit(*pair.B, verbose)
+			circuits.Connect(circuitB, circuitA)
+			logCircuits(circuits, circuitA, verbose)
 
 		} else {
 			/* Merge the circuits together with one cable */
 			circuits.Merge(circuitA, circuitB)
 			logCircuits(circuits, circuitB, verbose)
-			//continue
 		}
 
 		availableCablesCount--
@@ -169,13 +168,16 @@ func logPairs(
 	verbose bool,
 ) {
 	if verbose {
+
+		fmt.Printf("There are %02d pairs | Showing the first %d\n", len(pairs), count)
+
 		for pairIndex, pair := range pairs {
 			if pairIndex >= count {
 				break
 			}
 			fmt.Printf("%02d | Distance: %f | %v - %v\n", pairIndex+1, pair.Distance, pair.A.Position, pair.B.Position)
 		}
-	}
 
-	fmt.Println()
+		fmt.Println()
+	}
 }

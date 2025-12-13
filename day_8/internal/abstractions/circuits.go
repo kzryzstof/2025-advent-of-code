@@ -73,7 +73,7 @@ func (c *Circuits) Merge(
 	c.Remove(fromCircuit)
 }
 
-func (c *Circuits) AddTo(
+func (c *Circuits) Connect(
 	fromCircuit *Circuit,
 	toCircuit *Circuit,
 ) {
