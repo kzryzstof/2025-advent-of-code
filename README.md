@@ -12,6 +12,7 @@ Each day lives in its own folder (`day_1`, `day_2`, `day_3`, `day_4`, …) with 
 - `day_4/` – solution for Day 4 (accessible rolls removal using a forklift). See `day_4/README.md` for full details.
 - `day_5/` – solution for Day 5 (fresh ingredient ranges with compaction). See `day_5/README.md` for full details.
 - `day_6/` – solution for Day 6 (column-wise arithmetic with cell transposition). See `day_6/README.md` for full details.
+- `day_7/` – solution for Day 7 (multiverse timeline splitter with tachyon beams). See `day_7/README.md` for full details.
 
 Each day generally includes:
 
