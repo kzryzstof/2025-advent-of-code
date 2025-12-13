@@ -24,8 +24,17 @@ func main() {
 	/* Connects pairs of junction boxes with only the specific number of cables */
 	circuits := app.CreateCircuits(playground, 1000, true)
 
+	biggestCircuits := circuits.GetBiggestCircuits(3)
+
 	/* Prints the result */
 	fmt.Printf("The elves have creates %d circuits\n", circuits.Count())
+
+	fmt.Printf(
+		"Biggest circuits are %d, %d and %d junction boxes (%d)\n",
+		biggestCircuits[0].Count(),
+		biggestCircuits[1].Count(),
+		biggestCircuits[2].Count(),
+		biggestCircuits[0].Count()*biggestCircuits[1].Count()*biggestCircuits[2].Count())
 }
 
 func initializeReader(

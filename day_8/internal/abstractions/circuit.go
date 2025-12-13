@@ -4,13 +4,17 @@ type Circuit struct {
 	junctionBoxes []*JunctionBox
 }
 
-func NewCircuit(junctionBox *JunctionBox) *Circuit {
+func NewCircuit(
+	junctionBox *JunctionBox,
+) *Circuit {
 	junctionBoxes := make([]*JunctionBox, 0)
 	junctionBoxes = append(junctionBoxes, junctionBox)
 	return &Circuit{junctionBoxes: junctionBoxes}
 }
 
-func (c *Circuit) AddJunctionBox(junctionBox *JunctionBox) {
+func (c *Circuit) AddJunctionBox(
+	junctionBox *JunctionBox,
+) {
 	c.junctionBoxes = append(c.junctionBoxes, junctionBox)
 }
 

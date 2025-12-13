@@ -28,6 +28,10 @@ func (c *Circuits) Remove(
 	})
 }
 
+func (c *Circuits) GetAll() []*Circuit {
+	return c.circuits
+}
+
 func (c *Circuits) Get(
 	junctionBox *JunctionBox,
 ) *Circuit {
@@ -37,4 +41,21 @@ func (c *Circuits) Get(
 		}
 	}
 	return nil
+}
+
+func (c *Circuits) GetBiggestCircuits(
+	count uint,
+) []*Circuit {
+
+	slices.SortFunc(c.circuits, func(i, j *Circuit) int {
+		if i.Count() < j.Count() {
+			return 1
+		}
+		if i.Count() > j.Count() {
+			return -1
+		}
+		return 0
+	})
+
+	return c.circuits[:count]
 }

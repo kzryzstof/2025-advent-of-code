@@ -11,7 +11,8 @@ func TestCreateCircuits(t *testing.T) {
 		playground           *abstractions.Playground
 		availableCablesCount uint
 		expectedCircuitCount int
-		validate             func(t *testing.T, circuits []*abstractions.Circuit)
+		expectedSize         int
+		validate             func(t *testing.T, circuits *abstractions.Circuits)
 	}{
 		{
 			name: "Documented Use Case",
@@ -40,15 +41,16 @@ func TestCreateCircuits(t *testing.T) {
 				},
 			},
 			availableCablesCount: 10,
+			expectedSize:         40,
 			expectedCircuitCount: 11,
-			validate: func(t *testing.T, circuits []*abstractions.Circuit) {
-				if len(circuits) != 11 {
-					t.Errorf("Expected 11 circuits, got %d", len(circuits))
+			validate: func(t *testing.T, circuits *abstractions.Circuits) {
+				if circuits.Count() != 11 {
+					t.Errorf("Expected 11 circuits, got %d", circuits.Count())
 				}
 
 				// Verify all 20 junction boxes are accounted for
 				totalBoxes := 0
-				for _, circuit := range circuits {
+				for _, circuit := range circuits.GetAll() {
 					totalBoxes += circuit.Count()
 				}
 				if totalBoxes != 20 {
@@ -66,8 +68,15 @@ func TestCreateCircuits(t *testing.T) {
 				t.Fatal("Expected non-nil circuits slice")
 			}
 
-			if len(circuits) != tt.expectedCircuitCount {
-				t.Errorf("Expected %d circuits, got %d", tt.expectedCircuitCount, len(circuits))
+			if circuits.Count() != tt.expectedCircuitCount {
+				t.Errorf("Expected %d circuits, got %d", tt.expectedCircuitCount, circuits.Count())
+			}
+
+			// Verify all circuits are the expected size
+			biggestCircuits := circuits.GetBiggestCircuits(3)
+			actualSize := biggestCircuits[0].Count() * biggestCircuits[1].Count() * biggestCircuits[2].Count()
+			if actualSize != tt.expectedSize {
+				t.Errorf("Expected size of %d, got %d", tt.expectedSize, actualSize)
 			}
 
 			if tt.validate != nil {
