@@ -9,8 +9,14 @@ const (
 )
 
 type Manifold struct {
-	Locations [][]string
-	Tachyons  []*Tachyon
+	Locations   [][]string
+	Tachyons    []*Tachyon
+	splitsCount uint
+}
+
+func (m *Manifold) GetSplitsCount() uint {
+	return m.splitsCount
+
 }
 
 func (m *Manifold) GetNextPosition(
@@ -119,6 +125,8 @@ func (m *Manifold) SplitBeamAt(
 	direction Direction,
 ) {
 
+	m.splitsCount++
+
 	/* Adds a new tachyon and move it to the right if there is no other tachyon */
 
 	newTachyonDirection := Direction{
@@ -149,6 +157,8 @@ func (m *Manifold) SplitBeamAt(
 			m,
 			existingTachyonDirection,
 		)
+	} else {
+		tachyon.Stop()
 	}
 }
 
@@ -165,4 +175,15 @@ func (m *Manifold) createNewTachyon(
 	m.Tachyons = append(m.Tachyons, &newTachyon)
 
 	return &newTachyon
+}
+
+func (m *Manifold) AreTachyonsMoving() bool {
+
+	movingTachyons := false
+
+	for _, tachyon := range m.Tachyons {
+		movingTachyons = movingTachyons || tachyon.IsMoving()
+	}
+
+	return movingTachyons
 }

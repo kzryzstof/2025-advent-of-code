@@ -21,15 +21,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	// manifold.Draw()
-
 	/* Simulates the beam paths */
 	app.Simulate(manifold)
 
 	manifold.Draw()
 
 	/* Prints the result */
-	fmt.Printf("There are %d beams\n", len(manifold.Tachyons))
+	fmt.Printf("The beam has been splitted %d times\n", manifold.GetSplitsCount())
 }
 
 func initializeReader(

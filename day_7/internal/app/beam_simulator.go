@@ -12,9 +12,7 @@ func Simulate(
 		ColDelta: 0,
 	}
 
-	movingTachyons := true
-
-	for movingTachyons {
+	for manifold.AreTachyonsMoving() {
 
 		for _, tachyon := range manifold.Tachyons {
 
@@ -35,13 +33,6 @@ func Simulate(
 				tachyon.Stop()
 				continue
 			}
-
-		}
-
-		movingTachyons = false
-
-		for _, tachyon := range manifold.Tachyons {
-			movingTachyons = movingTachyons || tachyon.IsMoving()
 		}
 	}
 }
