@@ -22,7 +22,7 @@ func main() {
 	}
 
 	/* Connects pairs of junction boxes with only the specific number of cables */
-	circuits := app.CreateCircuits(playground, 1000, true)
+	circuits := app.ConnectJunctionBoxes(playground, 1000, true)
 
 	biggestCircuits := circuits.GetBiggestCircuits(3)
 

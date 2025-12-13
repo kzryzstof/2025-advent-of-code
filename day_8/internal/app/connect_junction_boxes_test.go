@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestCreateCircuits(t *testing.T) {
+func TestConnectJunctionBoxes(t *testing.T) {
 	tests := []struct {
 		name                 string
 		playground           *abstractions.Playground
@@ -62,7 +62,7 @@ func TestCreateCircuits(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			circuits := CreateCircuits(tt.playground, tt.availableCablesCount, true)
+			circuits := ConnectJunctionBoxes(tt.playground, tt.availableCablesCount, true)
 
 			if circuits == nil {
 				t.Fatal("Expected non-nil circuits slice")

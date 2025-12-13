@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func CreateCircuits(
+func ConnectJunctionBoxes(
 	playground *abstractions.Playground,
 	availableCablesCount uint,
 	verbose bool,
