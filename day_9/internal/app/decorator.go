@@ -9,36 +9,26 @@ func ArrangeTiles(
 	movieTheater *abstractions.MovieTheater,
 ) *abstractions.Rectangle {
 
-	abstractions.Draw(movieTheater.GetTiles(), nil)
-
 	biggestRectangle := abstractions.NewRectangle(
 		&abstractions.Tile{X: 0, Y: 0},
 		&abstractions.Tile{X: 0, Y: 0},
 	)
 
-	tiles := movieTheater.GetTiles()
+	redTiles := movieTheater.GetRedTiles()
 
-	for tileIndexA, tileA := range tiles {
-		if tileA.Color != abstractions.Red {
-			continue
-		}
-		for tileIndexB, tileB := range tiles {
-			if tileIndexA == tileIndexB {
-				continue
-			}
+	for tileIndexA := 0; tileIndexA < len(redTiles); tileIndexA++ {
+		tileA := redTiles[tileIndexA]
 
-			if tileB.Color != abstractions.Red {
-				continue
-			}
+		for tileIndexB := tileIndexA + 1; tileIndexB < len(redTiles); tileIndexB++ {
+			tileB := redTiles[tileIndexB]
+
+			fmt.Printf("Testing red tile [%05d,%05d] (%d/%d) with other red tile [%05d,%05d] (%d/%d) \r", tileA.X, tileA.Y, tileIndexA, len(redTiles), tileB.X, tileB.Y, tileIndexB, len(redTiles))
 
 			rectangle := abstractions.NewRectangle(tileA, tileB)
 
 			if rectangle.GetArea() > biggestRectangle.GetArea() {
 
-				if rectangle.GetArea() == 24 {
-					fmt.Print()
-				}
-				if !rectangle.IsInside(tiles) {
+				if !rectangle.IsInside(movieTheater) {
 					continue
 				}
 				biggestRectangle = rectangle

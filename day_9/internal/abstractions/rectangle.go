@@ -30,11 +30,13 @@ func (r *Rectangle) GetArea() uint64 {
 	return r.area
 }
 
-func (r *Rectangle) IsInside(tiles []*Tile) bool {
+func (r *Rectangle) IsInside(
+	movieTheater *MovieTheater,
+) bool {
 	for x := r.topLeftCorner.X; x < r.topLeftCorner.X+r.width; x++ {
 		for y := r.topLeftCorner.Y; y < r.topLeftCorner.Y+r.height; y++ {
-			tileColor := GetTileColor(tiles, x, y)
-			if tileColor != Red && tileColor != Green {
+			isInside := movieTheater.IsValidTile(x, y)
+			if !isInside {
 				return false
 			}
 		}

@@ -21,14 +21,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("There are %d red tiles in the movie theater", len(movieTheater.GetTiles()))
+	fmt.Printf("There are %d red tiles in the movie theater\n", len(movieTheater.GetRedTiles()))
 
 	/*abstractions.Draw(movieTheater.GetTiles(), nil)*/
 
 	biggestRectangle := app.ArrangeTiles(movieTheater)
 
 	/* Prints the result */
-	fmt.Printf("The biggest rectangle has an area of %d", biggestRectangle.GetArea())
+	fmt.Printf("The biggest rectangle has an area of %d\n", biggestRectangle.GetArea())
 }
 
 func initializeReader(
