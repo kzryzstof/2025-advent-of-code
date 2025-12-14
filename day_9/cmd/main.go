@@ -1,7 +1,6 @@
 package main
 
 import (
-	"day_9/internal/app"
 	"day_9/internal/io"
 	"fmt"
 	"os"
@@ -14,28 +13,20 @@ func main() {
 	/* 	Initializes the reader */
 	reader := initializeReader(inputFile)
 
-	/* Reads all the junction boxes from the playground */
-	playground, err := reader.Read()
+	/* Reads all the red tiles from the movie theater */
+	movieTheater, err := reader.Read()
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	/* Connects pairs of junction boxes with only the specific number of cables */
-	lastConnectedPair := app.ConnectJunctionBoxes(playground, 1000, true)
-
-	if lastConnectedPair == nil {
-		fmt.Println("No solution found")
-		os.Exit(1)
-	}
-
 	/* Prints the result */
-	fmt.Printf("The last connected pair X are: %d and %d (%d)", lastConnectedPair.A.Position.X, lastConnectedPair.B.Position.X, lastConnectedPair.A.Position.X*lastConnectedPair.B.Position.X)
+	fmt.Printf("There are %d red tiles in the movie theater", len(movieTheater.RedTiles))
 }
 
 func initializeReader(
 	inputFile []string,
-) *io.PlaygroundReader {
+) *io.RedTilesReader {
 	reader, err := io.NewReader(inputFile[0])
 
 	if err != nil {
