@@ -6,7 +6,7 @@ func ArrangeTiles(
 	movieTheater *abstractions.MovieTheater,
 ) *abstractions.Rectangle {
 
-	movieTheater.Draw()
+	abstractions.Draw(movieTheater.GetTiles(), nil)
 
 	biggestRectangle := abstractions.NewRectangle(
 		&abstractions.Tile{X: 0, Y: 0},

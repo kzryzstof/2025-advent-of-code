@@ -25,15 +25,30 @@ func IsPointInPolygon(
 		xj, yj := polygon[j].X, polygon[j].Y
 		px, py := point.X, point.Y
 
+		/* Finds out if the point crosses a horizontal edge */
 		intersectY := (yi > py) != (yj > py)
 
+		if yi == yj && py == yi {
+			/* The point is on the same horizontal line as the edge */
+			intersectY = true
+		}
+
+		/* Finds out if the point crosses a vertical edge */
 		intersectX := false
 
 		if intersectY {
 			if !inside {
-				intersectX = px <= (xj-xi)*(py-yi)/(yj-yi)+xi
+				if yi != yj {
+					intersectX = px <= (xj-xi)*(py-yi)/(yj-yi)+xi
+				} else {
+					intersectX = px <= xi && px >= xj
+				}
 			} else {
-				intersectX = px < (xj-xi)*(py-yi)/(yj-yi)+xi
+				if yi != yj {
+					intersectX = px < (xj-xi)*(py-yi)/(yj-yi)+xi
+				} else {
+					intersectX = px <= xi && px >= xj
+				}
 			}
 		}
 
