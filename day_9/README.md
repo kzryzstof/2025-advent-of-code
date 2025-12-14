@@ -1,63 +1,61 @@
-# Day 9 – Movie Theater Red Tiles
+# Day 9 – Movie Theater Seating
 
-The elves need to decorate a movie theater floor. The floor has with red tiles, and he wants to find the **biggest rectangle** whose corners match existing red tiles.
+The Day 9 solution is implemented in Go in the `day_9` folder. It models a movie theater floor delimited by a polygon of red tiles and computes the largest axis-aligned rectangle that fits entirely inside this area.
 
-## Problem Description
+## Problem model
 
-Given a list of `(x,y)` coordinates representing red tiles, compute the largest axis-aligned rectangle by area. The rectangle's corners must coincide with red tiles from the input.
+- The floor is a 2D grid of tiles.
+- The input file lists **red tiles**, each with integer coordinates `(X, Y)`.
+- These red tiles are the vertices of a polygon that defines the valid seating area of the theater.
+- We are interested in finding the **largest possible rectangle** such that:
+  - Its two opposite corners are located on red tiles.
+  - Every tile inside that rectangle lies inside the polygon (i.e. is a valid tile).
 
-The area is calculated **inclusively** on both axes:
+At the end of the run, the program prints the area of this largest rectangle.
 
-```
-area = (|x2 - x1| + 1) * (|y2 - y1| + 1)
-```
+## High-level flow
 
-## Input Format
+The executable entrypoint is `day_9/cmd/main.go` and the flow is:
 
-Each line contains two comma-separated unsigned integers representing a tile's `(x,y)` position:
+1. **Read input path** from the command-line arguments.
+2. **Parse red tiles** from the input file using a dedicated reader.
+3. **Build the movie theater model** via `NewMovieTheater`:
+   - Compute the floor size (bounding box) from the red tiles.
+   - Allocate a 2D `[][]bool` grid representing all tiles on the floor.
+   - Order the red tiles into a proper polygon.
+   - For each tile on the floor, determine if it lies inside the polygon using a point-in-polygon (ray casting) algorithm and mark it as valid.
+   - This precomputation is done concurrently across multiple rows and reports progress.
+4. **Search for the biggest rectangle** with `ArrangeTiles`:
+   - Iterate over all pairs of red tiles and construct a candidate rectangle.
+   - Quickly discard rectangles that are not larger than the best one found so far.
+   - Use the precomputed `validTiles` grid to check if all tiles inside the rectangle are valid.
+   - Run these checks concurrently with a bounded number of goroutines and report progress.
+5. **Output**:
+   - Number of red tiles in the movie theater.
+   - Area of the largest valid rectangle.
 
-```
-98149,50096
-98149,51320
-98283,51320
-...
-```
+## Packages and responsibilities
 
-## Solution
+- `cmd/main.go`
+  - Wires together input reading, theater construction, and rectangle search.
+  - Prints diagnostic information and the final result.
 
-The code is organized as follows:
+- `internal/io`
+  - `RedTilesReader` reads the input file and converts each line into an `abstractions.Tile`.
 
-| Path | Description |
-|------|-------------|
-| `cmd/main.go` | CLI entry point; reads input, calls `ArrangeTiles`, prints result. |
-| `internal/abstractions/tile.go` | `Tile` struct with `X`, `Y` coordinates. |
-| `internal/abstractions/rectangle.go` | `Rectangle` struct; computes inclusive area via `GetArea()`. |
-| `internal/abstractions/movie_theater.go` | `MovieTheater` holding a slice of red tiles. |
-| `internal/app/decorator.go` | `ArrangeTiles` – finds the biggest rectangle among all tile pairs. |
-| `internal/io/red_tiles_reader.go` | Parses the input file into a `MovieTheater`. |
+- `internal/abstractions`
+  - Core domain types: `Tile`, `Rectangle`, and `MovieTheater` (interface).
+  - Geometric helpers:
+    - `FindFloorSize` to compute the bounding box.
+    - `OrderPolygonVertices` to order vertices into a polygon.
+    - `IsPointInPolygon` to test whether a tile lies inside the polygon.
 
-## Running
-
-```bash
-make run ARGS="input.txt"
-```
-
-or
-
-```bash
-go run ./cmd input.txt
-```
-
-## Testing
-
-Unit tests use table-driven style:
-
-```bash
-go test ./...
-```
-
-Key test files:
-
-- `internal/abstractions/rectangle_test.go` – validates `NewRectangle` and `GetArea`.
-- `internal/app/decorator_test.go` – validates `ArrangeTiles` with various tile configurations.
+- `internal/app`
+  - `NewMovieTheater` (`movie_theater_builder.go`):
+    - Implements the concrete `movieTheater` type that stores red tiles and the `validTiles` grid.
+    - Precomputes the valid tiles concurrently and exposes the `MovieTheater` interface.
+  - `ArrangeTiles` (`decorator.go`):
+    - Searches all candidate rectangles defined by pairs of red tiles.
+    - Uses the `MovieTheater` interface to check whether a rectangle is fully inside the valid area.
+    - Runs the validation in parallel with a configurable level of concurrency and displays progress statistics.
 
