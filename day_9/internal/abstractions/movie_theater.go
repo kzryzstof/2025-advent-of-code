@@ -31,6 +31,8 @@ func injectGreenTiles(
 
 	maxX, maxY := findFloorSize(redTiles)
 
+	isInjectingGreen := false
+
 	for y := uint(0); y <= maxY; y++ {
 		for x := uint(0); x <= maxX; x++ {
 
@@ -39,6 +41,14 @@ func injectGreenTiles(
 			if isRedTile {
 				/* This is a red tile, so let's add it to your new tiles */
 				tiles = append(tiles, &Tile{X: x, Y: y, Color: Red})
+
+				/* Patch to inject green tiles (issue with ray tracing on such small & gross resolution) */
+				if !isInjectingGreen {
+					isInjectingGreen = true
+				} else {
+					isInjectingGreen = false
+				}
+
 			} else {
 				/* This is NOT a red tile, so let's see if it
 				is inside the red tiles polygon
@@ -50,6 +60,9 @@ func injectGreenTiles(
 				)
 
 				if isTileInside {
+					tiles = append(tiles, &Tile{X: x, Y: y, Color: Green})
+				} else if isInjectingGreen {
+					/* Patch */
 					tiles = append(tiles, &Tile{X: x, Y: y, Color: Green})
 				}
 			}
