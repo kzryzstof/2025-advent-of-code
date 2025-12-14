@@ -43,10 +43,10 @@ func (r *FactoryReader) Read() (*abstractions.Factory, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		machines = append(machines, &abstractions.Machine{
-			LightIndicators: r.extractLightIndicators(line),
-			ButtonGroups:    r.extractButtons(line),
-		})
+		machines = append(machines, abstractions.NewMachine(
+			r.extractLightIndicators(line),
+			r.extractButtons(line),
+		))
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -60,7 +60,7 @@ func (r *FactoryReader) Read() (*abstractions.Factory, error) {
 
 func (r *FactoryReader) extractLightIndicators(
 	line string,
-) []*abstractions.LightIndicator {
+) []*abstractions.Light {
 
 	// Match any sequence of '.' or '#' between square brackets and capture the inner part.
 	// Final regexp pattern: \[([.#]+)]
@@ -68,7 +68,7 @@ func (r *FactoryReader) extractLightIndicators(
 
 	matches := lightsRegex.FindAllStringSubmatch(line, -1)
 
-	lightIndicators := make([]*abstractions.LightIndicator, 0, len(matches))
+	lights := make([]*abstractions.Light, 0, len(matches))
 
 	for _, m := range matches {
 		if len(m) < 2 {
@@ -80,13 +80,13 @@ func (r *FactoryReader) extractLightIndicators(
 		// For each character inside the brackets, create a LightIndicator
 		for i := 0; i < len(inner); i++ {
 			ch := inner[i]
-			lightIndicators = append(lightIndicators, &abstractions.LightIndicator{
-				IsOn: ch == '#',
-			})
+			lights = append(lights, abstractions.NewLight(
+				ch == '#',
+			))
 		}
 	}
 
-	return lightIndicators
+	return lights
 }
 
 func (r *FactoryReader) extractButtons(
@@ -114,7 +114,7 @@ func (r *FactoryReader) extractButtons(
 		// For each character inside the brackets, create a LightIndicator
 		for i := 0; i < len(lightIndicators); i++ {
 			lightNumber, _ := strconv.ParseInt(lightIndicators[i], 10, 64)
-			buttons[i] = &abstractions.Button{LightIndicator: int(lightNumber)}
+			buttons[i] = &abstractions.Button{Light: int(lightNumber)}
 		}
 
 		buttonGroups = append(buttonGroups, &abstractions.ButtonGroup{Buttons: buttons})
