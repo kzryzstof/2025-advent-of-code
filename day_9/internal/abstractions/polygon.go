@@ -25,13 +25,7 @@ func IsPointInPolygon(
 		xj, yj := polygon[j].X, polygon[j].Y
 		px, py := point.X, point.Y
 
-		intersectY := false
-
-		if !inside {
-			intersectY = (yi > py) != (yj > py)
-		} else {
-			intersectY = (yi > py) != (yj > py)
-		}
+		intersectY := (yi > py) != (yj > py)
 
 		intersectX := false
 
