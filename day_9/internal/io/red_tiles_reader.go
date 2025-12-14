@@ -33,7 +33,7 @@ func NewReader(
 	}, nil
 }
 
-func (r *RedTilesReader) Read() (*abstractions.MovieTheater, error) {
+func (r *RedTilesReader) Read() ([]*abstractions.Tile, error) {
 
 	scanner := bufio.NewScanner(r.inputFile)
 
@@ -69,7 +69,5 @@ func (r *RedTilesReader) Read() (*abstractions.MovieTheater, error) {
 			})
 	}
 
-	return abstractions.NewMovieTheater(
-		redTiles,
-	), nil
+	return redTiles, nil
 }

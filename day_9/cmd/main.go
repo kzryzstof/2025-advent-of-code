@@ -14,16 +14,16 @@ func main() {
 	/* 	Initializes the reader */
 	reader := initializeReader(inputFile)
 
-	/* Reads all the tiles from the movie theater */
-	movieTheater, err := reader.Read()
+	/* Reads all the red tiles from the movie theater */
+	redTiles, err := reader.Read()
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	fmt.Printf("There are %d red tiles in the movie theater\n", len(movieTheater.GetRedTiles()))
+	movieTheater := app.NewMovieTheater(redTiles)
 
-	/*abstractions.Draw(movieTheater.GetTiles(), nil)*/
+	fmt.Printf("There are %d red tiles in the movie theater\n", len(movieTheater.GetRedTiles()))
 
 	biggestRectangle := app.ArrangeTiles(movieTheater)
 

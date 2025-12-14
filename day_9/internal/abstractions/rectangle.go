@@ -1,6 +1,8 @@
 package abstractions
 
-import "math"
+import (
+	"math"
+)
 
 type Rectangle struct {
 	A             *Tile
@@ -10,7 +12,11 @@ type Rectangle struct {
 	width, height uint
 }
 
-func NewRectangle(a, b *Tile) *Rectangle {
+func NewRectangle(
+	a *Tile,
+	b *Tile,
+) *Rectangle {
+
 	width := math.Abs(float64(b.X)-float64(a.X)) + 1
 	height := math.Abs(float64(b.Y)-float64(a.Y)) + 1
 
@@ -31,10 +37,28 @@ func (r *Rectangle) GetArea() uint64 {
 }
 
 func (r *Rectangle) IsInside(
-	movieTheater *MovieTheater,
+	movieTheater MovieTheater,
 ) bool {
-	for x := r.topLeftCorner.X; x < r.topLeftCorner.X+r.width; x++ {
-		for y := r.topLeftCorner.Y; y < r.topLeftCorner.Y+r.height; y++ {
+	/* Optimization: checks the corners immediately. It did make a difference!! */
+	if !movieTheater.IsValidTile(r.topLeftCorner.X, r.topLeftCorner.Y) {
+		return false
+	}
+
+	if !movieTheater.IsValidTile(r.topLeftCorner.X+r.width-1, r.topLeftCorner.Y) {
+		return false
+	}
+
+	if !movieTheater.IsValidTile(r.topLeftCorner.X+r.width-1, r.topLeftCorner.Y+r.height-1) {
+		return false
+	}
+
+	if !movieTheater.IsValidTile(r.topLeftCorner.X, r.topLeftCorner.Y+r.height-1) {
+		return false
+	}
+
+	/* The 4 corners looks good. Let's validate all the tiles in the rectangle now */
+	for x := r.topLeftCorner.X; x < r.topLeftCorner.X+r.width-1; x++ {
+		for y := r.topLeftCorner.Y; y < r.topLeftCorner.Y+r.height-1; y++ {
 			isInside := movieTheater.IsValidTile(x, y)
 			if !isInside {
 				return false
