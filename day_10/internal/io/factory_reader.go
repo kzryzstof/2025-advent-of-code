@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -41,11 +43,9 @@ func (r *FactoryReader) Read() (*abstractions.Factory, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		/* Parses the light indicators */
-		lightIndicators := r.extractLightIndicators(line)
-
 		machines = append(machines, &abstractions.Machine{
-			LightIndicators: lightIndicators,
+			LightIndicators: r.extractLightIndicators(line),
+			ButtonGroups:    r.extractButtons(line),
 		})
 	}
 
@@ -87,4 +87,38 @@ func (r *FactoryReader) extractLightIndicators(
 	}
 
 	return lightIndicators
+}
+
+func (r *FactoryReader) extractButtons(
+	line string,
+) []*abstractions.ButtonGroup {
+
+	// Match any sequence of '.' or '#' between square brackets and capture the inner part.
+	// Final regexp pattern: \[([.#]+)]
+	buttonGroupsRegex := regexp.MustCompile(`\(([\d,*]+)\)`)
+
+	matches := buttonGroupsRegex.FindAllStringSubmatch(line, -1)
+
+	buttonGroups := make([]*abstractions.ButtonGroup, 0, len(matches))
+
+	for _, m := range matches {
+		if len(m) < 2 {
+			continue
+		}
+
+		inner := m[1] // the string between [ and ]
+		lightIndicators := strings.Split(inner, ",")
+
+		buttons := make([]*abstractions.Button, len(lightIndicators))
+
+		// For each character inside the brackets, create a LightIndicator
+		for i := 0; i < len(lightIndicators); i++ {
+			lightNumber, _ := strconv.ParseInt(lightIndicators[i], 10, 64)
+			buttons[i] = &abstractions.Button{LightIndicator: int(lightNumber)}
+		}
+
+		buttonGroups = append(buttonGroups, &abstractions.ButtonGroup{Buttons: buttons})
+	}
+
+	return buttonGroups
 }
