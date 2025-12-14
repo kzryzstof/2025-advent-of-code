@@ -1,6 +1,6 @@
 # Day 9 – Movie Theater Red Tiles
 
-Santa needs to decorate a movie theater floor. The floor is covered with red tiles, and he wants to find the **biggest rectangle** whose corners match existing red tiles.
+The elves need to decorate a movie theater floor. The floor has with red tiles, and he wants to find the **biggest rectangle** whose corners match existing red tiles.
 
 ## Problem Description
 
