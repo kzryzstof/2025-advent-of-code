@@ -63,7 +63,6 @@ func (r *FactoryReader) extractLightIndicators(
 ) []*abstractions.Light {
 
 	// Match any sequence of '.' or '#' between square brackets and capture the inner part.
-	// Final regexp pattern: \[([.#]+)]
 	lightsRegex := regexp.MustCompile(`\[([.#]+)]`)
 
 	matches := lightsRegex.FindAllStringSubmatch(line, -1)
@@ -75,9 +74,8 @@ func (r *FactoryReader) extractLightIndicators(
 			continue
 		}
 
-		inner := m[1] // the string between [ and ]
+		inner := m[1]
 
-		// For each character inside the brackets, create a LightIndicator
 		for i := 0; i < len(inner); i++ {
 			ch := inner[i]
 			lights = append(lights, abstractions.NewLight(
@@ -93,8 +91,7 @@ func (r *FactoryReader) extractButtons(
 	line string,
 ) []*abstractions.ButtonGroup {
 
-	// Match any sequence of '.' or '#' between square brackets and capture the inner part.
-	// Final regexp pattern: \[([.#]+)]
+	// Match any sequence of numbers between parenthesis and capture the inner part.
 	buttonGroupsRegex := regexp.MustCompile(`\(([\d,*]+)\)`)
 
 	matches := buttonGroupsRegex.FindAllStringSubmatch(line, -1)
