@@ -21,7 +21,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("There are %d red tiles in the movie theater", len(movieTheater.RedTiles))
+	fmt.Printf("There are %d red tiles in the movie theater", len(movieTheater.GetTiles()))
+
+	movieTheater.Draw()
 
 	biggestRectangle := app.ArrangeTiles(movieTheater)
 

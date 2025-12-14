@@ -48,13 +48,13 @@ func (r *RedTilesReader) Read() (*abstractions.MovieTheater, error) {
 			return nil, fmt.Errorf("invalid coordinates: %s", line)
 		}
 
-		x, err := strconv.ParseUint(coordinates[0], 10, 64)
+		x, err := strconv.ParseUint(coordinates[0], 10, 32)
 
 		if err != nil {
 			return nil, fmt.Errorf("error converting X coordinates '%s': %w", line, err)
 		}
 
-		y, err := strconv.ParseUint(coordinates[1], 10, 64)
+		y, err := strconv.ParseUint(coordinates[1], 10, 32)
 
 		if err != nil {
 			return nil, fmt.Errorf("error converting Y coordinates '%s': %w", line, err)
@@ -63,12 +63,13 @@ func (r *RedTilesReader) Read() (*abstractions.MovieTheater, error) {
 		redTiles = append(
 			redTiles,
 			&abstractions.Tile{
-				X: x,
-				Y: y,
+				X:     uint(x),
+				Y:     uint(y),
+				Color: abstractions.Red,
 			})
 	}
 
-	return &abstractions.MovieTheater{
-		RedTiles: redTiles,
-	}, nil
+	return abstractions.NewMovieTheater(
+		redTiles,
+	), nil
 }

@@ -37,14 +37,14 @@ func TestArrangeTiles(t *testing.T) {
 		},
 		"document use case": {
 			redTiles: []*abstractions.Tile{
-				{X: 7, Y: 1},
-				{X: 11, Y: 1},
-				{X: 11, Y: 7},
-				{X: 9, Y: 7},
-				{X: 9, Y: 5},
-				{X: 2, Y: 5},
-				{X: 2, Y: 3},
-				{X: 7, Y: 3},
+				{X: 7, Y: 1, Color: abstractions.Red},
+				{X: 11, Y: 1, Color: abstractions.Red},
+				{X: 11, Y: 7, Color: abstractions.Red},
+				{X: 9, Y: 7, Color: abstractions.Red},
+				{X: 9, Y: 5, Color: abstractions.Red},
+				{X: 2, Y: 5, Color: abstractions.Red},
+				{X: 2, Y: 3, Color: abstractions.Red},
+				{X: 7, Y: 3, Color: abstractions.Red},
 			},
 			expectedArea: 50,
 		},
@@ -52,7 +52,7 @@ func TestArrangeTiles(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			mt := &abstractions.MovieTheater{RedTiles: tc.redTiles}
+			mt := abstractions.NewMovieTheater(tc.redTiles)
 
 			rect := ArrangeTiles(mt)
 

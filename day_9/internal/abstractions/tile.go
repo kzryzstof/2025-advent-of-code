@@ -1,6 +1,13 @@
 package abstractions
 
+const (
+	Green = "X"
+	Red   = "#"
+	Other = "."
+)
+
 type Tile struct {
-	X uint64
-	Y uint64
+	X     uint
+	Y     uint
+	Color string
 }
