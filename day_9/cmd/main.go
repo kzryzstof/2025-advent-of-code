@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day_9/internal/abstractions"
 	"day_9/internal/app"
 	"day_9/internal/io"
 	"fmt"
@@ -23,7 +24,7 @@ func main() {
 
 	fmt.Printf("There are %d red tiles in the movie theater", len(movieTheater.GetTiles()))
 
-	movieTheater.Draw()
+	abstractions.Draw(movieTheater.GetTiles(), nil)
 
 	biggestRectangle := app.ArrangeTiles(movieTheater)
 
