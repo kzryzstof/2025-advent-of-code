@@ -1,7 +1,6 @@
 package main
 
 import (
-	"day_9/internal/abstractions"
 	"day_9/internal/app"
 	"day_9/internal/io"
 	"fmt"
@@ -15,7 +14,7 @@ func main() {
 	/* 	Initializes the reader */
 	reader := initializeReader(inputFile)
 
-	/* Reads all the red tiles from the movie theater */
+	/* Reads all the tiles from the movie theater */
 	movieTheater, err := reader.Read()
 
 	if err != nil {
@@ -24,7 +23,7 @@ func main() {
 
 	fmt.Printf("There are %d red tiles in the movie theater", len(movieTheater.GetTiles()))
 
-	abstractions.Draw(movieTheater.GetTiles(), nil)
+	/*abstractions.Draw(movieTheater.GetTiles(), nil)*/
 
 	biggestRectangle := app.ArrangeTiles(movieTheater)
 

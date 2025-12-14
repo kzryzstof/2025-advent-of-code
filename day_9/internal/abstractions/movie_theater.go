@@ -1,5 +1,7 @@
 package abstractions
 
+import "fmt"
+
 const (
 	DefaultGreenTilesCapacity = 1000
 )
@@ -30,6 +32,9 @@ func injectGreenTiles(
 	isInjectingGreen := false
 
 	for y := uint(0); y <= maxY; y++ {
+
+		fmt.Printf("Processing row %002d\r", y)
+
 		for x := uint(0); x <= maxX; x++ {
 
 			isRedTile := hasTileColor(redTiles, x, y, Red)
