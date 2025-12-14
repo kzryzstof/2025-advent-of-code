@@ -1,6 +1,9 @@
 package app
 
-import "day_9/internal/abstractions"
+import (
+	"day_9/internal/abstractions"
+	"fmt"
+)
 
 func ArrangeTiles(
 	movieTheater *abstractions.MovieTheater,
@@ -15,15 +18,29 @@ func ArrangeTiles(
 
 	tiles := movieTheater.GetTiles()
 
-	for tileIndexA := 0; tileIndexA < len(tiles); tileIndexA++ {
-		tileA := tiles[tileIndexA]
+	for tileIndexA, tileA := range tiles {
+		if tileA.Color != abstractions.Red {
+			continue
+		}
+		for tileIndexB, tileB := range tiles {
+			if tileIndexA == tileIndexB {
+				continue
+			}
 
-		for tileIndexB := tileIndexA + 1; tileIndexB < len(tiles); tileIndexB++ {
-			tileB := tiles[tileIndexB]
+			if tileB.Color != abstractions.Red {
+				continue
+			}
 
 			rectangle := abstractions.NewRectangle(tileA, tileB)
 
 			if rectangle.GetArea() > biggestRectangle.GetArea() {
+
+				if rectangle.GetArea() == 24 {
+					fmt.Print()
+				}
+				if !rectangle.IsInside(tiles) {
+					continue
+				}
 				biggestRectangle = rectangle
 			}
 		}

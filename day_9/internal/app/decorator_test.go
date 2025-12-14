@@ -46,7 +46,7 @@ func TestArrangeTiles(t *testing.T) {
 				{X: 2, Y: 3, Color: abstractions.Red},
 				{X: 7, Y: 3, Color: abstractions.Red},
 			},
-			expectedArea: 50,
+			expectedArea: 24,
 		},
 	}
 

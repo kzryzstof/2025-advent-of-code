@@ -15,7 +15,7 @@ func Draw(
 				continue
 			}
 
-			color := getTileColor(tiles, x, y)
+			color := GetTileColor(tiles, x, y)
 			fmt.Print(Colorize(color))
 		}
 		fmt.Println()
@@ -54,7 +54,7 @@ func Colorize(color string) string {
 	}
 }
 
-func getTileColor(
+func GetTileColor(
 	tiles []*Tile,
 	x uint,
 	y uint,
