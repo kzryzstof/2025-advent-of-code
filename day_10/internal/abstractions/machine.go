@@ -17,6 +17,16 @@ func NewMachine(
 	}
 }
 
+func (m *Machine) IsOn() bool {
+	for _, light := range m.lights {
+		if !light.IsOn() {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (m *Machine) GetLight(
 	number int,
 ) *Light {
