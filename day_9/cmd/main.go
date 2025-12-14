@@ -26,7 +26,7 @@ func main() {
 	biggestRectangle := app.ArrangeTiles(movieTheater)
 
 	/* Prints the result */
-	fmt.Printf("The biggest rectangle has a surface of %d", biggestRectangle.Surface())
+	fmt.Printf("The biggest rectangle has an area of %d", biggestRectangle.GetArea())
 }
 
 func initializeReader(
