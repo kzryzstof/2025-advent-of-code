@@ -2,8 +2,6 @@ package abstractions
 
 import (
 	"fmt"
-	"sync"
-	"time"
 )
 
 type MovieTheater struct {
@@ -43,71 +41,35 @@ func preComputeValidTiles(
 
 	fmt.Print("Vertices ordered\n")
 
-	var (
-		processedRows uint
-		mu            sync.Mutex
-		wgRows        sync.WaitGroup
-		wgProgress    sync.WaitGroup
-	)
+	fmt.Print("Building pre-validated tiles\n")
 
-	/* Progress reporter */
-	/* Prints the number of processed rows every second until all row goroutines have finished */
-	wgProgress.Add(1)
-	go func(totalRows uint) {
-		defer wgProgress.Done()
-
-		for {
-			mu.Lock()
-			done := processedRows
-			mu.Unlock()
-
-			fmt.Printf("%05d/%05d processed rows\r", done, totalRows)
-
-			if done >= totalRows {
-				// All rows processed; exit the progress loop
-				return
-			}
-
-			time.Sleep(time.Second)
-		}
-	}(maxY)
+	processedRows := 0
 
 	for y := uint(0); y < maxY; y++ {
 
-		y := y // capture loop variable
-		wgRows.Add(1)
+		fmt.Printf("\t%05d/%05d processed rows\r", processedRows, maxY)
 
-		go func() {
-			defer wgRows.Done()
+		for x := uint(0); x < maxX; x++ {
 
-			for x := uint(0); x < maxX; x++ {
+			isRedTile := isRedTile(redTiles, x, y)
 
-				isRedTile := isRedTile(redTiles, x, y)
+			if isRedTile {
 
-				if isRedTile {
+				/* This is a red tile, so let's add it to your new tiles */
+				validTiles[y][x] = true
 
-					/* This is a red tile, so let's add it to your new tiles */
-					validTiles[y][x] = true
+			} else {
 
-				} else {
-
-					/* This is NOT a red tile, so let's see if it is inside the red tiles polygon */
-					validTiles[y][x] = IsPointInPolygon(
-						redTiles,
-						&Tile{X: x, Y: y},
-					)
-				}
+				/* This is NOT a red tile, so let's see if it is inside the red tiles polygon */
+				validTiles[y][x] = IsPointInPolygon(
+					redTiles,
+					&Tile{X: x, Y: y},
+				)
 			}
+		}
 
-			mu.Lock()
-			processedRows++
-			mu.Unlock()
-		}()
+		processedRows++
 	}
-
-	// Wait for all rows to finish, then for the progress reporter to exit.
-	wgRows.Wait()
-	wgProgress.Wait()
 
 	return validTiles
 }

@@ -14,46 +14,42 @@ func IsPointInPolygon(
 		return false
 	}
 
+	px, py := point.X, point.Y
 	inside := false
 	n := len(polygon)
 
-	for i := 0; i < n; i++ {
-
-		j := (i + 1) % n
-
+	for i, j := 0, n-1; i < n; j, i = i, i+1 {
 		xi, yi := polygon[i].X, polygon[i].Y
 		xj, yj := polygon[j].X, polygon[j].Y
-		px, py := point.X, point.Y
 
-		/* Finds out if the point crosses a horizontal edge */
-		intersectY := (yi > py) != (yj > py)
-
-		if yi == yj && py == yi {
-			/* The point is on the same horizontal line as the edge */
-			intersectY = true
+		/* Fast check if the point is on either vertex */
+		if (px == xi && py == yi) || (px == xj && py == yj) {
+			return true
 		}
 
-		/* Finds out if the point crosses a vertical edge */
-		intersectX := false
+		/* Checks if point lies exactly on the edge segment (xi,yi)-(xj,yj) */
+		dx := xj - xi
+		dy := yj - yi
+		pxRel := px - xi
+		pyRel := py - yi
 
-		if intersectY {
-			if !inside {
-				if yi != yj {
-					intersectX = px <= (xj-xi)*(py-yi)/(yj-yi)+xi
-				} else {
-					intersectX = px <= xi && px >= xj
-				}
-			} else {
-				if yi != yj {
-					intersectX = px < (xj-xi)*(py-yi)/(yj-yi)+xi
-				} else {
-					intersectX = px <= xi && px >= xj
-				}
+		/* Cross-product zero => collinear */
+		if dx*pyRel-dy*pxRel == 0 {
+			/* Checks if the point is within the bounding box of the segment (inclusive) */
+			if (px >= xi && px <= xj || px >= xj && px <= xi) && (py >= yi && py <= yj || py >= yj && py <= yi) {
+				return true
 			}
 		}
 
-		// Check if ray from point crosses this edge
-		if intersectY && intersectX {
+		/* Even-odd rule: checks if the edge straddles the horizontal ray from the point */
+		condY := (yi > py) != (yj > py)
+		if !condY {
+			continue
+		}
+
+		/* Computes intersection x-coordinate of edge with horizontal line y = py */
+		ix := float64(xj-xi)*float64(py-yi)/float64(yj-yi) + float64(xi)
+		if float64(px) < ix {
 			inside = !inside
 		}
 	}
