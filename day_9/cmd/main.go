@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day_9/internal/app"
 	"day_9/internal/io"
 	"fmt"
 	"os"
@@ -20,8 +21,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	/* Prints the result */
 	fmt.Printf("There are %d red tiles in the movie theater", len(movieTheater.RedTiles))
+
+	biggestRectangle := app.ArrangeTiles(movieTheater)
+
+	/* Prints the result */
+	fmt.Printf("The biggest rectangle has a surface of %d", biggestRectangle.Surface())
 }
 
 func initializeReader(
