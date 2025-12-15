@@ -16,7 +16,7 @@ func TestComputeCombinations(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			FindShortestCombinations(3, 5, func(ints []int) bool {
+			FindShortestCombinations(3, 3, func(ints []int) bool {
 				fmt.Printf("Testing groups: [")
 				for _, i := range ints {
 					fmt.Printf("%d ", i)

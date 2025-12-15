@@ -20,13 +20,8 @@ func ActivateMachines(
 			machine.GetButtonGroupsCount(), /* Here we test all the combinations */
 			func(buttonGroupsIndexes []int) bool {
 
-				if len(buttonGroupsIndexes) == 3 {
-					if buttonGroupsIndexes[0] == 2 && buttonGroupsIndexes[1] == 3 {
-						fmt.Printf("")
-					}
-				}
 				/* Resets the machine before testing the combination */
-				machine.Reset()
+				machine.CloseLights()
 
 				/* Presses all the button groups in the combination */
 				for _, buttonGroupIndex := range buttonGroupsIndexes {
@@ -69,6 +64,7 @@ func FindShortestCombinations(
 		currentButtonCount := len(currentButtons)
 
 		for buttonIndex := 0; buttonIndex < totalButtonGroupsCount; buttonIndex++ {
+
 			/* Test all the combinations with the current list of buttons  */
 			currentButtons[len(currentButtons)-1] = buttonIndex
 

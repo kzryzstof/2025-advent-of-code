@@ -24,6 +24,8 @@ func (m *Machine) GetButtonGroupsCount() int {
 }
 
 func (m *Machine) IsActivated() bool {
+
+	/* The machine is activated if all lights are in their expected states */
 	for _, light := range m.lights {
 		if !light.IsValid() {
 			return false
@@ -33,9 +35,9 @@ func (m *Machine) IsActivated() bool {
 	return true
 }
 
-func (m *Machine) Reset() {
+func (m *Machine) CloseLights() {
 	for _, light := range m.lights {
-		light.Reset()
+		light.Close()
 	}
 }
 

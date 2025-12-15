@@ -5,9 +5,12 @@ import (
 	"day_10/internal/io"
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
+	startTime := time.Now()
+
 	inputFile := os.Args[1:]
 	fmt.Println(inputFile)
 
@@ -23,8 +26,12 @@ func main() {
 
 	pressesCount := app.ActivateMachines(factory)
 
+	elapsed := time.Since(startTime)
+
 	/* Prints the result */
-	fmt.Printf("The factory has %d machines. All of them have been activated with %d presses", len(factory.Machines), pressesCount)
+	fmt.Printf("The factory has %d machines. All of them have been activated with %d presses\n", len(factory.Machines), pressesCount)
+
+	fmt.Printf("Execution time: %v\n", elapsed)
 }
 
 func initializeReader(
