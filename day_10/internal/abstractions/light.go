@@ -7,13 +7,13 @@ type Light struct {
 
 func NewLight(isOn bool) *Light {
 	return &Light{
-		isOn:         isOn,
+		isOn:         false,
 		initialState: isOn,
 	}
 }
 
-func (l *Light) IsOn() bool {
-	return l.isOn
+func (l *Light) IsValid() bool {
+	return l.isOn == l.initialState
 }
 
 func (l *Light) Toggle() {
@@ -21,5 +21,5 @@ func (l *Light) Toggle() {
 }
 
 func (l *Light) Reset() {
-	l.isOn = l.initialState
+	l.isOn = false
 }

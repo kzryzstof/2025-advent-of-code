@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day_10/internal/app"
 	"day_10/internal/io"
 	"fmt"
 	"os"
@@ -20,10 +21,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	factory.
+	pressesCount := app.ActivateMachines(factory)
 
-		/* Prints the result */
-		fmt.Printf("The factory has %d machines", len(factory.Machines))
+	/* Prints the result */
+	fmt.Printf("The factory has %d machines. All of them have been activated with %d presses", len(factory.Machines), pressesCount)
 }
 
 func initializeReader(

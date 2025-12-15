@@ -1,6 +1,9 @@
 package app
 
-import "day_10/internal/abstractions"
+import (
+	"day_10/internal/abstractions"
+	"fmt"
+)
 
 func ActivateMachines(
 	factory *abstractions.Factory,
@@ -8,12 +11,20 @@ func ActivateMachines(
 
 	totalPresses := uint64(0)
 
-	for _, machine := range factory.Machines {
+	for machineIndex, machine := range factory.Machines {
+
+		fmt.Printf("Processing machine %d with %d button groups\r", machineIndex+1, machine.GetButtonGroupsCount())
+
 		presses, succeeded := FindShortestCombinations(
 			machine.GetButtonGroupsCount(),
-			0, /* <-- Not sure about this parameter!! */
+			machine.GetButtonGroupsCount(), /* Here we test all the combinations */
 			func(buttonGroupsIndexes []int) bool {
 
+				if len(buttonGroupsIndexes) == 3 {
+					if buttonGroupsIndexes[0] == 2 && buttonGroupsIndexes[1] == 3 {
+						fmt.Printf("")
+					}
+				}
 				/* Resets the machine before testing the combination */
 				machine.Reset()
 
@@ -23,7 +34,7 @@ func ActivateMachines(
 				}
 
 				/* Tests if the machine is activated */
-				return machine.IsOn()
+				return machine.IsActivated()
 			},
 		)
 
@@ -31,6 +42,8 @@ func ActivateMachines(
 			totalPresses += uint64(presses)
 		}
 	}
+
+	fmt.Println()
 
 	return totalPresses
 }
@@ -44,18 +57,27 @@ func FindShortestCombinations(
 	testCombination func([]int) bool,
 ) (int, bool) {
 
+	/* The recursive function is not optimal */
+
+	var actualCombinations []int
+	pressesCount := -1
+
 	var testGroups func(currentButtonGroups []int) (int, bool)
 
 	testGroups = func(currentButtons []int) (int, bool) {
 
 		currentButtonCount := len(currentButtons)
 
-		for buttonIndex := 1; buttonIndex <= totalButtonGroupsCount; buttonIndex++ {
+		for buttonIndex := 0; buttonIndex < totalButtonGroupsCount; buttonIndex++ {
 			/* Test all the combinations with the current list of buttons  */
 			currentButtons[len(currentButtons)-1] = buttonIndex
 
 			if testCombination(currentButtons) {
-				return len(currentButtons), true
+				if pressesCount == -1 || len(currentButtons) < pressesCount {
+					actualCombinations = make([]int, len(currentButtons))
+					copy(actualCombinations, currentButtons)
+					pressesCount = len(currentButtons)
+				}
 			}
 		}
 
@@ -68,19 +90,15 @@ func FindShortestCombinations(
 			copy(buttonGroupsPrefix, currentButtons)
 
 			/* Loops to test all the combinations with one more button group */
-			for buttonIndex := 1; buttonIndex <= totalButtonGroupsCount; buttonIndex++ {
+			for buttonIndex := 0; buttonIndex < totalButtonGroupsCount; buttonIndex++ {
 
 				buttonGroupsPrefix[currentButtonCount-1] = buttonIndex
 
-				pressesCount, succeeded := testGroups(buttonGroupsPrefix)
-
-				if succeeded {
-					return pressesCount, true
-				}
+				testGroups(buttonGroupsPrefix)
 			}
 		}
 
-		return -1, false
+		return pressesCount, pressesCount != -1
 	}
 
 	initialButtonGroups := make([]int, 1)

@@ -23,9 +23,9 @@ func (m *Machine) GetButtonGroupsCount() int {
 	return len(m.buttonGroups)
 }
 
-func (m *Machine) IsOn() bool {
+func (m *Machine) IsActivated() bool {
 	for _, light := range m.lights {
-		if !light.IsOn() {
+		if !light.IsValid() {
 			return false
 		}
 	}
