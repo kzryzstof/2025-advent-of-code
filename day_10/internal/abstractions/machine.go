@@ -1,5 +1,7 @@
 package abstractions
 
+var combinations chan []int
+
 type Machine struct {
 	lights       []*Light
 	buttonGroups []*ButtonGroup
@@ -17,6 +19,10 @@ func NewMachine(
 	}
 }
 
+func (m *Machine) GetButtonGroupsCount() int {
+	return len(m.buttonGroups)
+}
+
 func (m *Machine) IsOn() bool {
 	for _, light := range m.lights {
 		if !light.IsOn() {
@@ -25,6 +31,12 @@ func (m *Machine) IsOn() bool {
 	}
 
 	return true
+}
+
+func (m *Machine) Reset() {
+	for _, light := range m.lights {
+		light.Reset()
+	}
 }
 
 func (m *Machine) GetLight(

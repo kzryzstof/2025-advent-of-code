@@ -20,8 +20,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	/* Prints the result */
-	fmt.Printf("The factory has %d machines", len(factory.Machines))
+	factory.
+
+		/* Prints the result */
+		fmt.Printf("The factory has %d machines", len(factory.Machines))
 }
 
 func initializeReader(
