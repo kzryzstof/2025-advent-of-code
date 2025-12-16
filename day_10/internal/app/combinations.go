@@ -3,6 +3,13 @@ package app
 import (
 	"day_10/internal/abstractions"
 	"fmt"
+	"os"
+	"time"
+)
+
+const (
+	// TilesValidationConcurrency on macOS M1 Pro, 10 seems to be a nice sweet spot
+	TestConcurrency = 10
 )
 
 func ActivateMachines(
@@ -13,12 +20,21 @@ func ActivateMachines(
 
 	for machineIndex, machine := range factory.Machines {
 
+		startTime := time.Now()
 		fmt.Printf("Processing machine %d with %d button groups\r", machineIndex+1, machine.GetButtonGroupsCount())
 
 		presses, succeeded := FindShortestCombinations(
 			machine.GetButtonGroupsCount(),
 			machine.GetButtonGroupsCount(), /* Here we test all the combinations */
 			func(buttonGroupsIndexes []int) bool {
+
+				fmt.Printf("Processing machine %d with %d button groups [ ", machineIndex+1, machine.GetButtonGroupsCount())
+
+				for _, buttonGroupIndex := range buttonGroupsIndexes {
+					fmt.Printf("%d ", buttonGroupIndex)
+				}
+
+				fmt.Printf("]\r")
 
 				/* Resets the machine before testing the combination */
 				machine.CloseLights()
@@ -35,7 +51,14 @@ func ActivateMachines(
 
 		if succeeded {
 			totalPresses += uint64(presses)
+		} else {
+			elapsed := time.Since(startTime)
+			fmt.Printf("Failed to activate machine %d with %d button groups (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), elapsed)
+			os.Exit(1)
 		}
+
+		elapsed := time.Since(startTime)
+		fmt.Printf("Processed machine %d with %d button groups: %d pressed needed (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), presses, elapsed)
 	}
 
 	fmt.Println()
@@ -54,26 +77,21 @@ func FindShortestCombinations(
 
 	/* The recursive function is not optimal */
 
-	var actualCombinations []int
-	pressesCount := -1
+	var testGroups func(currentButtonGroups []int, currentNumberToTest int) (int, bool)
 
-	var testGroups func(currentButtonGroups []int) (int, bool)
-
-	testGroups = func(currentButtons []int) (int, bool) {
+	testGroups = func(currentButtons []int, currentNumberToTest int) (int, bool) {
 
 		currentButtonCount := len(currentButtons)
 
+		canTest := currentButtonCount == currentNumberToTest
+
 		for buttonIndex := 0; buttonIndex < totalButtonGroupsCount; buttonIndex++ {
 
-			/* Test all the combinations with the current list of buttons  */
+			/* Test all the combinations with the current list of buttons */
 			currentButtons[len(currentButtons)-1] = buttonIndex
 
-			if testCombination(currentButtons) {
-				if pressesCount == -1 || len(currentButtons) < pressesCount {
-					actualCombinations = make([]int, len(currentButtons))
-					copy(actualCombinations, currentButtons)
-					pressesCount = len(currentButtons)
-				}
+			if canTest && testCombination(currentButtons) {
+				return currentButtonCount, true
 			}
 		}
 
@@ -90,13 +108,31 @@ func FindShortestCombinations(
 
 				buttonGroupsPrefix[currentButtonCount-1] = buttonIndex
 
-				testGroups(buttonGroupsPrefix)
+				pressedCount, succeeded := testGroups(buttonGroupsPrefix, currentNumberToTest)
+
+				if succeeded {
+					return pressedCount, true
+				}
 			}
 		}
 
-		return pressesCount, pressesCount != -1
+		return -1, false
 	}
 
-	initialButtonGroups := make([]int, 1)
-	return testGroups(initialButtonGroups)
+	count := 1
+
+	for count <= maximumCombinationLength {
+
+		initialButtonGroups := make([]int, 1)
+
+		pressesCount, succeeded := testGroups(initialButtonGroups, count)
+
+		if succeeded {
+			return pressesCount, true
+		}
+
+		count++
+	}
+
+	return -1, false
 }
