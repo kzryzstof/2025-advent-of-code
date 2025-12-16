@@ -44,8 +44,8 @@ func (r *FactoryReader) Read() (*abstractions.Factory, error) {
 		line := scanner.Text()
 
 		machines = append(machines, abstractions.NewMachine(
-			r.extractLightIndicators(line),
 			r.extractButtons(line),
+			r.extractVoltages(line),
 		))
 	}
 
@@ -111,11 +111,39 @@ func (r *FactoryReader) extractButtons(
 		// For each character inside the brackets, create a LightIndicator
 		for i := 0; i < len(lightIndicators); i++ {
 			lightNumber, _ := strconv.ParseInt(lightIndicators[i], 10, 64)
-			buttons[i] = &abstractions.Button{Light: int(lightNumber)}
+			buttons[i] = &abstractions.Button{CounterIndex: int(lightNumber)}
 		}
 
 		buttonGroups = append(buttonGroups, &abstractions.ButtonGroup{Buttons: buttons})
 	}
 
 	return buttonGroups
+}
+
+func (r *FactoryReader) extractVoltages(
+	line string,
+) []*abstractions.Voltage {
+
+	voltagesRegex := regexp.MustCompile(`\{([\d,*]+)\}`)
+
+	matches := voltagesRegex.FindAllStringSubmatch(line, -1)
+
+	voltages := make([]*abstractions.Voltage, 0, len(matches))
+
+	for _, m := range matches {
+		if len(m) < 2 {
+			continue
+		}
+
+		inner := m[1] // the string between [ and ]
+		voltageValues := strings.Split(inner, ",")
+
+		// For each character inside the brackets, create a LightIndicator
+		for i := 0; i < len(voltageValues); i++ {
+			voltage, _ := strconv.ParseUint(voltageValues[i], 10, 64)
+			voltages = append(voltages, abstractions.NewVoltage(uint32(voltage)))
+		}
+	}
+
+	return voltages
 }

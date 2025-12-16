@@ -37,15 +37,15 @@ func ActivateMachines(
 				fmt.Printf("]\r")
 
 				/* Resets the machine before testing the combination */
-				machine.CloseLights()
+				machine.ResetCounters()
 
 				/* Presses all the button groups in the combination */
 				for _, buttonGroupIndex := range buttonGroupsIndexes {
 					machine.PressGroup(buttonGroupIndex)
 				}
 
-				/* Tests if the machine is activated */
-				return machine.IsActivated()
+				/* Tests if the machine's voltage is correct */
+				return machine.IsVoltageValid()
 			},
 		)
 

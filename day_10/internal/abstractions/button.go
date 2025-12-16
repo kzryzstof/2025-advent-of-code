@@ -1,7 +1,7 @@
 package abstractions
 
 type Button struct {
-	Light int
+	CounterIndex int
 }
 
 type ButtonGroup struct {
@@ -19,6 +19,6 @@ func (g *ButtonGroup) Press(
 func (b *Button) Press(
 	machine *Machine,
 ) {
-	light := machine.GetLight(b.Light)
-	light.Toggle()
+	counter := machine.GetCounter(b.CounterIndex)
+	counter.Increment()
 }
