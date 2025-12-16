@@ -87,6 +87,11 @@ func FindShortestCombinations(
 
 		for buttonIndex := 0; buttonIndex < totalButtonGroupsCount; buttonIndex++ {
 
+			/* Exclude the group index if it is already in the combination */
+			if abstractions.Contains(currentButtons, buttonIndex) {
+				continue
+			}
+
 			/* Test all the combinations with the current list of buttons */
 			currentButtons[len(currentButtons)-1] = buttonIndex
 
@@ -99,12 +104,18 @@ func FindShortestCombinations(
 
 			/* Creates a new list of buttons for the next iteration that will have one more button added */
 			buttonGroupsPrefix := make([]int, currentButtonCount+1)
+			abstractions.Clear(buttonGroupsPrefix)
 
 			/* Makes sure to include the current list */
 			copy(buttonGroupsPrefix, currentButtons)
 
 			/* Loops to test all the combinations with one more button group */
 			for buttonIndex := 0; buttonIndex < totalButtonGroupsCount; buttonIndex++ {
+
+				/* Exclude the group index if it is already in the combination */
+				if abstractions.Contains(buttonGroupsPrefix, buttonIndex) {
+					continue
+				}
 
 				buttonGroupsPrefix[currentButtonCount-1] = buttonIndex
 
@@ -124,6 +135,7 @@ func FindShortestCombinations(
 	for count <= maximumCombinationLength {
 
 		initialButtonGroups := make([]int, 1)
+		abstractions.Clear(initialButtonGroups)
 
 		pressesCount, succeeded := testGroups(initialButtonGroups, count)
 
