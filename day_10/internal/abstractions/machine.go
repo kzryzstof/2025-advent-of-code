@@ -29,6 +29,14 @@ func NewMachine(
 	}
 }
 
+func (m *Machine) GetButtonGroups() []*ButtonGroup {
+	return m.buttonGroups
+}
+
+func (m *Machine) GetVoltages() []*Voltage {
+	return m.voltages
+}
+
 func (m *Machine) GetButtonGroupsCount() int {
 	return len(m.buttonGroups)
 }

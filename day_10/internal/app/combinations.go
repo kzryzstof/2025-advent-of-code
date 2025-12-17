@@ -3,7 +3,6 @@ package app
 import (
 	"day_10/internal/abstractions"
 	"fmt"
-	"os"
 	"time"
 )
 
@@ -23,42 +22,22 @@ func ActivateMachines(
 		startTime := time.Now()
 		fmt.Printf("Processing machine %d with %d button groups\r", machineIndex+1, machine.GetButtonGroupsCount())
 
-		presses, succeeded := FindShortestCombinations(
-			machine.GetButtonGroupsCount(),
-			machine.GetButtonGroupsCount(), /* Here we test all the combinations */
-			func(buttonGroupsIndexes []int) bool {
+		/* Integer Linear Programming Fun Time! */
 
-				fmt.Printf("Processing machine %d with %d button groups [ ", machineIndex+1, machine.GetButtonGroupsCount())
+		/*
+			1. I have to transform the list of button groups into
+			a matrix form (variables) and the list of voltages into
+			a vector form (solutions)
+		*/
+		groupsMatrix, voltagesVector := ToMatrix(machine)
 
-				for _, buttonGroupIndex := range buttonGroupsIndexes {
-					fmt.Printf("%d ", buttonGroupIndex)
-				}
+		/*	2. I use Gaussian elimination to solve the system of equations */
+		abstractions.Reduce(groupsMatrix, voltagesVector)
 
-				fmt.Printf("]\r")
-
-				/* Resets the machine before testing the combination */
-				machine.ResetCounters()
-
-				/* Presses all the button groups in the combination */
-				for _, buttonGroupIndex := range buttonGroupsIndexes {
-					machine.PressGroup(buttonGroupIndex)
-				}
-
-				/* Tests if the machine's voltage is correct */
-				return machine.IsVoltageValid()
-			},
-		)
-
-		if succeeded {
-			totalPresses += uint64(presses)
-		} else {
-			elapsed := time.Since(startTime)
-			fmt.Printf("Failed to activate machine %d with %d button groups (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), elapsed)
-			os.Exit(1)
-		}
+		fmt.Println("%v %v", groupsMatrix, voltagesVector)
 
 		elapsed := time.Since(startTime)
-		fmt.Printf("Processed machine %d with %d button groups: %d pressed needed (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), presses, elapsed)
+		fmt.Printf("Processed machine %d with %d button groups: %d pressed needed (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), 0, elapsed)
 	}
 
 	fmt.Println()
@@ -66,85 +45,27 @@ func ActivateMachines(
 	return totalPresses
 }
 
-func FindShortestCombinations(
-	/* Indicates the maximum number of button groups are in the combination to test */
-	maximumCombinationLength int,
-	/* Indicates the maximum number of button groups to test */
-	totalButtonGroupsCount int,
-	/* Function to call to test the machine after pressing of all the button groups in the collection */
-	testCombination func([]int) bool,
-) (int, bool) {
+func ToMatrix(
+	machine *abstractions.Machine,
+) (*abstractions.Matrix, *abstractions.Vector) {
+	groups := machine.GetButtonGroups()
+	voltages := machine.GetVoltages()
 
-	/* The recursive function is not optimal */
+	/* Creates the matrix made of the variables */
+	groupsMatrix := abstractions.NewMatrix(len(groups), len(voltages))
 
-	var testGroups func(currentButtonGroups []int, currentNumberToTest int) (int, bool)
-
-	testGroups = func(currentButtons []int, currentNumberToTest int) (int, bool) {
-
-		currentButtonCount := len(currentButtons)
-
-		canTest := currentButtonCount == currentNumberToTest
-
-		for buttonIndex := 0; buttonIndex < totalButtonGroupsCount; buttonIndex++ {
-
-			/* Exclude the group index if it is already in the combination */
-			if abstractions.Contains(currentButtons, buttonIndex) {
-				continue
-			}
-
-			/* Test all the combinations with the current list of buttons */
-			currentButtons[len(currentButtons)-1] = buttonIndex
-
-			if canTest && testCombination(currentButtons) {
-				return currentButtonCount, true
-			}
+	for groupIndex, group := range groups {
+		for _, button := range group.Buttons {
+			groupsMatrix.Set(button.CounterIndex, groupIndex, 1)
 		}
-
-		if currentButtonCount < maximumCombinationLength {
-
-			/* Creates a new list of buttons for the next iteration that will have one more button added */
-			buttonGroupsPrefix := make([]int, currentButtonCount+1)
-			abstractions.Clear(buttonGroupsPrefix)
-
-			/* Makes sure to include the current list */
-			copy(buttonGroupsPrefix, currentButtons)
-
-			/* Loops to test all the combinations with one more button group */
-			for buttonIndex := 0; buttonIndex < totalButtonGroupsCount; buttonIndex++ {
-
-				/* Exclude the group index if it is already in the combination */
-				if abstractions.Contains(buttonGroupsPrefix, buttonIndex) {
-					continue
-				}
-
-				buttonGroupsPrefix[currentButtonCount-1] = buttonIndex
-
-				pressedCount, succeeded := testGroups(buttonGroupsPrefix, currentNumberToTest)
-
-				if succeeded {
-					return pressedCount, true
-				}
-			}
-		}
-
-		return -1, false
 	}
 
-	count := 1
+	/* Creates the vector made of the result */
+	voltagesVector := abstractions.NewVector(len(voltages))
 
-	for count <= maximumCombinationLength {
-
-		initialButtonGroups := make([]int, 1)
-		abstractions.Clear(initialButtonGroups)
-
-		pressesCount, succeeded := testGroups(initialButtonGroups, count)
-
-		if succeeded {
-			return pressesCount, true
-		}
-
-		count++
+	for voltageIndex, voltage := range voltages {
+		voltagesVector.Set(voltageIndex, float64(voltage.GetValue()))
 	}
 
-	return -1, false
+	return groupsMatrix, voltagesVector
 }
