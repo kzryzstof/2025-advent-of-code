@@ -26,7 +26,7 @@ func ActivateMachines(
 
 		/*
 			1. I have to transform the list of button groups into
-			a matrix form (variables) and the list of voltages into
+			an augmented matrix (variables) and the list of voltages into
 			a vector form (solutions)
 		*/
 		augmentedMatrix := ToAugmentedMatrix(machine)

@@ -8,7 +8,7 @@ const (
 
 func Reduce(
 	augmentedMatrix *AugmentedMatrix,
-) {
+) []float64 {
 	m := augmentedMatrix.Matrix
 	v := augmentedMatrix.Vector
 
@@ -17,16 +17,15 @@ func Reduce(
 
 	for pivot := 0; pivot < m.Rows(); pivot++ {
 
-		fmt.Println("---------------------------")
+		fmt.Println("-----------------------------------------------------------------------------------------------")
 		fmt.Printf("Working on row %d\n", pivot+1)
 		Print(m, v)
 
 		if m.Get(pivot, pivot) != PivotValue {
 
-			/* ***** */
-			/* Pivot */
+			/* ********** Pivot ********** */
 
-			/* If the pivot is not 1, let's see if there is a row *below* to swap with */
+			/* If the pivot is not 1, let's see if there is a row *below* that we can use to swap it with */
 			pivotRow := findSwappableRow(m, pivot)
 
 			if pivotRow != -1 {
@@ -36,8 +35,7 @@ func Reduce(
 			}
 		}
 
-		/* ********* */
-		/* Normalize */
+		/* ********** Normalize ********** */
 
 		pivotValue := m.Get(pivot, pivot)
 
@@ -52,8 +50,7 @@ func Reduce(
 			Print(m, v)
 		}
 
-		/* ***************** */
-		/* Forward eliminate */
+		/* ********** Forward eliminate ********** */
 
 		/* Now that we have a pivot of one, let's eliminate all the cells for the current column */
 
@@ -79,7 +76,13 @@ func Reduce(
 		Print(m, v)
 	}
 
+	fmt.Printf("Final form\n")
 	Print(m, v)
+
+	return backSubstitution(
+		m,
+		v,
+	)
 }
 
 func findSwappableRow(
@@ -96,4 +99,13 @@ func findSwappableRow(
 	}
 
 	return -1
+}
+
+func backSubstitution(
+	m *Matrix,
+	v *Vector,
+) []float64 {
+	solution := make([]float64, m.Cols())
+
+	return solution
 }
