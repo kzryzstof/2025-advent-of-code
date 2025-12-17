@@ -2,46 +2,62 @@ package abstractions
 
 import "fmt"
 
+const (
+	PivotValue = 1
+)
+
 func Reduce(
-	m *Matrix,
-	v *Vector,
+	augmentedMatrix *AugmentedMatrix,
 ) {
+	m := augmentedMatrix.Matrix
+	v := augmentedMatrix.Vector
+
+	fmt.Println("Augmented matrix reduction started")
 	Print(m, v)
 
-	for pivot := 0; pivot < m.Rows()-1; pivot++ {
+	for pivot := 0; pivot < m.Rows(); pivot++ {
 
-		pivotRow := pivot
+		fmt.Println("---------------------------")
+		fmt.Printf("Working on row %d\n", pivot+1)
+		Print(m, v)
 
-		if m.Get(pivotRow, pivot) == 0 {
+		if m.Get(pivot, pivot) != PivotValue {
 
 			/* ***** */
 			/* Pivot */
 
-			/* If the pivot is zero, look for a row *below* to swap with */
+			/* If the pivot is not 1, let's see if there is a row *below* to swap with */
 			pivotRow := findSwappableRow(m, pivot)
-			m.Swap(pivot, pivotRow)
-			v.Swap(pivot, pivotRow)
-		} else {
-			pivotRow++
+
+			if pivotRow != -1 {
+				fmt.Printf("Pivoting row %d with %d\n", pivot+1, pivotRow+1)
+				m.Swap(pivot, pivotRow)
+				v.Swap(pivot, pivotRow)
+			}
 		}
 
 		/* ********* */
 		/* Normalize */
 
-		pivotValue := m.Get(pivotRow, pivot)
+		pivotValue := m.Get(pivot, pivot)
 
-		if pivotValue == 0 || pivotValue == 1 {
+		if pivotValue != 0 && pivotValue != PivotValue {
 			/* The scaling is necessary only if the pivot is not 0 or 1 */
-			continue
-		}
+			scaling := 1 / pivotValue
 
-		m.Scale(pivotRow, 1/pivotValue)
-		v.Scale(pivotRow, 1/pivotValue)
+			m.Scale(pivot, scaling)
+			v.Scale(pivot, scaling)
+
+			fmt.Printf("Normalized on row %d (scaling: %f)\n", pivot+1, scaling)
+			Print(m, v)
+		}
 
 		/* ***************** */
 		/* Forward eliminate */
 
-		for row := pivotRow + 1; row < m.Rows(); row++ {
+		/* Now that we have a pivot of one, let's eliminate all the cells for the current column */
+
+		for row := pivot + 1; row < m.Rows(); row++ {
 
 			factor := m.Get(row, pivot)
 
@@ -54,45 +70,13 @@ func Reduce(
 			/* We can start the inner column loop at pivot instead of 0
 			since entries left of the pivot are already zero by construction. */
 			for col := pivot; col < m.Cols(); col++ {
-				m.Set(row, col, m.Get(row, col)-factor*m.Get(pivotRow, col))
-			}
-			v.Set(row, v.Get(row)-factor*v.Get(pivotRow))
-		}
-	}
-
-	backwardEliminate(m, v)
-
-	Print(m, v)
-}
-
-func backwardEliminate(
-	m *Matrix,
-	v *Vector,
-) {
-	fmt.Println("Backward eliminate")
-
-	for pivot := m.Rows() - 1; pivot >= 0; pivot-- {
-
-		pivotCol := findPivotOnRow(m, pivot)
-
-		if pivotCol == -1 {
-			continue
-		}
-
-		for row := pivot - 1; row >= 0; row-- {
-
-			factor := m.Get(row, pivotCol)
-
-			if factor == 0 {
-				continue
-			}
-
-			for col := pivotCol; col < m.Cols(); col++ {
 				m.Set(row, col, m.Get(row, col)-factor*m.Get(pivot, col))
 			}
-
 			v.Set(row, v.Get(row)-factor*v.Get(pivot))
 		}
+
+		fmt.Printf("Forward elimination done on row %d\n", pivot+1)
+		Print(m, v)
 	}
 
 	Print(m, v)
@@ -103,28 +87,13 @@ func findSwappableRow(
 	pivotRow int,
 ) int {
 
+	pivotCol := pivotRow
+
 	for candidateRow := pivotRow + 1; candidateRow < m.Rows(); candidateRow++ {
-		if m.Get(candidateRow, pivotRow) != 0 {
+		if m.Get(candidateRow, pivotCol) == PivotValue {
 			return candidateRow
 		}
 	}
 
-	panic("no swappable row found. OMG! I am panicking too!!!")
-}
-
-func findPivotOnRow(
-	m *Matrix,
-	pivot int,
-) int {
-
-	pivotCol := -1
-
-	for col := 0; col < m.Cols(); col++ {
-		if m.Get(pivot, col) != 0 {
-			pivotCol = col
-			break
-		}
-	}
-
-	return pivotCol
+	return -1
 }

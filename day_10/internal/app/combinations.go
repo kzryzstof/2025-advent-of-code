@@ -29,12 +29,12 @@ func ActivateMachines(
 			a matrix form (variables) and the list of voltages into
 			a vector form (solutions)
 		*/
-		groupsMatrix, voltagesVector := ToMatrix(machine)
+		augmentedMatrix := ToAugmentedMatrix(machine)
 
 		/*	2. I use Gaussian elimination to solve the system of equations */
-		abstractions.Reduce(groupsMatrix, voltagesVector)
+		abstractions.Reduce(augmentedMatrix)
 
-		fmt.Println("%v %v", groupsMatrix, voltagesVector)
+		fmt.Println("%v %v", augmentedMatrix)
 
 		elapsed := time.Since(startTime)
 		fmt.Printf("Processed machine %d with %d button groups: %d pressed needed (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), 0, elapsed)
@@ -45,9 +45,9 @@ func ActivateMachines(
 	return totalPresses
 }
 
-func ToMatrix(
+func ToAugmentedMatrix(
 	machine *abstractions.Machine,
-) (*abstractions.Matrix, *abstractions.Vector) {
+) *abstractions.AugmentedMatrix {
 	groups := machine.GetButtonGroups()
 	voltages := machine.GetVoltages()
 
@@ -67,5 +67,8 @@ func ToMatrix(
 		voltagesVector.Set(voltageIndex, float64(voltage.GetValue()))
 	}
 
-	return groupsMatrix, voltagesVector
+	return &abstractions.AugmentedMatrix{
+		Matrix: groupsMatrix,
+		Vector: voltagesVector,
+	}
 }

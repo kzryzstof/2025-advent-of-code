@@ -14,21 +14,7 @@ func TestReduce(t *testing.T) {
 		expectedMat  [][]float64
 		expectedVec  []float64
 	}{
-		"simple_2x2_system": {
-			rows: 2,
-			cols: 2,
-			matrixValues: [][]float64{
-				{2, 3},
-				{1, -1},
-			},
-			vectorValues: []float64{6, .5},
-			expectedMat: [][]float64{
-				{1, -1},
-				{0, 1},
-			},
-			expectedVec: []float64{0.5, 1},
-		},
-		"other_simple_2x2_system": {
+		"1.1-simple_2x2_system": {
 			rows: 2,
 			cols: 2,
 			matrixValues: [][]float64{
@@ -42,37 +28,35 @@ func TestReduce(t *testing.T) {
 			},
 			expectedVec: []float64{0.5, 4},
 		},
-		"another_simple_2x2_system": {
+		"1.2-simple_2x2_system": {
 			rows: 2,
 			cols: 2,
 			matrixValues: [][]float64{
-				{3, 4},
-				{6, 8},
+				{2, 1},
+				{4, 2},
 			},
-			vectorValues: []float64{12, 24},
+			vectorValues: []float64{1, 6},
 			expectedMat: [][]float64{
-				{6, 8},
+				{1, .5},
 				{0, 0},
 			},
-			expectedVec: []float64{0, 24},
+			expectedVec: []float64{0.5, 4},
 		},
-		"simple_3x3_system": {
-			rows: 3,
-			cols: 3,
+		"1.3-simple_2x2_system": {
+			rows: 2,
+			cols: 2,
 			matrixValues: [][]float64{
-				{2, 1, -1},
-				{-3, -1, 2},
-				{-2, 1, 2},
+				{2, 1},
+				{4, 2},
 			},
-			vectorValues: []float64{8, -11, -3},
+			vectorValues: []float64{1, 6},
 			expectedMat: [][]float64{
-				{1, 0, 0},
-				{0, 1, 0},
-				{0, 0, 1},
+				{1, .5},
+				{0, 0},
 			},
-			expectedVec: []float64{2, 3, -1},
+			expectedVec: []float64{0.5, 4},
 		},
-		"other_simple_3x3_system": {
+		"2.1-simple_3x3_system": {
 			rows: 3,
 			cols: 3,
 			matrixValues: [][]float64{
@@ -80,79 +64,45 @@ func TestReduce(t *testing.T) {
 				{2, -5, 6},
 				{-3, 3, 4},
 			},
-			vectorValues: []float64{3, 0, 6},
+			vectorValues: []float64{3, 6, 6},
 			expectedMat: [][]float64{
 				{1, -3, 4},
 				{0, 1, -2},
 				{0, 0, 1},
 			},
-			expectedVec: []float64{3, 0, 15 / 4},
+			expectedVec: []float64{3, 0, 3.75},
 		},
-		"system_with_free_variables_4x6": {
-			rows: 4,
-			cols: 6,
-			matrixValues: [][]float64{
-				{0, 0, 0, 0, 1, 1},
-				{0, 1, 0, 0, 0, 1},
-				{0, 0, 1, 1, 1, 0},
-				{1, 1, 0, 1, 0, 0},
-			},
-			vectorValues: []float64{3, 5, 4, 7},
-			expectedMat: [][]float64{
-				{1, 0, 0, 1, -1, -2},
-				{0, 1, 0, 0, 0, 1},
-				{0, 0, 1, 1, 0, -1},
-				{0, 0, 0, 0, 1, 1},
-			},
-			expectedVec: []float64{-1, 5, 1, 3},
-		},
-		"identity_matrix_already_reduced": {
+		"2.2-simple_3x3_system": {
 			rows: 3,
 			cols: 3,
 			matrixValues: [][]float64{
-				{1, 0, 0},
-				{0, 1, 0},
-				{0, 0, 1},
+				{1, -1, 1},
+				{2, 3, -1},
+				{3, -2, -9},
 			},
-			vectorValues: []float64{4, 5, 6},
+			vectorValues: []float64{8, -2, 9},
 			expectedMat: [][]float64{
-				{1, 0, 0},
-				{0, 1, 0},
+				{1, -1, 1},
+				{0, 1, -12},
 				{0, 0, 1},
 			},
-			expectedVec: []float64{4, 5, 6},
+			expectedVec: []float64{8, -15, 1},
 		},
-		"upper_triangular_needs_back_elimination": {
+		"2.3-simple_3x3_system": {
 			rows: 3,
 			cols: 3,
 			matrixValues: [][]float64{
-				{1, 2, 3},
-				{0, 1, 4},
-				{0, 0, 1},
+				{-1, -2, 1},
+				{2, 3, 0},
+				{0, 1, -2},
 			},
-			vectorValues: []float64{14, 11, 3},
+			vectorValues: []float64{-1, 2, 0},
 			expectedMat: [][]float64{
-				{1, 0, 0},
-				{0, 1, 0},
-				{0, 0, 1},
+				{1, 2, -1},
+				{0, 1, -2},
+				{0, 0, 0},
 			},
-			expectedVec: []float64{-1, -1, 3},
-		},
-		"system_requiring_row_swap": {
-			rows: 3,
-			cols: 3,
-			matrixValues: [][]float64{
-				{0, 1, 2},
-				{1, 2, 3},
-				{3, 4, 5},
-			},
-			vectorValues: []float64{8, 13, 18},
-			expectedMat: [][]float64{
-				{1, 0, 0},
-				{0, 1, 0},
-				{0, 0, 1},
-			},
-			expectedVec: []float64{1, 2, 3},
+			expectedVec: []float64{1, 0, 0},
 		},
 	}
 
@@ -175,7 +125,7 @@ func TestReduce(t *testing.T) {
 			}
 
 			// Run the reduction
-			Reduce(m, v)
+			Reduce(&AugmentedMatrix{m, v})
 
 			// Verify matrix results
 			for row := 0; row < tc.rows; row++ {
