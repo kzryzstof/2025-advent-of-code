@@ -32,12 +32,18 @@ func ActivateMachines(
 		augmentedMatrix := abstractions.ToAugmentedMatrix(machine)
 
 		/*	2. I use Gaussian elimination to solve the system of equations */
-		abstractions.Reduce(augmentedMatrix)
+		solution := abstractions.Reduce(augmentedMatrix, false)
 
-		fmt.Println("%v %v", augmentedMatrix)
+		total := 0
+
+		for _, presses := range solution {
+			total += int(presses)
+		}
 
 		elapsed := time.Since(startTime)
-		fmt.Printf("Processed machine %d with %d button groups: %d pressed needed (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), 0, elapsed)
+		fmt.Printf("Processed machine %d with %d button groups: %d pressed needed (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), total, elapsed)
+
+		totalPresses += uint64(total)
 	}
 
 	fmt.Println()

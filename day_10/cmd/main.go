@@ -28,6 +28,9 @@ func main() {
 
 	elapsed := time.Since(startTime)
 
+	//	20195 too high!!
+	//	20172 too high
+
 	/* Prints the result */
 	fmt.Printf("The factory has %d machines. All of them have been activated with %d presses\n", len(factory.Machines), pressesCount)
 

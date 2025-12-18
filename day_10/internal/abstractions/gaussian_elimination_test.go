@@ -129,7 +129,7 @@ func TestReduce(t *testing.T) {
 				{0, 0, 0, 0, 1, 1},
 			},
 			expectedVec:      []float64{7, 5, 4, 3},
-			expectedSolution: []float64{2, 4, 2, 1, 1, 1},
+			expectedSolution: []float64{1, 3, 0, 3, 1, 2},
 		},
 		"3.2-documented_use-case": {
 			rows: 5,
@@ -196,7 +196,7 @@ func TestReduce(t *testing.T) {
 			}
 
 			// Run the reduction
-			actualSolution := Reduce(&AugmentedMatrix{m, v})
+			actualSolution := Reduce(&AugmentedMatrix{m, v}, true)
 
 			// Verify matrix results
 			for row := 0; row < tc.rows; row++ {

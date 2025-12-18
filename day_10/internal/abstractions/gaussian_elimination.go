@@ -8,12 +8,15 @@ const (
 
 func Reduce(
 	augmentedMatrix *AugmentedMatrix,
+	verbose bool,
 ) []float64 {
 	m := augmentedMatrix.Matrix
 	v := augmentedMatrix.Vector
 
-	fmt.Println("Augmented matrix reduction started")
-	Print(m, v)
+	if verbose {
+		fmt.Println("Augmented matrix reduction started")
+		Print(m, v)
+	}
 
 	for pivot := 0; pivot < m.Rows(); pivot++ {
 
@@ -21,9 +24,11 @@ func Reduce(
 			break
 		}
 
-		fmt.Println("-----------------------------------------------------------------------------------------------")
-		fmt.Printf("Working on row %d\n", pivot+1)
-		Print(m, v)
+		if verbose {
+			fmt.Println("-----------------------------------------------------------------------------------------------")
+			fmt.Printf("Working on row %d\n", pivot+1)
+			Print(m, v)
+		}
 
 		if m.Get(pivot, pivot) == 0 {
 
@@ -37,8 +42,10 @@ func Reduce(
 				m.Swap(pivot, pivotRow)
 				v.Swap(pivot, pivotRow)
 
-				fmt.Printf("Pivoting row %d with %d\n", pivot+1, pivotRow+1)
-				Print(m, v)
+				if verbose {
+					fmt.Printf("Pivoting row %d with %d\n", pivot+1, pivotRow+1)
+					Print(m, v)
+				}
 			}
 		}
 
@@ -53,8 +60,10 @@ func Reduce(
 			m.Scale(pivot, scaling)
 			v.Scale(pivot, scaling)
 
-			fmt.Printf("Normalized on row %d (scaling: %f)\n", pivot+1, scaling)
-			Print(m, v)
+			if verbose {
+				fmt.Printf("Normalized on row %d (scaling: %f)\n", pivot+1, scaling)
+				Print(m, v)
+			}
 		}
 
 		/* ********** Forward eliminate ********** */
@@ -79,12 +88,16 @@ func Reduce(
 			v.Set(row, v.Get(row)-factor*v.Get(pivot))
 		}
 
-		fmt.Printf("Forward elimination done on row %d\n", pivot+1)
-		Print(m, v)
+		if verbose {
+			fmt.Printf("Forward elimination done on row %d\n", pivot+1)
+			Print(m, v)
+		}
 	}
 
-	fmt.Printf("Final form\n")
-	Print(m, v)
+	if verbose {
+		fmt.Printf("Final form\n")
+		Print(m, v)
+	}
 
 	return backSubstitution(
 		m,
@@ -113,13 +126,13 @@ func backSubstitution(
 	v *Vector,
 ) []float64 {
 	solution := make([]float64, m.Cols())
-	defaultFreeVariableValue := float64(1)
+	defaultFreeVariableValue := float64(0)
 
 	variablesCount := m.Cols()
 	variableRow := variablesCount - 1
 
 	for ; variableRow >= m.Rows(); variableRow-- {
-		solution[variableRow] = 1
+		solution[variableRow] = defaultFreeVariableValue
 		defaultFreeVariableValue = 0
 	}
 
