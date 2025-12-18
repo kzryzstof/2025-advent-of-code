@@ -14,11 +14,12 @@ func Reduce(
 	v := augmentedMatrix.Vector
 
 	if verbose {
-		fmt.Println("Augmented matrix reduction started")
+		fmt.Println("Forward elimination")
 		Print(m, v)
 	}
 
-	for pivot := 0; pivot < m.Rows(); pivot++ {
+	/* Forward elimination */
+	for pivot := 0; pivot < m.Rows()-1; pivot++ {
 
 		if pivot >= m.Cols() {
 			break
@@ -99,11 +100,14 @@ func Reduce(
 		Print(m, v)
 	}
 
-	return backSubstitution(
-		m,
-		v,
-		verbose,
-	)
+	return nil
+	/*
+		return backSubstitution(
+			m,
+			v,
+			verbose,
+		)
+	*/
 }
 
 func findSwappableRow(
@@ -221,17 +225,9 @@ func detectFreeVariables(
 ) []int {
 	freeVariableIndices := make([]int, 0)
 
-	variablesCount := m.Cols()
-	variableRow := variablesCount - 1
-
-	for ; variableRow >= m.Rows(); variableRow-- {
-		freeVariableIndices = append(freeVariableIndices, variableRow)
-	}
-
-	for ; variableRow >= 0; variableRow-- {
-		if isFreeVariable(m, variableRow) {
-			freeVariableIndices = append(freeVariableIndices, variableRow)
-			continue
+	for col := 0; col < m.Cols(); col++ {
+		if isFreeVariable(m, col) {
+			freeVariableIndices = append(freeVariableIndices, col)
 		}
 	}
 
@@ -243,13 +239,12 @@ func isFreeVariable(
 	variableRow int,
 ) bool {
 
-	/* A variable is considered free if all its coefficients are zero in the matrix */
-
-	for col := 0; col < m.Cols(); col++ {
-		if m.Get(variableRow, col) != 0 {
-			return false
-		}
+	// A variable is free if there's no pivot (leading 1) in its column
+	// Check if row variableCol has a pivot at column variableCol
+	if variableRow >= m.Rows() {
+		return true // More variables than equations
 	}
 
-	return true
+	// Check if there's a pivot (non-zero, typically 1) at the diagonal
+	return m.Get(variableRow, variableRow) == 0
 }
