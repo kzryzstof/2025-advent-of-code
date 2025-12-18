@@ -29,7 +29,7 @@ func ActivateMachines(
 			an augmented matrix (variables) and the list of voltages into
 			a vector form (solutions)
 		*/
-		augmentedMatrix := ToAugmentedMatrix(machine)
+		augmentedMatrix := abstractions.ToAugmentedMatrix(machine)
 
 		/*	2. I use Gaussian elimination to solve the system of equations */
 		abstractions.Reduce(augmentedMatrix)
