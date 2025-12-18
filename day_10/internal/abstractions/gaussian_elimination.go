@@ -102,6 +102,7 @@ func Reduce(
 	return backSubstitution(
 		m,
 		v,
+		verbose,
 	)
 }
 
@@ -124,51 +125,126 @@ func findSwappableRow(
 func backSubstitution(
 	m *Matrix,
 	v *Vector,
+	verbose bool,
 ) []float64 {
+
 	solution := make([]float64, m.Cols())
-	defaultFreeVariableValue := float64(0)
+
+	/* Keep track of the free variables */
+	freeVariableIndices := detectFreeVariables(m)
+	freeVariablesValues := make([]float64, len(freeVariableIndices))
+
+	continueSubstitution := true
+	currentFreeVariableIncrementIndex := 0
+	currentFreeVariableBase := float64(0)
+
+	/* All the free variables are set to zero. If one of the none free variables is negative? */
+
+	for continueSubstitution {
+
+		variablesCount := m.Rows()
+		variableRow := variablesCount - 1
+
+		for ; variableRow >= 0; variableRow-- {
+
+			if isFreeVariable(m, variableRow) {
+				/* The free variable is already set in the solution */
+				continue
+			}
+
+			/* Because of the way the matrix has been constructed, if a variable has dependency on other variables,
+			we know their value (assuming the equation is solvable).
+			*/
+
+			total := v.Get(variableRow)
+
+			for otherVariableColumn := variableRow + 1; otherVariableColumn < variablesCount; otherVariableColumn++ {
+
+				otherVariableDependencySign := m.Get(variableRow, otherVariableColumn)
+
+				if otherVariableDependencySign == 0 {
+					/* Not a dependency */
+					continue
+				}
+
+				total -= solution[otherVariableColumn] * otherVariableDependencySign
+			}
+
+			solution[variableRow] = total
+		}
+
+		continueSubstitution = false
+
+		if verbose {
+			fmt.Println("Current solution attempt:")
+			PrintSlice(solution)
+		}
+
+		/* Validate if there is a negative variable in the solution */
+		for variableIndex := 0; variableIndex < len(solution); variableIndex++ {
+			if solution[variableIndex] < 0 {
+
+				/* We have found a negative value: need to increment one of the free variables and try again */
+				continueSubstitution = true
+
+				/* Clears the solution for the next attempt */
+				for variableIndex := 0; variableIndex < len(solution); variableIndex++ {
+					solution[variableIndex] = 0
+				}
+
+				/* Increments the free variable in the solution */
+				for index, freeVariableIndex := range freeVariableIndices {
+					if index == currentFreeVariableIncrementIndex {
+						solution[freeVariableIndex] = currentFreeVariableBase + 1
+					}
+				}
+
+				currentFreeVariableIncrementIndex++
+				if currentFreeVariableIncrementIndex >= len(freeVariablesValues) {
+					currentFreeVariableBase++
+					currentFreeVariableIncrementIndex = 0
+
+					if currentFreeVariableBase == 2 {
+						panic("The system of equations has no solution with non-negative variables")
+					}
+				}
+				break
+			}
+		}
+	}
+
+	return solution
+}
+
+func detectFreeVariables(
+	m *Matrix,
+) []int {
+	freeVariableIndices := make([]int, 0)
 
 	variablesCount := m.Cols()
 	variableRow := variablesCount - 1
 
 	for ; variableRow >= m.Rows(); variableRow-- {
-		solution[variableRow] = defaultFreeVariableValue
-		defaultFreeVariableValue = 0
+		freeVariableIndices = append(freeVariableIndices, variableRow)
 	}
 
 	for ; variableRow >= 0; variableRow-- {
 		if isFreeVariable(m, variableRow) {
-			//	TODO Check if this one could be zero instead !
-			//	If yes, it also means other could be negative...
-			solution[variableRow] = defaultFreeVariableValue
+			freeVariableIndices = append(freeVariableIndices, variableRow)
 			continue
 		}
-
-		/* Because of the way the matrix has been constructed, if a variable has dependency on other variables,
-		we know their value (assuming the equation is solvable).
-		*/
-
-		total := v.Get(variableRow)
-		for otherVariableColumn := variableRow + 1; otherVariableColumn < variablesCount; otherVariableColumn++ {
-			otherVariableDependencySign := m.Get(variableRow, otherVariableColumn)
-			if otherVariableDependencySign == 0 {
-				/* Not a dependency */
-				continue
-			}
-
-			total -= solution[otherVariableColumn] * otherVariableDependencySign
-		}
-
-		solution[variableRow] = total
 	}
 
-	return solution
+	return freeVariableIndices
 }
 
 func isFreeVariable(
 	m *Matrix,
 	variableRow int,
 ) bool {
+
+	/* A variable is considered free if all its coefficients are zero in the matrix */
+
 	for col := 0; col < m.Cols(); col++ {
 		if m.Get(variableRow, col) != 0 {
 			return false
