@@ -19,3 +19,15 @@ func Print(
 	}
 	fmt.Println()
 }
+
+func PrintSlice(
+	vector []float64,
+) {
+
+	fmt.Printf("[")
+
+	for row := 0; row < len(vector); row++ {
+		fmt.Printf(" %.2f ", vector[row])
+	}
+	fmt.Println("]")
+}

@@ -1,6 +1,7 @@
 package abstractions
 
 import (
+	"fmt"
 	"math"
 	"testing"
 )
@@ -27,7 +28,8 @@ func TestReduce(t *testing.T) {
 				{1, .5},
 				{0, 0},
 			},
-			expectedVec: []float64{0.5, 4},
+			expectedVec:      []float64{0.5, 4},
+			expectedSolution: []float64{0, 1},
 		},
 		"1.2-simple_2x2_system": {
 			rows: 2,
@@ -41,7 +43,8 @@ func TestReduce(t *testing.T) {
 				{1, .5},
 				{0, 0},
 			},
-			expectedVec: []float64{0.5, 4},
+			expectedVec:      []float64{0.5, 4},
+			expectedSolution: []float64{0, 1},
 		},
 		"1.3-simple_2x2_system": {
 			rows: 2,
@@ -55,7 +58,8 @@ func TestReduce(t *testing.T) {
 				{1, .5},
 				{0, 0},
 			},
-			expectedVec: []float64{0.5, 4},
+			expectedVec:      []float64{0.5, 4},
+			expectedSolution: []float64{0, 1},
 		},
 		"2.1-simple_3x3_system": {
 			rows: 3,
@@ -71,7 +75,8 @@ func TestReduce(t *testing.T) {
 				{0, 1, -2},
 				{0, 0, 1},
 			},
-			expectedVec: []float64{3, 0, 3.75},
+			expectedVec:      []float64{3, 0, 3.75},
+			expectedSolution: []float64{10.5, 7.5, 3.75},
 		},
 		"2.2-simple_3x3_system": {
 			rows: 3,
@@ -84,10 +89,11 @@ func TestReduce(t *testing.T) {
 			vectorValues: []float64{8, -2, 9},
 			expectedMat: [][]float64{
 				{1, -1, 1},
-				{0, 1, -12},
+				{0, 1, -0.6},
 				{0, 0, 1},
 			},
-			expectedVec: []float64{8, -15, 1},
+			expectedVec:      []float64{8, -3.6, 1},
+			expectedSolution: []float64{4, -3, 1},
 		},
 		"2.3-simple_3x3_system": {
 			rows: 3,
@@ -103,7 +109,8 @@ func TestReduce(t *testing.T) {
 				{0, 1, -2},
 				{0, 0, 0},
 			},
-			expectedVec: []float64{1, 0, 0},
+			expectedVec:      []float64{1, 0, 0},
+			expectedSolution: []float64{-2, 2, 1},
 		},
 		"3.1-documented_use-case": {
 			rows: 4,
@@ -122,7 +129,7 @@ func TestReduce(t *testing.T) {
 				{0, 0, 0, 0, 1, 1},
 			},
 			expectedVec:      []float64{7, 5, 4, 3},
-			expectedSolution: []float64{1, 3, 0, 3, 1, 1},
+			expectedSolution: []float64{2, 4, 2, 1, 1, 1},
 		},
 		"3.2-documented_use-case": {
 			rows: 5,
@@ -210,6 +217,12 @@ func TestReduce(t *testing.T) {
 					t.Errorf("Vector[%d]: expected %.4f, got %.4f", i, expected, actual)
 				}
 			}
+
+			fmt.Println("Actual Solution")
+			PrintSlice(actualSolution)
+
+			fmt.Println("Expected solution")
+			PrintSlice(tc.expectedSolution)
 
 			if len(actualSolution) != len(tc.expectedSolution) {
 				t.Errorf("Solution length: expected %d, got %d", len(tc.expectedSolution), len(actualSolution))

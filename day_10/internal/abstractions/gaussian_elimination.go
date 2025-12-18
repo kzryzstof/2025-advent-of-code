@@ -113,14 +113,21 @@ func backSubstitution(
 	v *Vector,
 ) []float64 {
 	solution := make([]float64, m.Cols())
+	defaultFreeVariableValue := float64(1)
 
 	variablesCount := m.Cols()
+	variableRow := variablesCount - 1
 
-	for variableRow := variablesCount - 1; variableRow >= 0; variableRow-- {
+	for ; variableRow >= m.Rows(); variableRow-- {
+		solution[variableRow] = 1
+		defaultFreeVariableValue = 0
+	}
+
+	for ; variableRow >= 0; variableRow-- {
 		if isFreeVariable(m, variableRow) {
 			//	TODO Check if this one could be zero instead !
 			//	If yes, it also means other could be negative...
-			solution[variableRow] = 1
+			solution[variableRow] = defaultFreeVariableValue
 			continue
 		}
 

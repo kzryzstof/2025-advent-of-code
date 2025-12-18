@@ -17,6 +17,10 @@ func NewVector(
 	}
 }
 
+func (v *Vector) Length() int {
+	return v.length
+}
+
 func (v *Vector) Get(x int) float64 {
 	return v.values[x]
 }
