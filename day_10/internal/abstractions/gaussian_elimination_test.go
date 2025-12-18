@@ -7,12 +7,13 @@ import (
 
 func TestReduce(t *testing.T) {
 	tests := map[string]struct {
-		rows         int
-		cols         int
-		matrixValues [][]float64
-		vectorValues []float64
-		expectedMat  [][]float64
-		expectedVec  []float64
+		rows             int
+		cols             int
+		matrixValues     [][]float64
+		vectorValues     []float64
+		expectedMat      [][]float64
+		expectedVec      []float64
+		expectedSolution []float64
 	}{
 		"1.1-simple_2x2_system": {
 			rows: 2,
@@ -115,12 +116,34 @@ func TestReduce(t *testing.T) {
 			},
 			vectorValues: []float64{3, 5, 4, 7},
 			expectedMat: [][]float64{
-				{0, 0, 0, 0, 1, 1},
+				{1, 1, 0, 1, 0, 0},
 				{0, 1, 0, 0, 0, 1},
 				{0, 0, 1, 1, 1, 0},
-				{1, 1, 0, 1, 0, 0},
+				{0, 0, 0, 0, 1, 1},
 			},
-			expectedVec: []float64{1, 0, 0, 0},
+			expectedVec:      []float64{7, 5, 4, 3},
+			expectedSolution: []float64{1, 3, 0, 3, 1, 1},
+		},
+		"3.2-documented_use-case": {
+			rows: 5,
+			cols: 5,
+			matrixValues: [][]float64{
+				{1, 0, 1, 1, 0},
+				{0, 0, 0, 1, 1},
+				{1, 1, 0, 1, 1},
+				{1, 1, 0, 0, 1},
+				{1, 0, 1, 0, 1},
+			},
+			vectorValues: []float64{7, 5, 12, 7, 2},
+			expectedMat: [][]float64{
+				{1, 0, 1, 1, 0},
+				{0, 1, -1, 0, 1},
+				{0, 0, 0, 1, 1},
+				{0, 0, 0, 1, 0},
+				{0, 0, 0, 0, 1},
+			},
+			expectedVec:      []float64{7, 5, 5, 5, 0},
+			expectedSolution: []float64{2, 5, 0, 5, 0},
 		},
 		"3.3-documented_use-case": {
 			rows: 6,
@@ -142,7 +165,8 @@ func TestReduce(t *testing.T) {
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 			},
-			expectedVec: []float64{10, -1, 5, 0, 0, 0},
+			expectedVec:      []float64{10, -1, 5, 0, 0, 0},
+			expectedSolution: []float64{5, 0, 5, 1},
 		},
 	}
 
@@ -165,7 +189,7 @@ func TestReduce(t *testing.T) {
 			}
 
 			// Run the reduction
-			Reduce(&AugmentedMatrix{m, v})
+			actualSolution := Reduce(&AugmentedMatrix{m, v})
 
 			// Verify matrix results
 			for row := 0; row < tc.rows; row++ {
@@ -184,6 +208,18 @@ func TestReduce(t *testing.T) {
 				actual := v.Get(i)
 				if !floatEquals(expected, actual, 0.001) {
 					t.Errorf("Vector[%d]: expected %.4f, got %.4f", i, expected, actual)
+				}
+			}
+
+			if len(actualSolution) != len(tc.expectedSolution) {
+				t.Errorf("Solution length: expected %d, got %d", len(tc.expectedSolution), len(actualSolution))
+			} else {
+				for i := 0; i < len(tc.expectedSolution); i++ {
+					expected := tc.expectedSolution[i]
+					actual := actualSolution[i]
+					if !floatEquals(expected, actual, 0.001) {
+						t.Errorf("Solution[%d]: expected %.4f, got %.4f", i, expected, actual)
+					}
 				}
 			}
 		})

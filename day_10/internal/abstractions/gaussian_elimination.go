@@ -114,5 +114,46 @@ func backSubstitution(
 ) []float64 {
 	solution := make([]float64, m.Cols())
 
+	variablesCount := m.Cols()
+
+	for variableRow := variablesCount - 1; variableRow >= 0; variableRow-- {
+		if isFreeVariable(m, variableRow) {
+			//	TODO Check if this one could be zero instead !
+			//	If yes, it also means other could be negative...
+			solution[variableRow] = 1
+			continue
+		}
+
+		/* Because of the way the matrix has been constructed, if a variable has dependency on other variables,
+		we know their value (assuming the equation is solvable).
+		*/
+
+		total := v.Get(variableRow)
+		for otherVariableColumn := variableRow + 1; otherVariableColumn < variablesCount; otherVariableColumn++ {
+			otherVariableDependencySign := m.Get(variableRow, otherVariableColumn)
+			if otherVariableDependencySign == 0 {
+				/* Not a dependency */
+				continue
+			}
+
+			total -= solution[otherVariableColumn] * otherVariableDependencySign
+		}
+
+		solution[variableRow] = total
+	}
+
 	return solution
+}
+
+func isFreeVariable(
+	m *Matrix,
+	variableRow int,
+) bool {
+	for col := 0; col < m.Cols(); col++ {
+		if m.Get(variableRow, col) != 0 {
+			return false
+		}
+	}
+
+	return true
 }
