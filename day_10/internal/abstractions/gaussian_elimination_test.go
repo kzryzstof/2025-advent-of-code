@@ -104,12 +104,52 @@ func TestReduce(t *testing.T) {
 			},
 			expectedVec: []float64{1, 0, 0},
 		},
+		"3.1-documented_use-case": {
+			rows: 4,
+			cols: 6,
+			matrixValues: [][]float64{
+				{0, 0, 0, 0, 1, 1},
+				{0, 1, 0, 0, 0, 1},
+				{0, 0, 1, 1, 1, 0},
+				{1, 1, 0, 1, 0, 0},
+			},
+			vectorValues: []float64{3, 5, 4, 7},
+			expectedMat: [][]float64{
+				{0, 0, 0, 0, 1, 1},
+				{0, 1, 0, 0, 0, 1},
+				{0, 0, 1, 1, 1, 0},
+				{1, 1, 0, 1, 0, 0},
+			},
+			expectedVec: []float64{1, 0, 0, 0},
+		},
+		"3.3-documented_use-case": {
+			rows: 6,
+			cols: 4,
+			matrixValues: [][]float64{
+				{1, 1, 1, 0},
+				{1, 0, 1, 1},
+				{1, 0, 1, 1},
+				{1, 1, 0, 0},
+				{1, 1, 1, 0},
+				{0, 0, 1, 0},
+			},
+			vectorValues: []float64{10, 11, 11, 5, 10, 5},
+			expectedMat: [][]float64{
+				{1, 1, 1, 0},
+				{0, 1, 0, -1},
+				{0, 0, 1, 0},
+				{0, 0, 0, 0},
+				{0, 0, 0, 0},
+				{0, 0, 0, 0},
+			},
+			expectedVec: []float64{10, -1, 5, 0, 0, 0},
+		},
 	}
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			// Create matrix and vector
-			m := NewMatrix(tc.cols, tc.rows)
+			m := NewMatrix(tc.rows, tc.cols)
 			v := NewVector(tc.rows)
 
 			// Fill matrix with test values

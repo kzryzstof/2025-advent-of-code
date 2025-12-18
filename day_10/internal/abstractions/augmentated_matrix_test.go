@@ -1,0 +1,128 @@
+package abstractions
+
+import "testing"
+
+func TestToAugmentedMatrix(t *testing.T) {
+	tests := []struct {
+		name         string
+		buttonGroups []*ButtonGroup
+		voltages     []*Voltage
+		/* Each row of the matrix represents a counter and each cell a button group */
+		/* 1 = button group affects the specific counter. 0 = button group doesn't affect the specific counter */
+		expectedMatrix [][]float64
+		expectedVector []float64
+	}{
+		{
+			name: "1.1-documented_use_case",
+			buttonGroups: []*ButtonGroup{
+				{Buttons: []*Button{{CounterIndex: 3}}},
+				{Buttons: []*Button{{CounterIndex: 1}, {CounterIndex: 3}}},
+				{Buttons: []*Button{{CounterIndex: 2}}},
+				{Buttons: []*Button{{CounterIndex: 2}, {CounterIndex: 3}}},
+				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 2}}},
+				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 1}}},
+			},
+			voltages: []*Voltage{
+				NewVoltage(3),
+				NewVoltage(5),
+				NewVoltage(4),
+				NewVoltage(7),
+			},
+			expectedMatrix: [][]float64{
+				{0, 0, 0, 0, 1, 1},
+				{0, 1, 0, 0, 0, 1},
+				{0, 0, 1, 1, 1, 0},
+				{1, 1, 0, 1, 0, 0},
+			},
+			expectedVector: []float64{3, 5, 4, 7},
+		},
+		{
+			name: "1.2-documented_use_case",
+			buttonGroups: []*ButtonGroup{
+				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 2}, {CounterIndex: 3}, {CounterIndex: 4}}},
+				{Buttons: []*Button{{CounterIndex: 2}, {CounterIndex: 3}}},
+				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 4}}},
+				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 1}, {CounterIndex: 2}}},
+				{Buttons: []*Button{{CounterIndex: 1}, {CounterIndex: 2}, {CounterIndex: 3}, {CounterIndex: 4}}},
+			},
+			voltages: []*Voltage{
+				NewVoltage(7),
+				NewVoltage(5),
+				NewVoltage(12),
+				NewVoltage(7),
+				NewVoltage(2),
+			},
+			expectedMatrix: [][]float64{
+				{1, 0, 1, 1, 0},
+				{0, 0, 0, 1, 1},
+				{1, 1, 0, 1, 1},
+				{1, 1, 0, 0, 1},
+				{1, 0, 1, 0, 1},
+			},
+			expectedVector: []float64{7, 5, 12, 7, 2},
+		},
+		{
+			name: "1.3-documented_use_case",
+			buttonGroups: []*ButtonGroup{
+				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 1}, {CounterIndex: 2}, {CounterIndex: 3}, {CounterIndex: 4}}},
+				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 3}, {CounterIndex: 4}}},
+				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 1}, {CounterIndex: 2}, {CounterIndex: 4}, {CounterIndex: 5}}},
+				{Buttons: []*Button{{CounterIndex: 1}, {CounterIndex: 2}}},
+			},
+			voltages: []*Voltage{
+				NewVoltage(10),
+				NewVoltage(11),
+				NewVoltage(11),
+				NewVoltage(5),
+				NewVoltage(10),
+				NewVoltage(5),
+			},
+			expectedMatrix: [][]float64{
+				{1, 1, 1, 0},
+				{1, 0, 1, 1},
+				{1, 0, 1, 1},
+				{1, 1, 0, 0},
+				{1, 1, 1, 0},
+				{0, 0, 1, 0},
+			},
+			expectedVector: []float64{10, 11, 11, 5, 10, 5},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			machine := NewMachine(tt.buttonGroups, tt.voltages)
+			result := ToAugmentedMatrix(machine)
+
+			Print(result.Matrix, result.Vector)
+
+			// Verify matrix dimensions
+			if result.Matrix.Rows() != len(tt.expectedMatrix) {
+				t.Errorf("Matrix rows mismatch: got %d, want %d", result.Matrix.Rows(), len(tt.expectedMatrix))
+			}
+			if result.Matrix.Cols() != len(tt.expectedMatrix[0]) {
+				t.Errorf("Matrix cols mismatch: got %d, want %d", result.Matrix.Cols(), len(tt.expectedMatrix[0]))
+			}
+
+			// Verify matrix values
+			for row := 0; row < result.Matrix.Rows(); row++ {
+				for col := 0; col < result.Matrix.Cols(); col++ {
+					got := result.Matrix.Get(row, col)
+					want := tt.expectedMatrix[row][col]
+					if got != want {
+						t.Errorf("Matrix[%d][%d] = %.2f, want %.2f", row, col, got, want)
+					}
+				}
+			}
+
+			// Verify vector values
+			for i := 0; i < len(tt.expectedVector); i++ {
+				got := result.Vector.Get(i)
+				want := tt.expectedVector[i]
+				if got != want {
+					t.Errorf("Vector[%d] = %.2f, want %.2f", i, got, want)
+				}
+			}
+		})
+	}
+}

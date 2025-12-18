@@ -44,31 +44,3 @@ func ActivateMachines(
 
 	return totalPresses
 }
-
-func ToAugmentedMatrix(
-	machine *abstractions.Machine,
-) *abstractions.AugmentedMatrix {
-	groups := machine.GetButtonGroups()
-	voltages := machine.GetVoltages()
-
-	/* Creates the matrix made of the variables */
-	groupsMatrix := abstractions.NewMatrix(len(groups), len(voltages))
-
-	for groupIndex, group := range groups {
-		for _, button := range group.Buttons {
-			groupsMatrix.Set(button.CounterIndex, groupIndex, 1)
-		}
-	}
-
-	/* Creates the vector made of the result */
-	voltagesVector := abstractions.NewVector(len(voltages))
-
-	for voltageIndex, voltage := range voltages {
-		voltagesVector.Set(voltageIndex, float64(voltage.GetValue()))
-	}
-
-	return &abstractions.AugmentedMatrix{
-		Matrix: groupsMatrix,
-		Vector: voltagesVector,
-	}
-}

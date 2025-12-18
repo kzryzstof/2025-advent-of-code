@@ -17,11 +17,15 @@ func Reduce(
 
 	for pivot := 0; pivot < m.Rows(); pivot++ {
 
+		if pivot >= m.Cols() {
+			break
+		}
+
 		fmt.Println("-----------------------------------------------------------------------------------------------")
 		fmt.Printf("Working on row %d\n", pivot+1)
 		Print(m, v)
 
-		if m.Get(pivot, pivot) != PivotValue {
+		if m.Get(pivot, pivot) == 0 {
 
 			/* ********** Pivot ********** */
 
@@ -29,9 +33,12 @@ func Reduce(
 			pivotRow := findSwappableRow(m, pivot)
 
 			if pivotRow != -1 {
-				fmt.Printf("Pivoting row %d with %d\n", pivot+1, pivotRow+1)
+
 				m.Swap(pivot, pivotRow)
 				v.Swap(pivot, pivotRow)
+
+				fmt.Printf("Pivoting row %d with %d\n", pivot+1, pivotRow+1)
+				Print(m, v)
 			}
 		}
 
@@ -93,7 +100,7 @@ func findSwappableRow(
 	pivotCol := pivotRow
 
 	for candidateRow := pivotRow + 1; candidateRow < m.Rows(); candidateRow++ {
-		if m.Get(candidateRow, pivotCol) == PivotValue {
+		if m.Get(candidateRow, pivotCol) != 0 {
 			return candidateRow
 		}
 	}

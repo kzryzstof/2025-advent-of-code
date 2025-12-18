@@ -9,8 +9,8 @@ type Matrix struct {
 }
 
 func NewMatrix(
-	colCount int,
 	rowCount int,
+	colCount int,
 ) *Matrix {
 
 	values := make([][]float64, rowCount)
