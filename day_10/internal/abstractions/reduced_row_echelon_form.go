@@ -52,32 +52,32 @@ func (r *ReducedRowEchelonForm) getUniqueSolution() []float64 {
 }
 
 func (r *ReducedRowEchelonForm) detectFreeVariables() []VariableNumber {
-	freeVariableIndices := make([]VariableNumber, 0)
+
+	freeVariables := make([]VariableNumber, 0)
+	foundVariables := make([]VariableNumber, 0)
 
 	/* Note: The last column is the constants, so we skip it */
 	expectedVariablesCount := r.matrix.Cols() - 1
 
-	for variableNumber := 0; variableNumber < expectedVariablesCount; variableNumber++ {
-		if r.isFreeVariable(variableNumber) {
-			freeVariableIndices = append(freeVariableIndices, VariableNumber(variableNumber+1))
+	/* Finds out all the variables from the matrix that have a leading 1 */
+	for row := 0; row < r.matrix.Rows(); row++ {
+		/* The column where the leading 1 is found is the variable number */
+		pivotCol := findPivotCol(r.matrix, row)
+
+		if pivotCol != NotFound {
+			foundVariables = append(foundVariables, VariableNumber(pivotCol+1))
 		}
 	}
 
-	return freeVariableIndices
-}
-
-func (r *ReducedRowEchelonForm) isFreeVariable(
-	variableRow int,
-) bool {
-
-	// A variable is free if there's no pivot (leading 1) in its column
-
-	if variableRow >= r.matrix.Rows() {
-		return true // More variables than equations
+	if expectedVariablesCount != len(foundVariables) {
+		for variable := 1; variable <= expectedVariablesCount; variable++ {
+			if !ContainsNumber(foundVariables, variable) {
+				freeVariables = append(freeVariables, VariableNumber(variable))
+			}
+		}
 	}
 
-	// Check if there's a pivot (non-zero, typically 1) at the diagonal
-	return r.matrix.Get(variableRow, variableRow) == 0
+	return freeVariables
 }
 
 func (r *ReducedRowEchelonForm) findMinimalSolution(
@@ -94,7 +94,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 		maxVariableValue,
 		func(freeVariables *Variables) {
 
-			//total := float64(0)
+			total := float64(0)
 			solvedVariables := NewVariables(variablesCount)
 
 			for _, freeVariable := range freeVariables.Get() {
@@ -105,7 +105,11 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 			starting from the bottom of the matrix and upwards */
 			for row := r.matrix.Rows() - 1; row >= 0; row-- {
 
-				if freeVariables.Contains(row + 1) {
+				pivotCol := findPivotCol(r.matrix, row)
+
+				variableNumber := VariableNumber(pivotCol + 1)
+
+				if freeVariables.Contains(variableNumber) {
 					continue
 				}
 
@@ -122,22 +126,23 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 					}
 
 					dependantVariableValue := 0.0
+					dependantVariableNumber := VariableNumber(columnIndex + 1)
 
-					if Contains(freeVariables, columnIndex) {
+					if solvedVariables.Contains(dependantVariableNumber) {
 						/* The current column / variable is a free variable in which case we use the value provided */
-						index := IndexOf(freeVariables, columnIndex)
-						dependantVariableValue = float64(freeVariables[index])
+						dependantVariableValue = solvedVariables.GetValue(dependantVariableNumber)
 					} else {
 						/* The current column / variable is NOT a free variable in which case from the matrix itself
 						on the last column */
 						// NOT GOOD
+						fmt.Printf("Not good.")
 						//dependantVariableValue = r.matrix.Get(row, knownVariablesCols)
 					}
 
-					solvedVariablesValues[r.matrix.Rows()-1-row] = dependantVariableValue
-					currentVariableValue += operationSign * dependantVariableValue
+					currentVariableValue -= operationSign * dependantVariableValue
 				}
 
+				solvedVariables.Set(variableNumber, currentVariableValue)
 				total += currentVariableValue
 			}
 
@@ -145,11 +150,17 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 				return
 			}
 
-			if verbose {
-				fmt.Printf("Solved the equation with %d free variables:\n", len(freeVariables))
+			for _, solvedVariable := range solvedVariables.Get() {
+				if solvedVariable.Value < 0 {
+					return
+				}
+			}
 
-				for index, variableValue := range freeVariables {
-					fmt.Printf("\tVariable %d = %d\n", index, variableValue)
+			if verbose {
+				fmt.Printf("Solved the equation with %d free variables:\n", freeVariables.Count())
+
+				for _, variable := range solvedVariables.Get() {
+					fmt.Printf("\tVariable %d = %.2f\n", variable.Number, variable.Value)
 				}
 
 				fmt.Printf("\tResult is = %f\n", total)

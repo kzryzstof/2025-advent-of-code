@@ -71,10 +71,35 @@ func (v *Variables) Set(
 }
 
 func (v *Variables) Contains(
-	number int,
+	number VariableNumber,
 ) bool {
 	for _, variable := range v.variables {
-		if int(variable.Number) == number {
+		if variable.Number == number {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (v *Variables) GetValue(
+	number VariableNumber,
+) float64 {
+	for _, variable := range v.variables {
+		if variable.Number == number {
+			return variable.Value
+		}
+	}
+
+	panic(fmt.Errorf("no variable %d found", number))
+}
+
+func ContainsNumber(
+	variableNumbers []VariableNumber,
+	number int,
+) bool {
+	for _, variable := range variableNumbers {
+		if int(variable) == number {
 			return true
 		}
 	}
