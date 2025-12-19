@@ -14,7 +14,7 @@ func ToReducedRowEchelonForm(
 	m := augmentedMatrix.Matrix
 
 	if verbose {
-		fmt.Println("** Gaussian elimination **")
+		fmt.Print("\n** Gaussian elimination **\n\n")
 		Print(m)
 	}
 
@@ -27,7 +27,7 @@ func ToReducedRowEchelonForm(
 	doBackwardElimination(m, verbose)
 
 	if verbose {
-		fmt.Printf("Final form\n")
+		fmt.Printf("Reduced Row Echelon Form\n")
 		Print(m)
 	}
 
@@ -50,6 +50,10 @@ func doBackwardElimination(
 	verbose bool,
 ) {
 
+	if verbose {
+		fmt.Print("**** Step 2: backward elimination **\n\n")
+	}
+
 	fromRow := m.Rows() - 1
 
 	for currentRow := fromRow; currentRow > 0; currentRow-- {
@@ -66,7 +70,7 @@ func doBackwardElimination(
 
 		if verbose {
 			fmt.Println("-----------------------------------------------------------------------------------------------")
-			fmt.Printf("Working on row %d. Pivot found on column %d\n", currentRow+1, pivotCol+1)
+			fmt.Printf("Working on row %d. Pivot found on column %d\n\n", currentRow+1, pivotCol+1)
 			Print(m)
 		}
 
@@ -104,6 +108,10 @@ func doForwardElimination(
 	verbose bool,
 ) {
 
+	if verbose {
+		fmt.Print("**** Step 1: forward elimination **\n\n")
+	}
+
 	for pivot := 0; pivot < m.Rows(); pivot++ {
 
 		if pivot >= m.Cols() {
@@ -112,7 +120,7 @@ func doForwardElimination(
 
 		if verbose {
 			fmt.Println("-----------------------------------------------------------------------------------------------")
-			fmt.Printf("Working on row %d\n", pivot+1)
+			fmt.Printf("Working on row %d\n\n", pivot+1)
 			Print(m)
 		}
 
@@ -190,7 +198,7 @@ func scaleRow(
 	m.Scale(pivot, scaling)
 
 	if verbose {
-		fmt.Printf("Normalized on row %d (scaling: %f)\n", pivot+1, scaling)
+		fmt.Printf("Scaling done on row %d (scaling: %.2f)\n\n", pivot+1, scaling)
 		Print(m)
 	}
 }
