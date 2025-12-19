@@ -10,39 +10,29 @@ const (
 func ToReducedRowEchelonForm(
 	augmentedMatrix *AugmentedMatrix,
 	verbose bool,
-) []float64 {
-	m := augmentedMatrix.Matrix
+) *ReducedRowEchelonForm {
+
+	rref := CopyMatrix(augmentedMatrix.Matrix)
 
 	if verbose {
 		fmt.Print("\n** Gaussian elimination **\n\n")
-		Print(m)
+		Print(rref)
 	}
 
-	doForwardElimination(m, verbose)
+	doForwardElimination(rref, verbose)
 
 	if verbose {
 		fmt.Print("***********************************************************************************************\n\n")
 	}
 
-	doBackwardElimination(m, verbose)
+	doBackwardElimination(rref, verbose)
 
 	if verbose {
 		fmt.Printf("Reduced Row Echelon Form\n")
-		Print(m)
+		Print(rref)
 	}
 
-	//	--- WE NEED TO DETERMINE IF THERE ARE FREE VARIABLES ---
-	//	THEN RUN ASSIGN MULTIPLE SOLUTIONS IF NEEDED THAT GET THE LOWEST NUMBERS
-	freeVariablesIndices := detectFreeVariables(m)
-	fmt.Printf("Free variables: %v\n", freeVariablesIndices)
-
-	results := make([]float64, m.Rows())
-
-	for row := 0; row < m.Rows(); row++ {
-		results[row] = m.Get(row, m.Cols()-1)
-	}
-
-	return results
+	return NewReducedRowEchelonForm(rref)
 }
 
 func doBackwardElimination(
@@ -70,7 +60,7 @@ func doBackwardElimination(
 
 		if verbose {
 			fmt.Println("-----------------------------------------------------------------------------------------------")
-			fmt.Printf("Working on row %d. Pivot found on column %d\n\n", currentRow+1, pivotCol+1)
+			fmt.Printf("Working on row %d. Pivot found on column %d\n", currentRow+1, pivotCol+1)
 			Print(m)
 		}
 

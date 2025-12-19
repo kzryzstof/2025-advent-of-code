@@ -8,6 +8,27 @@ type Matrix struct {
 	rowCount int
 }
 
+func CopyMatrix(
+	m *Matrix,
+) *Matrix {
+
+	values := make([][]float64, m.Rows())
+
+	for row := 0; row < m.Rows(); row++ {
+		values[row] = make([]float64, m.Cols())
+
+		for col := 0; col < m.Cols(); col++ {
+			values[row][col] = m.Get(row, col)
+		}
+	}
+
+	return &Matrix{
+		values,
+		m.Cols(),
+		m.Rows(),
+	}
+}
+
 func NewMatrix(
 	rowCount int,
 	colCount int,

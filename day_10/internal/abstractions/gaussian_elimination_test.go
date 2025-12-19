@@ -83,22 +83,27 @@ func TestReduce(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
+
 			// Create matrix and vector
 			m := FromSlice(tc.matrixValues)
 
 			// Run the reduction
-			actualSolution := ToReducedRowEchelonForm(&AugmentedMatrix{m}, true)
+			rref := ToReducedRowEchelonForm(&AugmentedMatrix{m}, true)
+
+			actualRref := rref.Get()
 
 			// Verify matrix results
 			for row := 0; row < m.Rows(); row++ {
 				for col := 0; col < m.Cols(); col++ {
 					expected := tc.expectedMat[row][col]
-					actual := m.Get(row, col)
+					actual := actualRref.Get(row, col)
 					if !floatEquals(expected, actual, 0.001) {
 						t.Errorf("Matrix[%d][%d]: expected %.4f, got %.4f", row, col, expected, actual)
 					}
 				}
 			}
+
+			actualSolution := rref.Solve()
 
 			fmt.Println("Actual Solution")
 			PrintSlice(actualSolution)
