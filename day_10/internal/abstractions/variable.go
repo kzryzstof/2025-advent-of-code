@@ -94,6 +94,17 @@ func (v *Variables) GetValue(
 	panic(fmt.Errorf("no variable %d found", number))
 }
 
+func (v *Variables) GetValues() []float64 {
+
+	values := make([]float64, len(v.variables))
+
+	for i, variable := range v.variables {
+		values[i] = variable.Value
+	}
+
+	return values
+}
+
 func ContainsNumber(
 	variableNumbers []VariableNumber,
 	number int,

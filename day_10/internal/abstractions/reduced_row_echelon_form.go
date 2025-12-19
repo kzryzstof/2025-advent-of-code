@@ -33,11 +33,9 @@ func (r *ReducedRowEchelonForm) Solve(
 
 	fmt.Printf("\n%d free variable(s) have been found\n\n", len(freeVariablesIndices))
 
-	r.findMinimalSolution(freeVariablesIndices, verbose)
+	solution := r.findMinimalSolution(freeVariablesIndices, verbose)
 
-	results := make([]float64, r.matrix.Rows())
-
-	return results
+	return solution.GetValues()
 }
 
 func (r *ReducedRowEchelonForm) getUniqueSolution() []float64 {
@@ -83,11 +81,12 @@ func (r *ReducedRowEchelonForm) detectFreeVariables() []VariableNumber {
 func (r *ReducedRowEchelonForm) findMinimalSolution(
 	freeVariableIndices []VariableNumber,
 	verbose bool,
-) []Variable {
+) *Variables {
 
 	variablesCount := uint(r.matrix.Cols() - 1)
 	maxVariableValue := float64(5) /* Here we choose test free variables values from 0 to 5 to find the minimal solution */
 	lowestTotal := float64(9999)
+	var solution *Variables
 
 	r.testCombination(
 		freeVariableIndices,
@@ -165,14 +164,14 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 
 				fmt.Printf("\tResult is = %f\n", total)
 				fmt.Print("\n\tThis combination has the minimal values so far!\n\n\n")
-
 			}
 
 			lowestTotal = total
+			solution = solvedVariables
 		},
 	)
 
-	return nil
+	return solution
 }
 
 func (r *ReducedRowEchelonForm) testCombination(
