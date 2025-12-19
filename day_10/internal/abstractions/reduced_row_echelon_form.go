@@ -85,68 +85,94 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 ) []float64 {
 
 	maxValue := 5
-	lowestTotal := 9999
+	//lowestTotal := float64(9999)
 
 	r.testCombination(
 		len(freeVariableIndices),
 		maxValue, /* Here we choose test free variables values from 0 to 5 to find the minimal solution */
 		func(freeVariables []int) {
 
-			total := 0
-			knownVariablesCols := r.matrix.Cols() - 1
-			solvedVariablesValues := make([]float64, r.matrix.Rows())
-
-			/* Solve the equations row by row with the free variables values
-			starting from the bottom of the matrix and upwards */
-			for row := r.matrix.Rows() - 1; row >= 0; row-- {
-
-				/* We start from the constant and then apply the operations */
-				currentVariableConstant := r.matrix.Get(row, r.matrix.Cols()-1)
-				currentVariableValue := currentVariableConstant
-
-				for columnIndex := 0; columnIndex < r.matrix.Cols()-1; columnIndex++ {
-
-					operationSign := r.matrix.Get(row, columnIndex)
-					dependantVariableValue := 0.0
-
-					if Contains(freeVariables, columnIndex) {
-						/* The current column / variable is a free variable in which case we use the value provided */
-						index := IndexOf(freeVariables, columnIndex)
-						dependantVariableValue = float64(freeVariables[index])
-					} else {
-						/* The current column / variable is NOT a free variable in which case from the matrix itself
-						on the last column */
-						dependantVariableValue = r.matrix.Get(row, knownVariablesCols)
-					}
-
-					if dependantVariableValue == 0 {
-						continue
-					}
-
-					solvedVariablesValues[r.matrix.Rows()-1-row] = dependantVariableValue
-					currentVariableValue += operationSign * dependantVariableValue
-				}
-
-				total += int(currentVariableValue)
-			}
-
-			if total >= lowestTotal {
-				return
-			}
-
 			if verbose {
-				fmt.Printf("Solved the equation with %d free variables:\n", len(freeVariables))
+				//fmt.Printf("Received %d free variables:\n", len(freeVariables))
 
-				for index, variableValue := range freeVariables {
-					fmt.Printf("\tVariable %d = %d\n", index, variableValue)
+				for _, freeVariable := range freeVariables {
+					fmt.Printf("%2d ", freeVariable)
 				}
 
-				fmt.Printf("\tResult is = %d\n", total)
-				fmt.Print("\n\tThis combination has the minimal values so far!\n\n\n")
-
+				fmt.Println()
 			}
 
-			lowestTotal = total
+			//total := float64(0)
+			//knownVariablesCols := r.matrix.Cols() - 1
+			//solvedVariablesValues := make([]float64, r.matrix.Rows())
+			//
+			//missingVariablesCount := r.matrix.Cols() - 1
+			//
+			//for freeVariableIndex := missingVariablesCount - 1; freeVariableIndex >= r.matrix.Rows()-1; freeVariableIndex-- {
+			//	index := IndexOf(freeVariableIndices, freeVariableIndex)
+			//	solvedVariablesValues[index] = float64(freeVariables[index])
+			//}
+			//
+			///* Solve the equations row by row with the free variables values
+			//starting from the bottom of the matrix and upwards */
+			//for row := r.matrix.Rows() - 1; row >= 0; row-- {
+			//
+			//	if Contains(freeVariableIndices, row) {
+			//		/* The current column / variable is a free variable in which case we use the value provided */
+			//		index := IndexOf(freeVariableIndices, row)
+			//		solvedVariablesValues[row] = float64(freeVariableIndices[index])
+			//		continue
+			//	}
+			//
+			//	/* We start from the constant and then apply the operations */
+			//	currentVariableConstant := r.matrix.Get(row, r.matrix.Cols()-1)
+			//	currentVariableValue := currentVariableConstant
+			//
+			//	for columnIndex := 0; columnIndex < r.matrix.Cols()-1; columnIndex++ {
+			//
+			//		operationSign := r.matrix.Get(row, columnIndex)
+			//
+			//		if operationSign == 0 {
+			//			continue
+			//		}
+			//
+			//		dependantVariableValue := 0.0
+			//
+			//		if Contains(freeVariables, columnIndex) {
+			//			/* The current column / variable is a free variable in which case we use the value provided */
+			//			index := IndexOf(freeVariables, columnIndex)
+			//			dependantVariableValue = float64(freeVariables[index])
+			//		} else {
+			//			/* The current column / variable is NOT a free variable in which case from the matrix itself
+			//			on the last column */
+			//			// NOT GOOD
+			//			dependantVariableValue = r.matrix.Get(row, knownVariablesCols)
+			//		}
+			//
+			//		solvedVariablesValues[r.matrix.Rows()-1-row] = dependantVariableValue
+			//		currentVariableValue += operationSign * dependantVariableValue
+			//	}
+			//
+			//	total += currentVariableValue
+			//}
+			//
+			//if total >= lowestTotal {
+			//	return
+			//}
+			//
+			//if verbose {
+			//	fmt.Printf("Solved the equation with %d free variables:\n", len(freeVariables))
+			//
+			//	for index, variableValue := range freeVariables {
+			//		fmt.Printf("\tVariable %d = %d\n", index, variableValue)
+			//	}
+			//
+			//	fmt.Printf("\tResult is = %f\n", total)
+			//	fmt.Print("\n\tThis combination has the minimal values so far!\n\n\n")
+			//
+			//}
+			//
+			//lowestTotal = total
 		},
 	)
 
@@ -154,64 +180,49 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 }
 
 func (r *ReducedRowEchelonForm) testCombination(
-	/* Indicates the maximum number of combination to test (#) -> (#,#) -> (#,#,#) -> ... */
-	maximumCombinationLength int,
-	/* Indicates the biggest number to test (0->5) -> (0-5,0-5) -> (0-5,0-5,0-5) -> ... */
+	/* Indicates the maximum number of combination to test (#,#,#) */
+	combinationLength int,
+	/* Indicates the biggest number to test (0->5,0,0) -> (0,0->5,0) -> (0,0,0->5) -> ... */
 	maxNumber int,
 	/* Function to call to test the combination */
-	testCombination func([]int),
+	testCombinationFunc func([]int),
 ) {
 
-	var testGroups func(currentButtonGroups []int, currentNumberToTest int)
+	var generateCombinationFunc func(currentButtonGroups []int, currentIndex int)
 
-	testGroups = func(currentButtons []int, currentNumberToTest int) {
+	generateCombinationFunc = func(numbersCombination []int, currentIndex int) {
 
-		currentCombinationLength := len(currentButtons)
+		canTestCombination := currentIndex == combinationLength-1
 
-		canTest := currentCombinationLength == currentNumberToTest
+		if canTestCombination {
+			for currentNumber := 0; currentNumber < maxNumber; currentNumber++ {
 
-		for currentNumber := 0; currentNumber < maxNumber; currentNumber++ {
+				numbersCombination[currentIndex] = currentNumber
 
-			/* Test all the combinations with the current list of buttons */
-			currentButtons[len(currentButtons)-1] = currentNumber
-
-			if canTest {
-				testCombination(currentButtons)
+				testCombinationFunc(numbersCombination)
 			}
 		}
 
-		if currentCombinationLength < maximumCombinationLength {
+		if currentIndex < combinationLength {
 
 			/* Creates a new list of buttons for the next iteration that will have one more button added */
-			numbersPrefix := make([]int, currentCombinationLength+1)
+			numbersPrefix := make([]int, len(numbersCombination))
 			Clear(numbersPrefix)
 
 			/* Makes sure to include the current list */
-			copy(numbersPrefix, currentButtons)
+			copy(numbersPrefix, numbersCombination)
 
 			/* Loops to test all the combinations with one more button group */
 			for number := 0; number < maxNumber; number++ {
 
-				/* Exclude the group index if it is already in the combination */
-				if Contains(numbersPrefix, number) {
-					continue
-				}
+				numbersPrefix[currentIndex] = number
 
-				numbersPrefix[currentCombinationLength-1] = number
-
-				testGroups(numbersPrefix, currentNumberToTest)
+				generateCombinationFunc(numbersPrefix, currentIndex+1)
 			}
 		}
 	}
 
-	count := 1
-
-	for count <= maximumCombinationLength {
-
-		initialButtonGroups := make([]int, 1)
-		Clear(initialButtonGroups)
-
-		testGroups(initialButtonGroups, count)
-		count++
-	}
+	initialButtonGroups := make([]int, combinationLength)
+	Clear(initialButtonGroups)
+	generateCombinationFunc(initialButtonGroups, 0)
 }

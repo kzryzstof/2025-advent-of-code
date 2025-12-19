@@ -20,6 +20,6 @@ func IndexOf(slice []int, value int) int {
 
 func Clear(slice []int) {
 	for index, _ := range slice {
-		slice[index] = -1
+		slice[index] = 0
 	}
 }
