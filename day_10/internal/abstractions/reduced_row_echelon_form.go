@@ -33,7 +33,7 @@ func (r *ReducedRowEchelonForm) Solve(
 
 	fmt.Printf("\n%d free variable(s) have been found\n\n", len(freeVariablesIndices))
 
-	r.findMinimalSolution(freeVariablesIndices)
+	r.findMinimalSolution(freeVariablesIndices, verbose)
 
 	results := make([]float64, r.matrix.Rows())
 
@@ -81,29 +81,76 @@ func (r *ReducedRowEchelonForm) isFreeVariable(
 
 func (r *ReducedRowEchelonForm) findMinimalSolution(
 	freeVariableIndices []int,
+	verbose bool,
 ) []float64 {
 
 	maxValue := 5
+	lowestTotal := 9999
 
-	presses, _ := r.testCombination(
+	r.testCombination(
 		len(freeVariableIndices),
 		maxValue, /* Here we choose test free variables values from 0 to 5 to find the minimal solution */
-		func(freeVariables []int) bool {
+		func(freeVariables []int) {
 
-			//fmt.Printf("Processing machine %d with %d button groups [ ", machineIndex+1, machine.GetButtonGroupsCount())
+			total := 0
+			knownVariablesCols := r.matrix.Cols() - 1
+			solvedVariablesValues := make([]float64, r.matrix.Rows())
 
-			for index, variableValue := range freeVariables {
-				fmt.Printf("%d=%d ", index, variableValue)
+			/* Solve the equations row by row with the free variables values
+			starting from the bottom of the matrix and upwards */
+			for row := r.matrix.Rows() - 1; row >= 0; row-- {
+
+				/* We start from the constant and then apply the operations */
+				currentVariableConstant := r.matrix.Get(row, r.matrix.Cols()-1)
+				currentVariableValue := currentVariableConstant
+
+				for columnIndex := 0; columnIndex < r.matrix.Cols()-1; columnIndex++ {
+
+					operationSign := r.matrix.Get(row, columnIndex)
+					dependantVariableValue := 0.0
+
+					if Contains(freeVariables, columnIndex) {
+						/* The current column / variable is a free variable in which case we use the value provided */
+						index := IndexOf(freeVariables, columnIndex)
+						dependantVariableValue = float64(freeVariables[index])
+					} else {
+						/* The current column / variable is NOT a free variable in which case from the matrix itself
+						on the last column */
+						dependantVariableValue = r.matrix.Get(row, knownVariablesCols)
+					}
+
+					if dependantVariableValue == 0 {
+						continue
+					}
+
+					solvedVariablesValues[r.matrix.Rows()-1-row] = dependantVariableValue
+					currentVariableValue += operationSign * dependantVariableValue
+				}
+
+				total += int(currentVariableValue)
 			}
 
-			fmt.Println()
+			if total >= lowestTotal {
+				return
+			}
 
-			/* Tests if the machine is activated */
-			return false
+			if verbose {
+				fmt.Printf("Solved the equation with %d free variables:\n", len(freeVariables))
+
+				for index, variableValue := range freeVariables {
+					fmt.Printf("\tVariable %d = %d\n", index, variableValue)
+				}
+
+				fmt.Printf("\tResult is = %d\n", total)
+				fmt.Print("\n\tThis combination has the minimal values so far!\n\n\n")
+
+			}
+
+			lowestTotal = total
 		},
 	)
 
-	return make([]float64, presses)
+	return make([]float64, 1)
 }
 
 func (r *ReducedRowEchelonForm) testCombination(
@@ -112,12 +159,12 @@ func (r *ReducedRowEchelonForm) testCombination(
 	/* Indicates the biggest number to test (0->5) -> (0-5,0-5) -> (0-5,0-5,0-5) -> ... */
 	maxNumber int,
 	/* Function to call to test the combination */
-	testCombination func([]int) bool,
-) (int, bool) {
+	testCombination func([]int),
+) {
 
-	var testGroups func(currentButtonGroups []int, currentNumberToTest int) (int, bool)
+	var testGroups func(currentButtonGroups []int, currentNumberToTest int)
 
-	testGroups = func(currentButtons []int, currentNumberToTest int) (int, bool) {
+	testGroups = func(currentButtons []int, currentNumberToTest int) {
 
 		currentCombinationLength := len(currentButtons)
 
@@ -128,8 +175,8 @@ func (r *ReducedRowEchelonForm) testCombination(
 			/* Test all the combinations with the current list of buttons */
 			currentButtons[len(currentButtons)-1] = currentNumber
 
-			if canTest && testCombination(currentButtons) {
-				return currentCombinationLength, true
+			if canTest {
+				testCombination(currentButtons)
 			}
 		}
 
@@ -152,15 +199,9 @@ func (r *ReducedRowEchelonForm) testCombination(
 
 				numbersPrefix[currentCombinationLength-1] = number
 
-				pressedCount, succeeded := testGroups(numbersPrefix, currentNumberToTest)
-
-				if succeeded {
-					return pressedCount, true
-				}
+				testGroups(numbersPrefix, currentNumberToTest)
 			}
 		}
-
-		return -1, false
 	}
 
 	count := 1
@@ -170,14 +211,7 @@ func (r *ReducedRowEchelonForm) testCombination(
 		initialButtonGroups := make([]int, 1)
 		Clear(initialButtonGroups)
 
-		pressesCount, succeeded := testGroups(initialButtonGroups, count)
-
-		if succeeded {
-			return pressesCount, true
-		}
-
+		testGroups(initialButtonGroups, count)
 		count++
 	}
-
-	return NotFound, false
 }
