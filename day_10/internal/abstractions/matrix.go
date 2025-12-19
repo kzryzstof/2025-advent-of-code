@@ -26,6 +26,26 @@ func NewMatrix(
 	}
 }
 
+func FromSlice(
+	slice [][]float64,
+) *Matrix {
+
+	rowsCount := len(slice)
+	colsCount := len(slice[0])
+
+	values := make([][]float64, rowsCount)
+
+	for i := 0; i < rowsCount; i++ {
+		values[i] = make([]float64, colsCount)
+	}
+
+	return &Matrix{
+		values,
+		colsCount,
+		rowsCount,
+	}
+}
+
 func (m *Matrix) Rows() int {
 	return int(m.rowCount)
 }

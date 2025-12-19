@@ -11,11 +11,10 @@ func Reduce(
 	verbose bool,
 ) []float64 {
 	m := augmentedMatrix.Matrix
-	v := augmentedMatrix.Vector
 
 	if verbose {
 		fmt.Println("Forward elimination")
-		Print(m, v)
+		Print(m)
 	}
 
 	/* Forward elimination */
@@ -28,7 +27,7 @@ func Reduce(
 		if verbose {
 			fmt.Println("-----------------------------------------------------------------------------------------------")
 			fmt.Printf("Working on row %d\n", pivot+1)
-			Print(m, v)
+			Print(m)
 		}
 
 		if m.Get(pivot, pivot) == 0 {
@@ -41,11 +40,10 @@ func Reduce(
 			if pivotRow != -1 {
 
 				m.Swap(pivot, pivotRow)
-				v.Swap(pivot, pivotRow)
 
 				if verbose {
 					fmt.Printf("Pivoting row %d with %d\n", pivot+1, pivotRow+1)
-					Print(m, v)
+					Print(m)
 				}
 			}
 		}
@@ -59,11 +57,10 @@ func Reduce(
 			scaling := 1 / pivotValue
 
 			m.Scale(pivot, scaling)
-			v.Scale(pivot, scaling)
 
 			if verbose {
 				fmt.Printf("Normalized on row %d (scaling: %f)\n", pivot+1, scaling)
-				Print(m, v)
+				Print(m)
 			}
 		}
 
@@ -86,18 +83,17 @@ func Reduce(
 			for col := pivot; col < m.Cols(); col++ {
 				m.Set(row, col, m.Get(row, col)-factor*m.Get(pivot, col))
 			}
-			v.Set(row, v.Get(row)-factor*v.Get(pivot))
 		}
 
 		if verbose {
 			fmt.Printf("Forward elimination done on row %d\n", pivot+1)
-			Print(m, v)
+			Print(m)
 		}
 	}
 
 	if verbose {
 		fmt.Printf("Final form\n")
-		Print(m, v)
+		Print(m)
 	}
 
 	return nil
@@ -128,7 +124,6 @@ func findSwappableRow(
 
 func backSubstitution(
 	m *Matrix,
-	v *Vector,
 	verbose bool,
 ) []float64 {
 
@@ -160,7 +155,7 @@ func backSubstitution(
 			we know their value (assuming the equation is solvable).
 			*/
 
-			total := v.Get(variableRow)
+			total := m.Get(variableRow, m.Cols()-1)
 
 			for otherVariableColumn := variableRow + 1; otherVariableColumn < variablesCount; otherVariableColumn++ {
 

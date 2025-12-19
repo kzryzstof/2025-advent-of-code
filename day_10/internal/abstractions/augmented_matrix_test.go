@@ -10,7 +10,6 @@ func TestToAugmentedMatrix(t *testing.T) {
 		/* Each row of the matrix represents a counter and each cell a button group */
 		/* 1 = button group affects the specific counter. 0 = button group doesn't affect the specific counter */
 		expectedMatrix [][]float64
-		expectedVector []float64
 	}{
 		{
 			name: "1.1-documented_use_case",
@@ -29,12 +28,11 @@ func TestToAugmentedMatrix(t *testing.T) {
 				NewVoltage(7),
 			},
 			expectedMatrix: [][]float64{
-				{0, 0, 0, 0, 1, 1},
-				{0, 1, 0, 0, 0, 1},
-				{0, 0, 1, 1, 1, 0},
-				{1, 1, 0, 1, 0, 0},
+				{0, 0, 0, 0, 1, 1, 3},
+				{0, 1, 0, 0, 0, 1, 5},
+				{0, 0, 1, 1, 1, 0, 4},
+				{1, 1, 0, 1, 0, 0, 7},
 			},
-			expectedVector: []float64{3, 5, 4, 7},
 		},
 		{
 			name: "1.2-documented_use_case",
@@ -53,13 +51,12 @@ func TestToAugmentedMatrix(t *testing.T) {
 				NewVoltage(2),
 			},
 			expectedMatrix: [][]float64{
-				{1, 0, 1, 1, 0},
-				{0, 0, 0, 1, 1},
-				{1, 1, 0, 1, 1},
-				{1, 1, 0, 0, 1},
-				{1, 0, 1, 0, 1},
+				{1, 0, 1, 1, 0, 7},
+				{0, 0, 0, 1, 1, 5},
+				{1, 1, 0, 1, 1, 12},
+				{1, 1, 0, 0, 1, 7},
+				{1, 0, 1, 0, 1, 2},
 			},
-			expectedVector: []float64{7, 5, 12, 7, 2},
 		},
 		{
 			name: "1.3-documented_use_case",
@@ -78,14 +75,13 @@ func TestToAugmentedMatrix(t *testing.T) {
 				NewVoltage(5),
 			},
 			expectedMatrix: [][]float64{
-				{1, 1, 1, 0},
-				{1, 0, 1, 1},
-				{1, 0, 1, 1},
-				{1, 1, 0, 0},
-				{1, 1, 1, 0},
-				{0, 0, 1, 0},
+				{1, 1, 1, 0, 10},
+				{1, 0, 1, 1, 11},
+				{1, 0, 1, 1, 11},
+				{1, 1, 0, 0, 5},
+				{1, 1, 1, 0, 10},
+				{0, 0, 1, 0, 5},
 			},
-			expectedVector: []float64{10, 11, 11, 5, 10, 5},
 		},
 	}
 
@@ -94,7 +90,7 @@ func TestToAugmentedMatrix(t *testing.T) {
 			machine := NewMachine(tt.buttonGroups, tt.voltages)
 			result := ToAugmentedMatrix(machine)
 
-			Print(result.Matrix, result.Vector)
+			Print(result.Matrix)
 
 			// Verify matrix dimensions
 			if result.Matrix.Rows() != len(tt.expectedMatrix) {
@@ -112,15 +108,6 @@ func TestToAugmentedMatrix(t *testing.T) {
 					if got != want {
 						t.Errorf("Matrix[%d][%d] = %.2f, want %.2f", row, col, got, want)
 					}
-				}
-			}
-
-			// Verify vector values
-			for i := 0; i < len(tt.expectedVector); i++ {
-				got := result.Vector.Get(i)
-				want := tt.expectedVector[i]
-				if got != want {
-					t.Errorf("Vector[%d] = %.2f, want %.2f", i, got, want)
 				}
 			}
 		})

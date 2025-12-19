@@ -2,7 +2,6 @@ package abstractions
 
 type AugmentedMatrix struct {
 	Matrix *Matrix
-	Vector *Vector
 }
 
 func ToAugmentedMatrix(
@@ -11,27 +10,26 @@ func ToAugmentedMatrix(
 	groups := machine.GetButtonGroups()
 	voltages := machine.GetVoltages()
 
-	/* Creates the matrix made of the variables */
 	groupsMatrix := NewMatrix(
 		len(voltages),
-		len(groups),
+		len(groups)+1,
 	)
 
+	/* Injects the button groups as coefficient of the matrix */
 	for groupIndex, group := range groups {
 		for _, button := range group.Buttons {
 			groupsMatrix.Set(button.CounterIndex, groupIndex, 1)
 		}
 	}
 
-	/* Creates the vector made of the result */
-	voltagesVector := NewVector(len(voltages))
-
+	/* Injects the voltages as constant terms of the matrix on the last column */
+	lastColumn := len(groups)
 	for voltageIndex, voltage := range voltages {
-		voltagesVector.Set(voltageIndex, float64(voltage.GetValue()))
+		groupsMatrix.Set(voltageIndex, lastColumn, float64(voltage.GetValue()))
 	}
 
+	/* Now we have the augmented matrix */
 	return &AugmentedMatrix{
 		Matrix: groupsMatrix,
-		Vector: voltagesVector,
 	}
 }

@@ -11,9 +11,7 @@ func TestReduce(t *testing.T) {
 		rows             int
 		cols             int
 		matrixValues     [][]float64
-		vectorValues     []float64
 		expectedMat      [][]float64
-		expectedVec      []float64
 		expectedSolution []float64
 	}{
 		/* https://ksuweb.kennesaw.edu/~plaval/previous%20semesters/Fall2001/m3261_01/dm1.pdf*/
@@ -21,19 +19,17 @@ func TestReduce(t *testing.T) {
 			rows: 4,
 			cols: 4,
 			matrixValues: [][]float64{
-				{1, 1, 0, 3},
-				{2, 1, -1, 1},
-				{3, -1, -1, 2},
-				{-1, 2, 3, -1},
+				{1, 1, 0, 3, 4},
+				{2, 1, -1, 1, 1},
+				{3, -1, -1, 2, -3},
+				{-1, 2, 3, -1, 4},
 			},
-			vectorValues: []float64{4, 1, -3, 4},
 			expectedMat: [][]float64{
-				{1, 1, 0, 3},
-				{0, 1, 1, 5},
-				{0, 0, 3, 13},
-				{0, 0, 0, -13},
+				{1, 1, 0, 3, 4},
+				{0, 1, 1, 5, 7},
+				{0, 0, 3, 13, 13},
+				{0, 0, 0, -13, -13},
 			},
-			expectedVec:      []float64{4, 7, 13, -13},
 			expectedSolution: []float64{8, -12, 10},
 		},
 
@@ -41,17 +37,15 @@ func TestReduce(t *testing.T) {
 			rows: 3,
 			cols: 3,
 			matrixValues: [][]float64{
-				{1, 1, 1},
-				{2, 1, 1},
-				{1, 2, 3},
+				{1, 1, 1, 4},
+				{2, 1, 1, 14},
+				{1, 2, 3, 14},
 			},
-			vectorValues: []float64{6, 14, 14},
 			expectedMat: [][]float64{
-				{1, 0, 0},
-				{0, 1, 0},
-				{0, 0, 1},
+				{1, 0, 0, 8},
+				{0, 1, 0, -12},
+				{0, 0, 1, 10},
 			},
-			expectedVec:      []float64{8, -12, 10},
 			expectedSolution: []float64{8, -12, 10},
 		},
 
@@ -59,159 +53,141 @@ func TestReduce(t *testing.T) {
 			rows: 2,
 			cols: 2,
 			matrixValues: [][]float64{
-				{2, 1},
-				{4, 2},
+				{2, 1, 1},
+				{4, 2, 6},
 			},
-			vectorValues: []float64{1, 6},
 			expectedMat: [][]float64{
-				{1, .5},
-				{0, 0},
+				{1, .5, 0.5},
+				{0, 0, 4},
 			},
-			expectedVec:      []float64{0.5, 4},
 			expectedSolution: []float64{0, 1},
 		},
 		"1.2-simple_2x2_system": {
 			rows: 2,
 			cols: 2,
 			matrixValues: [][]float64{
-				{2, 1},
-				{4, 2},
+				{2, 1, 1},
+				{4, 2, 6},
 			},
-			vectorValues: []float64{1, 6},
 			expectedMat: [][]float64{
-				{1, .5},
-				{0, 0},
+				{1, .5, 0.5},
+				{0, 0, 4},
 			},
-			expectedVec:      []float64{0.5, 4},
 			expectedSolution: []float64{0, 1},
 		},
 		"1.3-simple_2x2_system": {
 			rows: 2,
 			cols: 2,
 			matrixValues: [][]float64{
-				{2, 1},
-				{4, 2},
+				{2, 1, 1},
+				{4, 2, 6},
 			},
-			vectorValues: []float64{1, 6},
 			expectedMat: [][]float64{
-				{1, .5},
-				{0, 0},
+				{1, .5, .5},
+				{0, 0, 4},
 			},
-			expectedVec:      []float64{0.5, 4},
 			expectedSolution: []float64{0, 1},
 		},
 		"2.1-simple_3x3_system": {
 			rows: 3,
 			cols: 3,
 			matrixValues: [][]float64{
-				{1, -3, 4},
-				{2, -5, 6},
-				{-3, 3, 4},
+				{1, -3, 4, 3},
+				{2, -5, 6, 6},
+				{-3, 3, 4, 6},
 			},
-			vectorValues: []float64{3, 6, 6},
 			expectedMat: [][]float64{
-				{1, -3, 4},
-				{0, 1, -2},
-				{0, 0, 1},
+				{1, -3, 4, 3},
+				{0, 1, -2, 0},
+				{0, 0, 1, 3.75},
 			},
-			expectedVec:      []float64{3, 0, 3.75},
 			expectedSolution: []float64{10.5, 7.5, 3.75},
 		},
 		"2.2-simple_3x3_system": {
 			rows: 3,
 			cols: 3,
 			matrixValues: [][]float64{
-				{1, -1, 1},
-				{2, 3, -1},
-				{3, -2, -9},
+				{1, -1, 1, 8},
+				{2, 3, -1, -2},
+				{3, -2, -9, 9},
 			},
-			vectorValues: []float64{8, -2, 9},
 			expectedMat: [][]float64{
-				{1, -1, 1},
-				{0, 1, -0.6},
-				{0, 0, 1},
+				{1, -1, 1, 8},
+				{0, 1, -0.6, -3.6},
+				{0, 0, 1, 1},
 			},
-			expectedVec:      []float64{8, -3.6, 1},
 			expectedSolution: []float64{4, -3, 1},
 		},
 		"2.3-simple_3x3_system": {
 			rows: 3,
 			cols: 3,
 			matrixValues: [][]float64{
-				{-1, -2, 1},
-				{2, 3, 0},
-				{0, 1, -2},
+				{-1, -2, 1, -1},
+				{2, 3, 0, 2},
+				{0, 1, -2, 0},
 			},
-			vectorValues: []float64{-1, 2, 0},
 			expectedMat: [][]float64{
-				{1, 2, -1},
-				{0, 1, -2},
-				{0, 0, 0},
+				{1, 2, -1, 1},
+				{0, 1, -2, 0},
+				{0, 0, 0, 0},
 			},
-			expectedVec:      []float64{1, 0, 0},
 			expectedSolution: []float64{-2, 2, 1},
 		},
 		"3.1-documented_use-case": {
 			rows: 4,
 			cols: 6,
 			matrixValues: [][]float64{
-				{0, 0, 0, 0, 1, 1},
-				{0, 1, 0, 0, 0, 1},
-				{0, 0, 1, 1, 1, 0},
-				{1, 1, 0, 1, 0, 0},
+				{0, 0, 0, 0, 1, 1, 3},
+				{0, 1, 0, 0, 0, 1, 5},
+				{0, 0, 1, 1, 1, 0, 4},
+				{1, 1, 0, 1, 0, 0, 7},
 			},
-			vectorValues: []float64{3, 5, 4, 7},
 			expectedMat: [][]float64{
-				{1, 1, 0, 1, 0, 0},
-				{0, 1, 0, 0, 0, 1},
-				{0, 0, 1, 1, 1, 0},
-				{0, 0, 0, 0, 1, 1},
+				{1, 1, 0, 1, 0, 0, 7},
+				{0, 1, 0, 0, 0, 1, 5},
+				{0, 0, 1, 1, 1, 0, 4},
+				{0, 0, 0, 0, 1, 1, 2},
 			},
-			expectedVec:      []float64{7, 5, 4, 3},
 			expectedSolution: []float64{1, 3, 0, 3, 1, 2},
 		},
 		"3.2-documented_use-case": {
 			rows: 5,
 			cols: 5,
 			matrixValues: [][]float64{
-				{1, 0, 1, 1, 0},
-				{0, 0, 0, 1, 1},
-				{1, 1, 0, 1, 1},
-				{1, 1, 0, 0, 1},
-				{1, 0, 1, 0, 1},
+				{1, 0, 1, 1, 0, 7},
+				{0, 0, 0, 1, 1, 5},
+				{1, 1, 0, 1, 1, 12},
+				{1, 1, 0, 0, 1, 7},
+				{1, 0, 1, 0, 1, 2},
 			},
-			vectorValues: []float64{7, 5, 12, 7, 2},
 			expectedMat: [][]float64{
-				{1, 0, 1, 1, 0},
-				{0, 1, -1, 0, 1},
-				{0, 0, 0, 1, 1},
-				{0, 0, 0, 1, 0},
-				{0, 0, 0, 0, 1},
+				{1, 0, 1, 1, 0, 7},
+				{0, 1, -1, 0, 1, 5},
+				{0, 0, 0, 1, 1, 5},
+				{0, 0, 0, 1, 0, 5},
+				{0, 0, 0, 0, 1, 0},
 			},
-			expectedVec:      []float64{7, 5, 5, 5, 0},
 			expectedSolution: []float64{2, 5, 0, 5, 0},
 		},
 		"3.3-documented_use-case": {
 			rows: 6,
 			cols: 4,
 			matrixValues: [][]float64{
-				{1, 1, 1, 0},
-				{1, 0, 1, 1},
-				{1, 0, 1, 1},
-				{1, 1, 0, 0},
-				{1, 1, 1, 0},
-				{0, 0, 1, 0},
+				{1, 1, 1, 0, 10},
+				{1, 0, 1, 1, 11},
+				{1, 0, 1, 1, 11},
+				{1, 1, 0, 0, 5},
+				{1, 1, 1, 0, 10},
+				{0, 0, 1, 0, 5},
 			},
-			vectorValues: []float64{10, 11, 11, 5, 10, 5},
 			expectedMat: [][]float64{
-				{1, 1, 1, 0},
-				{0, 1, 0, -1},
-				{0, 0, 1, 0},
-				{0, 0, 0, 0},
-				{0, 0, 0, 0},
-				{0, 0, 0, 0},
+				{1, 1, 1, 0, 10},
+				{0, 1, 0, -1, -1},
+				{0, 0, 1, 0, 5},
+				{0, 0, 0, 0, 0},
+				{0, 0, 0, 0, 0},
+				{0, 0, 0, 0, 0},
 			},
-			expectedVec:      []float64{10, -1, 5, 0, 0, 0},
 			expectedSolution: []float64{5, 0, 5, 1},
 		},
 	}
@@ -219,23 +195,10 @@ func TestReduce(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			// Create matrix and vector
-			m := NewMatrix(tc.rows, tc.cols)
-			v := NewVector(tc.rows)
-
-			// Fill matrix with test values
-			for row := 0; row < tc.rows; row++ {
-				for col := 0; col < tc.cols; col++ {
-					m.Set(row, col, tc.matrixValues[row][col])
-				}
-			}
-
-			// Fill vector with test values
-			for i := 0; i < tc.rows; i++ {
-				v.Set(i, tc.vectorValues[i])
-			}
+			m := FromSlice(tc.matrixValues)
 
 			// Run the reduction
-			actualSolution := Reduce(&AugmentedMatrix{m, v}, true)
+			actualSolution := Reduce(&AugmentedMatrix{m}, true)
 
 			// Verify matrix results
 			for row := 0; row < tc.rows; row++ {
@@ -245,15 +208,6 @@ func TestReduce(t *testing.T) {
 					if !floatEquals(expected, actual, 0.001) {
 						t.Errorf("Matrix[%d][%d]: expected %.4f, got %.4f", row, col, expected, actual)
 					}
-				}
-			}
-
-			// Verify vector results
-			for i := 0; i < tc.rows; i++ {
-				expected := tc.expectedVec[i]
-				actual := v.Get(i)
-				if !floatEquals(expected, actual, 0.001) {
-					t.Errorf("Vector[%d]: expected %.4f, got %.4f", i, expected, actual)
 				}
 			}
 
