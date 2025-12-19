@@ -37,6 +37,9 @@ func FromSlice(
 
 	for i := 0; i < rowsCount; i++ {
 		values[i] = make([]float64, colsCount)
+		for j := 0; j < colsCount; j++ {
+			values[i][j] = slice[i][j]
+		}
 	}
 
 	return &Matrix{

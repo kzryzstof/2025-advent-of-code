@@ -32,7 +32,7 @@ func ActivateMachines(
 		augmentedMatrix := abstractions.ToAugmentedMatrix(machine)
 
 		/*	2. I use Gaussian elimination to solve the system of equations */
-		solution := abstractions.Reduce(augmentedMatrix, false)
+		solution := abstractions.ToReducedRowEchelonForm(augmentedMatrix, false)
 
 		total := 0
 
