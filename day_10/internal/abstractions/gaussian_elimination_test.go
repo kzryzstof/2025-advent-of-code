@@ -103,7 +103,7 @@ func TestReduce(t *testing.T) {
 				}
 			}
 
-			actualSolution := rref.Solve()
+			actualSolution := rref.Solve(true)
 
 			fmt.Println("Actual Solution")
 			PrintSlice(actualSolution)

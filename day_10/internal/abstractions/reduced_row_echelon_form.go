@@ -16,12 +16,29 @@ func (r *ReducedRowEchelonForm) Get() *Matrix {
 	return r.matrix
 }
 
-func (r *ReducedRowEchelonForm) Solve() []float64 {
-	//	--- WE NEED TO DETERMINE IF THERE ARE FREE VARIABLES ---
-	//	THEN RUN ASSIGN MULTIPLE SOLUTIONS IF NEEDED THAT GET THE LOWEST NUMBERS
-	freeVariablesIndices := detectFreeVariables(r.matrix)
-	fmt.Printf("Free variables: %v\n", freeVariablesIndices)
+func (r *ReducedRowEchelonForm) Solve(
+	verbose bool,
+) []float64 {
 
+	freeVariablesIndices := r.detectFreeVariables()
+
+	if len(freeVariablesIndices) == 0 {
+
+		if verbose {
+			fmt.Print("\nNo free variables detected; unique solution exists\n\n")
+		}
+
+		return r.getUniqueSolution()
+	}
+
+	fmt.Printf("\n%d free variable(s) have been found\n\n", len(freeVariablesIndices))
+
+	results := make([]float64, r.matrix.Rows())
+
+	return results
+}
+
+func (r *ReducedRowEchelonForm) getUniqueSolution() []float64 {
 	results := make([]float64, r.matrix.Rows())
 
 	for row := 0; row < r.matrix.Rows(); row++ {
@@ -29,4 +46,32 @@ func (r *ReducedRowEchelonForm) Solve() []float64 {
 	}
 
 	return results
+}
+
+func (r *ReducedRowEchelonForm) detectFreeVariables() []int {
+	freeVariableIndices := make([]int, 0)
+
+	/* Note: The last column is the constants, so we skip it */
+
+	for col := 0; col < r.matrix.Cols()-1; col++ {
+		if r.isFreeVariable(col) {
+			freeVariableIndices = append(freeVariableIndices, col)
+		}
+	}
+
+	return freeVariableIndices
+}
+
+func (r *ReducedRowEchelonForm) isFreeVariable(
+	variableRow int,
+) bool {
+
+	// A variable is free if there's no pivot (leading 1) in its column
+
+	if variableRow >= r.matrix.Rows() {
+		return true // More variables than equations
+	}
+
+	// Check if there's a pivot (non-zero, typically 1) at the diagonal
+	return r.matrix.Get(variableRow, variableRow) == 0
 }

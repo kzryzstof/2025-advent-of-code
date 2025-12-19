@@ -241,32 +241,3 @@ func findSwappableRow(
 
 	return NotFound
 }
-
-func detectFreeVariables(
-	m *Matrix,
-) []int {
-	freeVariableIndices := make([]int, 0)
-
-	for col := 0; col < m.Cols(); col++ {
-		if isFreeVariable(m, col) {
-			freeVariableIndices = append(freeVariableIndices, col)
-		}
-	}
-
-	return freeVariableIndices
-}
-
-func isFreeVariable(
-	m *Matrix,
-	variableRow int,
-) bool {
-
-	// A variable is free if there's no pivot (leading 1) in its column
-	// Check if row variableCol has a pivot at column variableCol
-	if variableRow >= m.Rows() {
-		return true // More variables than equations
-	}
-
-	// Check if there's a pivot (non-zero, typically 1) at the diagonal
-	return m.Get(variableRow, variableRow) == 0
-}

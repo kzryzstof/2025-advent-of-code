@@ -36,7 +36,7 @@ func ActivateMachines(
 
 		total := 0
 
-		for _, presses := range rref {
+		for _, presses := range rref.Solve() {
 			total += int(presses)
 		}
 
