@@ -41,7 +41,8 @@ func TestReduce(t *testing.T) {
 				{0, 0, 1, 1, 0, -1, 1},
 				{0, 0, 0, 0, 1, 1, 3},
 			},
-			expectedSolution: []float64{1, 3, 0, 3, 1, 2},
+			/*expectedSolution: []float64{1, 3, 0, 3, 1, 2},*/
+			expectedSolution: []float64{1, 2, 0, 4, 0, 3},
 		},
 		"3.2-documented_use-case": {
 			matrixValues: [][]float64{

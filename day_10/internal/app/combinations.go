@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	// TilesValidationConcurrency on macOS M1 Pro, 10 seems to be a nice sweet spot
-	TestConcurrency = 10
+	Verbose = false
 )
 
 func ActivateMachines(
@@ -32,11 +31,11 @@ func ActivateMachines(
 		augmentedMatrix := abstractions.ToAugmentedMatrix(machine)
 
 		/*	2. I use Gaussian elimination to solve the system of equations */
-		rref := abstractions.ToReducedRowEchelonForm(augmentedMatrix, false)
+		rref := abstractions.ToReducedRowEchelonForm(augmentedMatrix, Verbose)
 
 		total := 0
 
-		for _, presses := range rref.Solve(false) {
+		for _, presses := range rref.Solve(Verbose) {
 			total += int(presses)
 		}
 
