@@ -64,6 +64,11 @@ func doBackwardElimination(
 			Print(m)
 		}
 
+		pivotValue := m.Get(currentRow, pivotCol)
+		if pivotValue != 0 && pivotValue != PivotValue {
+			scaleRow(m, pivotValue, currentRow, verbose)
+		}
+
 		for row := currentRow - 1; row >= 0; row-- {
 
 			factor := m.Get(row, pivotCol)
@@ -155,7 +160,7 @@ func eliminateRow(
 		factor := m.Get(row, pivot)
 
 		if verbose {
-			fmt.Printf("E%d - %.0f E%d | ", row+1, factor, row)
+			fmt.Printf("E%d - %.2f E%d | ", row+1, factor, row)
 		}
 
 		/* Skips rows where the factor is already 0
@@ -218,7 +223,7 @@ func findPivotCol(
 ) int {
 
 	for candidateColumn := 0; candidateColumn < m.Cols()-1; candidateColumn++ {
-		if m.Get(row, candidateColumn) == PivotValue {
+		if m.Get(row, candidateColumn) != 0 {
 			return candidateColumn
 		}
 	}

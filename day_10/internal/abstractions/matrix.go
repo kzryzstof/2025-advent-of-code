@@ -38,6 +38,10 @@ func NewMatrix(
 
 	for i := 0; i < rowCount; i++ {
 		values[i] = make([]float64, colCount)
+
+		for j := 0; j < colCount; j++ {
+			values[i][j] = 0
+		}
 	}
 
 	return &Matrix{

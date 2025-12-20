@@ -1,5 +1,7 @@
 package abstractions
 
+import "fmt"
+
 var combinations chan []int
 
 type Machine struct {
@@ -63,6 +65,15 @@ func (m *Machine) IsVoltageValid() bool {
 	}
 
 	return true
+}
+
+func (m *Machine) PrintVoltages() {
+
+	fmt.Print("-- Voltages --\n")
+	/* The machine is activated if all lights are in their expected states */
+	for voltageIndex, voltage := range m.voltages {
+		fmt.Printf("\tVoltage %d: expected=%d, actual=%d\n", voltageIndex, voltage.GetValue(), m.counters[voltageIndex].GetValue())
+	}
 }
 
 func (m *Machine) CloseLights() {
