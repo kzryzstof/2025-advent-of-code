@@ -2,6 +2,10 @@ package abstractions
 
 import "fmt"
 
+const (
+	MaxNumbers = 300
+)
+
 type ReducedRowEchelonForm struct {
 	matrix *Matrix
 }
@@ -20,9 +24,9 @@ func (r *ReducedRowEchelonForm) Solve(
 	verbose bool,
 ) []float64 {
 
-	freeVariablesIndices := r.detectFreeVariables()
+	variablesNumbers := r.detectFreeVariables()
 
-	if len(freeVariablesIndices) == 0 {
+	if len(variablesNumbers) == 0 {
 
 		if verbose {
 			fmt.Print("\nNo free variables detected; unique solution exists\n\n")
@@ -32,10 +36,16 @@ func (r *ReducedRowEchelonForm) Solve(
 	}
 
 	if verbose {
-		fmt.Printf("\n%d free variable(s) have been found\n\n", len(freeVariablesIndices))
+		fmt.Printf("\n%d free variable(s) have been found: ", len(variablesNumbers))
+
+		for _, variableNumber := range variablesNumbers {
+			fmt.Printf("%d, ", variableNumber)
+		}
+
+		fmt.Print("\n\n")
 	}
 
-	solution := r.findMinimalSolution(freeVariablesIndices, verbose)
+	solution := r.findMinimalSolution(variablesNumbers, verbose)
 
 	return solution.GetValues()
 }
@@ -86,7 +96,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 ) *Variables {
 
 	variablesCount := uint(r.matrix.Cols() - 1)
-	maxVariableValue := float64(1000)
+	maxVariableValue := float64(MaxNumbers)
 	lowestTotal := float64(9999)
 	var solution *Variables
 
@@ -156,7 +166,10 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 			}
 
 			for _, solvedVariable := range solvedVariables.Get() {
-				if solvedVariable.Value < 0 {
+				if solvedVariable.Value < -0.01 {
+					if verbose {
+						fmt.Printf("Negative value found for variable %d: %f\n", solvedVariable.Number, solvedVariable.Value)
+					}
 					return
 				}
 			}
