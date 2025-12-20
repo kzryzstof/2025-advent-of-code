@@ -181,7 +181,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 					fmt.Printf("\tVariable %d = %.2f\n", variable.Number, variable.Value)
 				}
 
-				fmt.Printf("\tResult is = %f\n", total)
+				fmt.Printf("\tResult is = %d\n", total)
 				fmt.Print("\n\tThis combination has the minimal values so far!\n\n\n")
 			}
 
