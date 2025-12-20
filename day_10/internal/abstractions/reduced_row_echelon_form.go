@@ -3,7 +3,7 @@ package abstractions
 import "fmt"
 
 const (
-	MaxNumbers = 300
+	MaxNumbers = 250
 )
 
 type ReducedRowEchelonForm struct {
@@ -97,7 +97,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 
 	variablesCount := uint(r.matrix.Cols() - 1)
 	maxVariableValue := float64(MaxNumbers)
-	lowestTotal := float64(9999)
+	lowestTotal := int(9999)
 	var solution *Variables
 
 	r.testCombination(
@@ -105,7 +105,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 		maxVariableValue,
 		func(freeVariables *Variables) {
 
-			total := float64(0)
+			total := int(0)
 			solvedVariables := NewVariables(variablesCount)
 
 			for _, freeVariable := range freeVariables.Get() {
@@ -158,7 +158,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 				}
 
 				solvedVariables.Set(variableNumber, currentVariableValue)
-				total += currentVariableValue
+				total += int(currentVariableValue)
 			}
 
 			if total >= lowestTotal {

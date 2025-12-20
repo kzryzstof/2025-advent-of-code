@@ -14,7 +14,7 @@ func ActivateMachines(
 	factory *abstractions.Factory,
 ) uint64 {
 
-	totalPresses := uint64(0)
+	totalPresses := float64(0)
 
 	for machineIndex, machine := range factory.Machines {
 
@@ -33,19 +33,19 @@ func ActivateMachines(
 		/*	2. I use Gaussian elimination to solve the system of equations */
 		rref := abstractions.ToReducedRowEchelonForm(augmentedMatrix, Verbose)
 
-		total := 0
+		total := float64(0)
 
 		for _, presses := range rref.Solve(Verbose) {
-			total += int(presses)
+			total += presses
 		}
 
 		elapsed := time.Since(startTime)
-		fmt.Printf("Processed machine %d with %d button groups: %d pressed needed (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), total, elapsed)
+		fmt.Printf("Processed machine %d with %d button groups: %f pressed needed (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), total, elapsed)
 
-		totalPresses += uint64(total)
+		totalPresses += total
 	}
 
 	fmt.Println()
 
-	return totalPresses
+	return uint64(totalPresses)
 }
