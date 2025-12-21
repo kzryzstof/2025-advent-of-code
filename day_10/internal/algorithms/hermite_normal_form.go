@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	MinNumbers = -50
-	MaxNumbers = 50
+	// MinimumFreeVariableNumber /* Used to validate theories, was there any solutions with a free variable being negative */
+	MinimumFreeVariableNumber = 0
 )
 
 type HermiteNormalForm struct {
@@ -97,12 +97,14 @@ func (r *HermiteNormalForm) getUniqueSolution() *abstractions.Variables {
 
 		total := r.matrix.Get(row, int(variablesCount))
 		left := int64(0)
+
 		for col := row + 1; col < int(variablesCount); col++ {
 			left += r.matrix.Get(row, col) * variables.GetValue(abstractions.VariableNumber(col+1))
 		}
+
 		variables.SetVariable(&abstractions.Variable{
-			abstractions.VariableNumber(row + 1),
-			(total - left) / pivot,
+			Number: abstractions.VariableNumber(row + 1),
+			Value:  (total - left) / pivot,
 		})
 	}
 
@@ -157,7 +159,7 @@ func (r *HermiteNormalForm) findMinimalSolution(
 ) *abstractions.Variables {
 
 	variablesCount := uint64(r.matrix.Cols() - 1)
-	minVariableValue := int64(MinNumbers)
+	minVariableValue := int64(MinimumFreeVariableNumber)
 	lowestTotal := int64(9999)
 	var solution *abstractions.Variables
 
@@ -254,11 +256,11 @@ func (r *HermiteNormalForm) findMinimalSolution(
 }
 
 func (r *HermiteNormalForm) testCombination(
-	/* Indicates the number of combinations to test (#,#,#) */
+	/* Indicates the number of free variables to test (#,#,#) */
 	variableNumbers []abstractions.VariableNumber,
-	/* Indicates the biggest number to test (0->5,0,0) -> (0,0->5,0) -> (0,0,0->5) -> ... */
-	minVariableValue int64,
-	maxVariableValue int64,
+	/* Indicates the minimum & maximum values to test (min->max,min->max,min->max) */
+	minimumVariableValue int64,
+	maximumVariableValue int64,
 	/* Function to call to test the combination */
 	testCombinationFunc func(*abstractions.Variables),
 ) {
@@ -271,20 +273,20 @@ func (r *HermiteNormalForm) testCombination(
 		currentVariableNumber := variables.GetNumberByIndex(currentVariableIndex)
 
 		if isLastVariable {
-			for currentVariableValue := minVariableValue; currentVariableValue <= maxVariableValue; currentVariableValue++ {
+			for currentVariableValue := minimumVariableValue; currentVariableValue <= maximumVariableValue; currentVariableValue++ {
 				variables.Set(currentVariableNumber, currentVariableValue)
 				testCombinationFunc(variables)
 			}
 		}
 
 		if !isLastVariable {
-			for currentVariableValue := minVariableValue; currentVariableValue < maxVariableValue; currentVariableValue++ {
+			for currentVariableValue := minimumVariableValue; currentVariableValue < maximumVariableValue; currentVariableValue++ {
 				variables.Set(currentVariableNumber, currentVariableValue)
 				generateCombinationFunc(variables, currentVariableIndex+1)
 			}
 		}
 	}
 
-	initialVariables := abstractions.FromVariableNumbers(variableNumbers, minVariableValue)
+	initialVariables := abstractions.FromVariableNumbers(variableNumbers, minimumVariableValue)
 	generateCombinationFunc(initialVariables, 0)
 }

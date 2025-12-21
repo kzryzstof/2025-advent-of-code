@@ -23,18 +23,22 @@ func ToHermiteNormalForm(
 		abstractions.Print(matrixCopy)
 	}
 
+	/* Step 1: Forward elimination */
 	doForwardElimination(matrixCopy, verbose)
 
 	if verbose {
 		fmt.Print("***********************************************************************************************\n\n")
 	}
 
+	/* Step 2: Backward elimination */
 	doBackwardElimination(matrixCopy, verbose)
 
 	if verbose {
 		fmt.Printf("Hermite Nominal Form\n")
 		abstractions.Print(matrixCopy)
 	}
+
+	/* Step 3: Optimizes row order */
 
 	/*
 		In certain cases, a pivot may not be on the expected row,
@@ -65,9 +69,10 @@ func doBackwardElimination(
 
 	for pivotRow := fromRow; pivotRow > 0; pivotRow-- {
 
-		/* When doing a backward elimination, we need to find the actual pivot column,
-		since some rows may be all zeroes at this point.
-		By definition, the pivot is the first non-zero entry in the row
+		/*
+			When doing a backward elimination, we need to find the actual pivot column,
+			since some rows may be all zeroes at this point.
+			By definition, the pivot is the first non-zero entry in the row
 		*/
 		pivotCol := findPivotCol(m, pivotRow)
 
@@ -93,18 +98,10 @@ func doBackwardElimination(
 
 			cellRowValue := m.Get(row, pivotCol)
 
-			q := cellRowValue / pivotValue
-
-			remainder := cellRowValue % pivotValue
-
-			if remainder < 0 {
-				q--
-			}
+			q := computeQuotient(cellRowValue, pivotValue)
 
 			if q != 0 {
-				for col := pivotCol; col < m.Cols(); col++ {
-					m.Set(row, col, m.Get(row, col)-q*m.Get(pivotRow, col))
-				}
+				eliminateRow(m, row, pivotRow, pivotCol, q)
 			}
 		}
 
@@ -175,7 +172,7 @@ func eliminateRowForward(
 
 	for row := pivotRow + 1; row < m.Rows(); row++ {
 
-		// Only work on the pivot column, not all columns
+		/* Only work on the pivot column, not all columns! */
 		pivotCol := pivotRow
 
 		for m.Get(row, pivotCol) != 0 {
@@ -183,34 +180,57 @@ func eliminateRowForward(
 			pivotCellValue := m.Get(pivotRow, pivotCol)
 			rowCellValue := m.Get(row, pivotCol)
 
-			if pivotCellValue == 0 {
-				m.Swap(pivotRow, row)
-				continue
-			}
+			/*
+				Euclidean Step
+				--------------
+				We want to reduce m[row][col] using m[pivotRow][col]
+				This loop runs until m[row][col] becomes 0 (GCD logic)
+			*/
 
-			// Euclidean Step:
-			// We want to reduce m[i][col] using m[pivotRow][col]
-			// This loop runs until m[i][col] becomes 0 (GCD logic)
+			q := computeQuotient(rowCellValue, pivotCellValue)
 
-			q := rowCellValue / pivotCellValue
+			eliminateRow(m, row, pivotRow, pivotCol, q)
 
-			remainder := rowCellValue % pivotCellValue
-
-			if remainder < 0 {
-				q--
-			}
-
-			for col := pivotCol; col < m.Cols(); col++ {
-				// Row operation: Row[i] = Row[i] - q * Row[pivotRow]
-				m.Set(row, col, m.Get(row, col)-q*m.Get(pivotRow, col))
-			}
-
-			// Essential HNF step: Swap to continue GCD reduction
+			/* Essential HNF step: Swap to continue GCD reduction */
 			if m.Get(row, pivotCol) != 0 {
 				m.Swap(pivotRow, row)
 			}
 		}
 	}
+}
+
+func eliminateRow(
+	m *abstractions.Matrix,
+	row int,
+	pivotRow int,
+	pivotCol int,
+	quotient int64,
+) {
+	for col := pivotCol; col < m.Cols(); col++ {
+		/*
+			Row operation: Row[i] = Row[i] - q * Row[pivotRow]
+
+			Compared to the Gaussian elimination, this approach
+			preserves integers
+		*/
+		m.Set(row, col, m.Get(row, col)-quotient*m.Get(pivotRow, col))
+	}
+}
+
+func computeQuotient(
+	rowCellValue int64,
+	pivotCellValue int64,
+) int64 {
+
+	quotient := rowCellValue / pivotCellValue
+
+	remainder := rowCellValue % pivotCellValue
+
+	if remainder < 0 {
+		quotient--
+	}
+
+	return quotient
 }
 
 func scaleRow(
