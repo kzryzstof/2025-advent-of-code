@@ -31,6 +31,7 @@ func main() {
 	//	20195 too high!!
 	//	20172 too high!!
 	//	20117: too high!!
+	//	20030
 	//	20011: not the right value
 
 	/* Prints the result */

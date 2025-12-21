@@ -1,6 +1,9 @@
 package abstractions
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 const (
 	PivotValue              = 1
@@ -44,7 +47,8 @@ func ToReducedRowEchelonForm(
 			if verbose {
 				fmt.Printf("Moving row from %d to row %d\n", row+1, pivotCol+1)
 			}
-			for startRow := row; startRow < pivotCol-1; startRow++ {
+			endRow := int(math.Min(float64(rref.Rows()-1), float64(pivotCol-1)))
+			for startRow := row; startRow < endRow; startRow++ {
 				rref.Swap(startRow, startRow+1)
 			}
 		}
