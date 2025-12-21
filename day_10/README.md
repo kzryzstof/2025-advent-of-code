@@ -1,90 +1,212 @@
-# Day 10 – Factory Machine Activation
+# Day 10: Factory - Advent of Code 2025
 
-The Day 10 solution is implemented in Go in the `day_10` folder. It models a factory that contains multiple machines. Each machine has:
+## Problem Description
 
-- A row of lights that can be **on** (`#`) or **off** (`.`).
-- Several button groups, where each button toggles one specific light.
+### Part 2: Joltage Levels (⭐)
+Now we need to configure joltage counters instead of lights. Each machine has:
+- **Joltage counters** that start at 0
+- **Target values** for each counter (e.g., `{3,5,4,7}`)
+- **Buttons** that increment specific counters by 1 (e.g., `(1,3)` increments counters 1 and 3)
 
-The goal is to find, for every machine, the **minimum number of button presses** needed to turn on all the required lights (activate the machine), and then sum these minimal press counts across all machines.
+The goal is to find the **minimum number of button presses** needed to reach the exact target values for all counters on all machines.
 
-## Problem model
+**Example:**
+```
+[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+```
+Minimum: 10 presses (one way: press `(3)` once, `(1,3)` 3×, `(2,3)` 3×, `(0,2)` once, `(0,1)` 2×)
 
-- The input describes one or more machines, one per line.
-- Each line encodes:
-  - The **lights** state as one or more bracketed groups of `.` and `#`, e.g. `[#..#.]`.
-  - The **button groups** as one or more parenthesized lists of comma-separated indices, e.g. `(0,2,4)`.
-- A **Light** is modeled by its state (`on` or `off`).
-- A **Button** references a light index; pressing it toggles that light.
-- A **ButtonGroup** is a collection of buttons that are all pressed together.
-- A **Machine** consists of:
-  - A slice of lights.
-  - A slice of button groups.
-  - Logic to press groups and check whether it is activated (all required lights on).
-- A **Factory** is a collection of machines.
+**Part 2 Answer:** 19857 button presses
 
-The objective is to determine the minimal sequence length of button-group presses that activates each machine, then sum all those lengths.
+---
 
-## High-level flow
+## Solution Approach
 
-The executable entrypoint is `day_10/cmd/main.go` and the flow is:
+This problem is a **system of linear equations** problem. For Part 2:
 
-1. **Read input path** from the command-line arguments.
-2. **Initialize the reader** with `io.NewReader(path)`.
-3. **Parse the factory**:
-   - For each line, construct a `Machine` by parsing:
-     - Lights between `[` and `]` into a slice of `Light` values.
-     - Button groups between `(` and `)` into `ButtonGroup` values referencing light indices.
-   - Collect all machines into a `Factory`.
-4. **Activate machines** with `app.ActivateMachines(factory)`:
-   - For each machine, call `FindShortestCombinations` to search for the smallest number of button-group presses that activates it.
-   - The search tries combinations of button-group indices of increasing length.
-   - For each candidate combination, it:
-     - Resets/closes lights on the machine.
-     - Presses the button groups in the candidate sequence.
-     - Tests whether the machine is activated.
-   - Once a working combination is found, its length (press count) is returned.
-5. **Aggregate and print results**:
-   - Sum the minimal press counts across all machines.
-   - Print the number of machines, the total presses, and the execution time.
+### Mathematical Formulation
 
-## Combination search
+For each machine with buttons and target joltage values, we need to solve:
+```
+Button1_presses × Button1_counters + Button2_presses × Button2_counters + ... = Target_values
+```
 
-The heart of the solution is `FindShortestCombinations` in `internal/app/combinations.go`:
+**Example:** Machine with buttons `(3)`, `(1,3)`, `(2)`, `(2,3)`, `(0,2)`, `(0,1)` and target `{3,5,4,7}`:
 
-- It receives:
-  - `maximumCombinationLength`: the upper bound on combination size to consider.
-  - `totalButtonGroupsCount`: how many button groups exist.
-  - `testCombination`: a callback that applies a candidate combination on the machine and returns `true` if it activates the machine.
-- It uses a recursive helper to build up combinations of button-group indices without duplicates.
-- For each target length `k` from `1` up to `maximumCombinationLength`:
-  - It recursively generates all unique combinations of size `k`.
-  - For each combination, it calls `testCombination`.
-  - As soon as one combination succeeds, it returns `k` and `true`.
-- If no combination up to the maximum length works, it returns `-1` and `false`.
+```
+x₁ · (0,0,0,1) + x₂ · (0,1,0,1) + x₃ · (0,0,1,0) + x₄ · (0,0,1,1) + x₅ · (1,0,1,0) + x₆ · (1,1,0,0) = (3,5,4,7)
+```
 
-This effectively performs a breadth-first search over combination lengths, ensuring the first found activation sequence is minimal in terms of total button-group presses.
+This translates to:
+```
+x₅ + x₆ = 3    (counter 0)
+x₂ + x₆ = 5    (counter 1)
+x₃ + x₄ + x₅ = 4    (counter 2)
+x₁ + x₂ + x₄ = 7    (counter 3)
+```
 
-## Packages and responsibilities
+### Algorithm: Hermite Normal Form (HNF)
 
-- `cmd/main.go`
-  - Wires together input reading, factory construction, and machine activation.
-  - Prints summary information and execution duration.
+We solve this using the **Hermite Normal Form** algorithm, which consists of several steps:
 
-- `internal/io`
-  - `FactoryReader` reads the input file and converts each line into an `abstractions.Machine`:
-    - `extractLightIndicators` parses bracketed `[#..#.]` segments into a slice of `Light` values.
-    - `extractButtons` parses parenthesized `(0,2,4)` segments into `ButtonGroup` values.
+#### 1. **Row Reduction to HNF**
+Transform the augmented matrix into Hermite Normal Form using row operations:
+- Find pivot elements (leading non-zero entry in each row)
+- Eliminate entries below and above each pivot
+- Ensure pivots are positive and increase left-to-right
 
-- `internal/abstractions`
-  - Core domain types:
-    - `Light` with on/off state and toggle behavior.
-    - `Button` referencing a light index.
-    - `ButtonGroup` containing multiple buttons.
-    - `Machine` wrapping lights and button groups with methods like `PressGroup` and `IsActivated`.
-    - `Factory` as a container for machines.
-  - Utility functions like `Contains` and `Clear` for working with slices.
+**Implementation:** `RowReduction.ToHermiteNormalForm()`
 
-- `internal/app`
-  - `ActivateMachines` orchestrates activation across all machines in the factory, summing up the minimal press counts.
-  - `FindShortestCombinations` implements the core combinatorial search used to find the shortest activating sequence of button groups for a single machine.
+#### 2. **Detect Free Variables**
+Identify variables (i.e. rows) that don't have a leading 1 in any row. These variables can take any value, leading to infinitely many solutions.
+
+**Implementation:** `HermiteNormalForm.findFreeVariables()`
+
+#### 3. **Find Solutions**
+
+**For unique solutions:**
+- Use back-substitution starting from the last row
+- Each variable is uniquely determined by the equations
+
+**Implementation:** `HermiteNormalForm.getUniqueSolution()`
+
+**For systems with free variables:**
+- Try all combinations of free variable values starting from 0
+- For each combination, solve for the remaining variables
+- Check if all values are non-negative integers
+- Return the first valid solution found (minimal solution)
+
+**Implementation:** `HermiteNormalForm.findMinimalSolution()`
+
+#### 4. **Optimization: Early Termination**
+During the search for minimal solutions:
+- Use modulo operator to check if divisions result in integers before computing
+- Reject combinations that lead to negative values early
+- Stop at the first valid solution (since we search from the smallest values)
+
+---
+
+## Code Structure
+
+```
+day_10/
+├── cmd/
+│   └── main.go                    # Entry point, reads input and solves
+├── internal/
+│   ├── abstractions/
+│   │   ├── button.go              # Button and ButtonGroup structures
+│   │   ├── counter.go             # Joltage counter abstraction
+│   │   ├── factory.go             # Factory containing machines
+│   │   ├── machine.go             # Machine with buttons and counters
+│   │   ├── matrix.go              # Matrix operations and structures
+│   │   ├── augmented_matrix.go    # Augmented matrix creation from machines
+│   │   └── variable.go            # Variable and Variables for solutions
+│   ├── algorithms/
+│   │   ├── row_reduction.go       # Hermite Normal Form reduction
+│   │   ├── hermite_normal_form.go # Solution finder for HNF systems
+│   │   └── *_test.go              # Comprehensive unit tests
+│   └── io/
+│       └── factory_reader.go      # Parse input file
+└── README.md                       # This file
+```
+
+---
+
+## Key Algorithms Implemented
+
+### 1. Row Reduction (Hermite Normal Form)
+```go
+func (rr *RowReduction) ToHermiteNormalForm() *abstractions.Matrix
+```
+Transforms a matrix into HNF using:
+- Pivot selection and swapping
+- Row operations to eliminate elements
+- Adjustment for negative remainders (Euclidean division)
+
+### 2. Free Variable Detection
+```go
+func (hnf *HermiteNormalForm) findFreeVariables() []abstractions.VariableNumber
+```
+Scans each row to find which columns have leading 1s, then identifies missing variables.
+
+### 3. Unique Solution Solver
+```go
+func (hnf *HermiteNormalForm) getUniqueSolution() *abstractions.Variables
+```
+Uses back-substitution to solve systems with no free variables.
+
+### 4. Minimal Solution Finder
+```go
+func (hnf *HermiteNormalForm) findMinimalSolution(freeVars []abstractions.VariableNumber, ...) *abstractions.Variables
+```
+Recursively tries combinations of free variable values to find the minimal valid solution.
+
+---
+
+## Example Walkthrough
+
+### Input
+```
+[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+```
+
+### Step 1: Build Augmented Matrix
+```
+[  0  0  0  0  1  1  |  3 ]
+[  0  1  0  0  0  1  |  5 ]
+[  0  0  1  1  1  0  |  4 ]
+[  1  1  0  1  0  0  |  7 ]
+```
+
+### Step 2: Reduce to HNF
+```
+[  1  0  0  1  0  -1  |  2 ]
+[  0  1  0  0  0   1  |  5 ]
+[  0  0  1  1  0  -1  |  1 ]
+[  0  0  0  0  1   1  |  3 ]
+```
+
+### Step 3: Detect Free Variables
+Variables with leading 1: x₁, x₂, x₃, x₅
+Free variables: **x₄, x₆**
+
+### Step 4: Find Minimal Solution
+Try combinations of (x₄, x₆) starting from (0, 0):
+- x₆ = 0: leads to negative values ❌
+- x₆ = 1, x₄ = 1: x₁=2, x₂=4, x₃=1, x₅=2 ❌ (doesn't satisfy)
+- Continue searching...
+- Eventually find: x₁=1, x₂=3, x₃=0, x₄=3, x₅=1, x₆=2
+
+**Total presses:** 1+3+0+3+1+2 = **10**
+
+---
+
+## Running the Solution
+
+```bash
+# Build and run
+make run
+
+# Run tests
+go test ./...
+
+# Run specific test
+go test -v ./internal/algorithms -run TestHermiteNormalForm
+```
+
+---
+
+## Complexity Analysis
+
+- **Time Complexity:** O(m²n) for HNF reduction, where m = rows, n = columns
+- **Space Complexity:** O(mn) for matrix storage
+- **Solution Finding:** Exponential in the worst case (number of free variables), but optimized with early termination
+
+---
+
+## References
+
+- [Hermite Normal Form](https://en.wikipedia.org/wiki/Hermite_normal_form)
+- [Gaussian Elimination](https://en.wikipedia.org/wiki/Gaussian_elimination)
+- [Systems of Linear Equations](https://en.wikipedia.org/wiki/System_of_linear_equations)
 
