@@ -1,7 +1,6 @@
 package main
 
 import (
-	"day_11/internal/app"
 	"day_11/internal/io"
 	"fmt"
 	"os"
@@ -18,27 +17,25 @@ func main() {
 	reader := initializeReader(inputFile)
 
 	/* Reads all the machines from the factory */
-	factory, err := reader.Read()
+	devices, err := reader.Read()
 
 	if err != nil {
 		os.Exit(1)
 	}
-
-	pressesCount := app.ActivateMachines(factory)
 
 	elapsed := time.Since(startTime)
 
 	//	19857
 
 	/* Prints the result */
-	fmt.Printf("The factory has %d machines. All of them have been activated with %d presses\n", len(factory.Machines), pressesCount)
+	fmt.Printf("The room has %d devices.\n", len(devices))
 
 	fmt.Printf("Execution time: %v\n", elapsed)
 }
 
 func initializeReader(
 	inputFile []string,
-) *io.FactoryReader {
+) *io.DevicesReader {
 	reader, err := io.NewReader(inputFile[0])
 
 	if err != nil {
