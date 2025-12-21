@@ -25,8 +25,6 @@ func main() {
 
 	elapsed := time.Since(startTime)
 
-	//	19857
-
 	/* Prints the result */
 	fmt.Printf("The room has %d devices.\n", len(devices))
 
