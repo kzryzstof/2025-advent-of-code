@@ -21,6 +21,7 @@ func ActivateMachines(
 	for machineIndex, machine := range factory.Machines {
 
 		startTime := time.Now()
+
 		fmt.Printf("Processing machine %d with %d button groups\r", machineIndex+1, machine.GetButtonGroupsCount())
 
 		/*
@@ -39,8 +40,8 @@ func ActivateMachines(
 
 		/*
 			Although the solution is supposed to be valid,
-			testing the solution provided helpful feedback
-			to catch mistakes in the algorithm
+			testing the solution. It has provided helpful
+			feedback to catch mistakes in the algorithm
 		*/
 		for _, variable := range solution.Get() {
 			for counter := 0; counter < int(variable.Value); counter++ {
@@ -61,6 +62,7 @@ func ActivateMachines(
 		}
 
 		elapsed := time.Since(startTime)
+
 		fmt.Printf("Processed machine %d with %d button groups: %d presses needed (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), total, elapsed)
 
 		totalPresses += total
