@@ -26,10 +26,11 @@ func main() {
 
 	graph := abstractions.BuildGraph(devices)
 
-	from := "you"
+	from := "svr"
 	to := "out"
+	requiredNodes := []string{"fft", "dac"}
 
-	pathsCount := graph.CountPaths(from, to)
+	pathsCount := graph.CountPaths(from, to, requiredNodes)
 
 	elapsed := time.Since(startTime)
 

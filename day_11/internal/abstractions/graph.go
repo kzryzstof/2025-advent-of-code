@@ -38,18 +38,17 @@ func BuildGraph(
 func (g *Graph) CountPaths(
 	from string,
 	to string,
+	requiredNodes []string,
 ) uint {
 
 	fromNode := g.getNodeByName(from)
 
-	return fromNode.CountPathsTo(to)
+	return fromNode.CountPathsTo(to, requiredNodes)
 }
 
 func (g *Graph) getNodeByName(
 	deviceName string,
 ) *Node {
-
-	/* Finds out if a node already exists */
 	node, isNode := g.nodesByName[deviceName]
 
 	if isNode {

@@ -1,5 +1,7 @@
 package abstractions
 
+import "slices"
+
 type Node struct {
 	name string
 	next []*Node
@@ -41,27 +43,42 @@ func (n *Node) AddNext(
 
 func (n *Node) CountPathsTo(
 	to string,
+	requiredNodes []string,
 ) uint {
-	if n.name == to {
-		return 1
-	}
 
 	currentCount := uint(0)
 
-	return n.testPaths(to, currentCount)
+	return n.testPaths(to, currentCount, requiredNodes, []string{})
 }
 
 func (n *Node) testPaths(
 	to string,
 	currentCount uint,
+	requiredNodes []string,
+	encounteredNodes []string,
 ) uint {
 
-	if n.name == to {
-		return currentCount + 1
+	if slices.Contains(requiredNodes, n.name) {
+		encounteredNodes = AddOnce(encounteredNodes, n.name)
 	}
 
+	if n.name == to {
+		if len(requiredNodes) == len(encounteredNodes) {
+			return currentCount + 1
+		}
+		return currentCount
+	}
+
+	currentEncounteredNodes := make([]string, len(encounteredNodes))
+	copy(currentEncounteredNodes, encounteredNodes)
+
 	for _, nextNode := range n.next {
-		currentCount = nextNode.testPaths(to, currentCount)
+		currentCount = nextNode.testPaths(
+			to,
+			currentCount,
+			requiredNodes,
+			currentEncounteredNodes,
+		)
 	}
 
 	return currentCount

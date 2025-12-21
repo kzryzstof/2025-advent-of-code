@@ -8,6 +8,7 @@ func TestGraph_BuildGraph(t *testing.T) {
 		devices            []*Device
 		fromNode           string
 		toNode             string
+		requiredNodes      []string
 		expectedPathsCount uint
 	}{
 		{
@@ -23,6 +24,7 @@ func TestGraph_BuildGraph(t *testing.T) {
 			},
 			fromNode:           "you",
 			toNode:             "out",
+			requiredNodes:      []string{},
 			expectedPathsCount: 5,
 		},
 		{
@@ -44,7 +46,8 @@ func TestGraph_BuildGraph(t *testing.T) {
 			},
 			fromNode:           "svr",
 			toNode:             "out",
-			expectedPathsCount: 8,
+			requiredNodes:      []string{"fft", "dac"},
+			expectedPathsCount: 2,
 		},
 	}
 
@@ -52,7 +55,11 @@ func TestGraph_BuildGraph(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			graph := BuildGraph(tt.devices)
 
-			actualPathsCount := graph.CountPaths(tt.fromNode, tt.toNode)
+			actualPathsCount := graph.CountPaths(
+				tt.fromNode,
+				tt.toNode,
+				tt.requiredNodes,
+			)
 
 			if actualPathsCount != tt.expectedPathsCount {
 				t.Errorf("Expected %d paths, got %d", tt.expectedPathsCount, actualPathsCount)
