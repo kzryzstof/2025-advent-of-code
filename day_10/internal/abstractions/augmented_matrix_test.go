@@ -9,7 +9,7 @@ func TestToAugmentedMatrix(t *testing.T) {
 		voltages     []*Voltage
 		/* Each row of the matrix represents a counter and each cell a button group */
 		/* 1 = button group affects the specific counter. 0 = button group doesn't affect the specific counter */
-		expectedMatrix [][]float64
+		expectedMatrix [][]int64
 	}{
 		{
 			name: "1.1-documented_use_case",
@@ -27,7 +27,7 @@ func TestToAugmentedMatrix(t *testing.T) {
 				NewVoltage(4),
 				NewVoltage(7),
 			},
-			expectedMatrix: [][]float64{
+			expectedMatrix: [][]int64{
 				{0, 0, 0, 0, 1, 1, 3},
 				{0, 1, 0, 0, 0, 1, 5},
 				{0, 0, 1, 1, 1, 0, 4},
@@ -50,7 +50,7 @@ func TestToAugmentedMatrix(t *testing.T) {
 				NewVoltage(7),
 				NewVoltage(2),
 			},
-			expectedMatrix: [][]float64{
+			expectedMatrix: [][]int64{
 				{1, 0, 1, 1, 0, 7},
 				{0, 0, 0, 1, 1, 5},
 				{1, 1, 0, 1, 1, 12},
@@ -74,7 +74,7 @@ func TestToAugmentedMatrix(t *testing.T) {
 				NewVoltage(10),
 				NewVoltage(5),
 			},
-			expectedMatrix: [][]float64{
+			expectedMatrix: [][]int64{
 				{1, 1, 1, 0, 10},
 				{1, 0, 1, 1, 11},
 				{1, 0, 1, 1, 11},
@@ -106,7 +106,7 @@ func TestToAugmentedMatrix(t *testing.T) {
 					got := result.Matrix.Get(row, col)
 					want := tt.expectedMatrix[row][col]
 					if got != want {
-						t.Errorf("Matrix[%d][%d] = %.2f, want %.2f", row, col, got, want)
+						t.Errorf("Matrix[%d][%d] = %d, want %d", row, col, got, want)
 					}
 				}
 			}

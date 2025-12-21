@@ -2,66 +2,65 @@ package abstractions
 
 import (
 	"fmt"
-	"math"
 	"testing"
 )
 
 func TestReduce(t *testing.T) {
 	tests := map[string]struct {
-		matrixValues     [][]float64
-		expectedMat      [][]float64
-		expectedSolution []float64
+		matrixValues     [][]int64
+		expectedMat      [][]int64
+		expectedSolution []int64
 	}{
 		/* https://ksuweb.kennesaw.edu/~plaval/previous%20semesters/Fall2001/m3261_01/dm1.pdf*/
 		"1.0-paper": {
-			matrixValues: [][]float64{
+			matrixValues: [][]int64{
 				{1, 1, 0, 3, 4},
 				{2, 1, -1, 1, 1},
 				{3, -1, -1, 2, -3},
 				{-1, 2, 3, -1, 4},
 			},
-			expectedMat: [][]float64{
-				{1, 0, 0, 0, -1},
-				{0, 1, 0, 0, 2},
-				{0, 0, 1, 0, 0},
-				{0, 0, 0, 1, 1},
+			expectedMat: [][]int64{
+				{1, 0, -1, -2, -3},
+				{0, 1, 1, 5, 7},
+				{0, 0, 3, 0, 0},
+				{0, 0, 0, 13, 13},
 			},
-			expectedSolution: []float64{-1, 2, 0, 1},
+			expectedSolution: []int64{-1, 2, 0, 1},
 		},
 		"3.1-documented_use-case": {
-			matrixValues: [][]float64{
+			matrixValues: [][]int64{
 				{0, 0, 0, 0, 1, 1, 3},
 				{0, 1, 0, 0, 0, 1, 5},
 				{0, 0, 1, 1, 1, 0, 4},
 				{1, 1, 0, 1, 0, 0, 7},
 			},
-			expectedMat: [][]float64{
+			expectedMat: [][]int64{
 				{1, 0, 0, 1, 0, -1, 2},
 				{0, 1, 0, 0, 0, 1, 5},
 				{0, 0, 1, 1, 0, -1, 1},
 				{0, 0, 0, 0, 1, 1, 3},
 			},
-			expectedSolution: []float64{1, 5, 0, 1, 3, 0},
+			expectedSolution: []int64{1, 5, 0, 1, 3, 0},
 		},
 		"3.2-documented_use-case": {
-			matrixValues: [][]float64{
+			matrixValues: [][]int64{
 				{1, 0, 1, 1, 0, 7},
 				{0, 0, 0, 1, 1, 5},
 				{1, 1, 0, 1, 1, 12},
 				{1, 1, 0, 0, 1, 7},
 				{1, 0, 1, 0, 1, 2},
 			},
-			expectedMat: [][]float64{
+			expectedMat: [][]int64{
 				{1, 0, 1, 0, 0, 2},
 				{0, 1, -1, 0, 0, 5},
 				{0, 0, 0, 0, 0, 0},
 				{0, 0, 0, 1, 0, 5},
 				{0, 0, 0, 0, 1, 0},
 			},
-			expectedSolution: []float64{2, 5, 0, 5, 0},
+			expectedSolution: []int64{2, 5, 0, 5, 0},
 		},
 		"3.3-documented_use-case": {
-			matrixValues: [][]float64{
+			matrixValues: [][]int64{
 				{1, 1, 1, 0, 10},
 				{1, 0, 1, 1, 11},
 				{1, 0, 1, 1, 11},
@@ -69,7 +68,7 @@ func TestReduce(t *testing.T) {
 				{1, 1, 1, 0, 10},
 				{0, 0, 1, 0, 5},
 			},
-			expectedMat: [][]float64{
+			expectedMat: [][]int64{
 				{1, 0, 0, 1, 6},
 				{0, 1, 0, -1, -1},
 				{0, 0, 1, 0, 5},
@@ -77,40 +76,40 @@ func TestReduce(t *testing.T) {
 				{0, 0, 0, 0, 0},
 				{0, 0, 0, 0, 0},
 			},
-			expectedSolution: []float64{5, 0, 5, 1},
+			expectedSolution: []int64{5, 0, 5, 1},
 		},
 		"machine.04-from_input": {
-			matrixValues: [][]float64{
+			matrixValues: [][]int64{
 				{0, 1, 0, 12},
 				{1, 1, 0, 29},
 				{0, 0, 1, 128},
 				{1, 1, 0, 29},
 			},
-			expectedMat: [][]float64{
+			expectedMat: [][]int64{
 				{1, 0, 0, 17},
 				{0, 1, 0, 12},
 				{0, 0, 1, 128},
 				{0, 0, 0, 0},
 			},
-			expectedSolution: []float64{17, 12, 128},
+			expectedSolution: []int64{17, 12, 128},
 		},
 		"machine.05-from_input": {
-			matrixValues: [][]float64{
+			matrixValues: [][]int64{
 				{1, 1, 1, 1, 37},
 				{1, 0, 1, 0, 4},
 				{0, 0, 1, 1, 21},
 				{0, 1, 0, 1, 33},
 			},
-			expectedMat: [][]float64{
+			expectedMat: [][]int64{
 				{1, 0, 0, -1, -17},
 				{0, 1, 0, 1, 33},
 				{0, 0, 1, 1, 21},
 				{0, 0, 0, 0, 0},
 			},
-			expectedSolution: []float64{0, 16, 4, 17},
+			expectedSolution: []int64{0, 16, 4, 17},
 		},
 		"machine-06-from_input": {
-			matrixValues: [][]float64{
+			matrixValues: [][]int64{
 				{1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 82},
 				{1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 77},
 				{1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 28},
@@ -122,22 +121,22 @@ func TestReduce(t *testing.T) {
 				{1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 82},
 				{0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 88},
 			},
-			expectedMat: [][]float64{
-				{1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 12},
-				{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.3333, 20.6667},
-				{0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0.3333, 3.6667},
-				{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, -0.6667, 12.6667},
-				{0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 20},
-				{0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, -0.6667, 13.6667},
-				{0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0.3333, 17.6667},
-				{0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, -4},
-				{0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0.3333, 1.6667},
-				{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.6667, 19.3333},
+			expectedMat: [][]int64{
+				{1, 0, 0, 0, 0, 0, 0, -1, 0, 2, -3, -2, -42},
+				{0, 1, 0, 0, 0, 0, 0, 1, 0, -1, 1, 1, 36},
+				{0, 0, 1, 0, 0, 0, 0, -1, 0, 1, 1, 1, 27},
+				{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 32},
+				{0, 0, 0, 0, 1, 0, 0, 2, 0, -2, 0, 0, 12},
+				{0, 0, 0, 0, 0, 1, 0, 1, 0, -1, -2, -2, -29},
+				{0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 37},
+				{0, 0, 0, 0, 0, 0, 0, 2, 0, -2, -3, -2, -66},
+				{0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 21},
+				{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 58},
 			},
-			expectedSolution: []float64{8, 20.6667, 3.6667, 12.6667, 20, 13.6667, 17.6667, 0, 1.6667, 4, 19.3333, 0},
+			expectedSolution: []int64{8, 20, 3, 14, 20, 15, 17, 0, 1, 4, 18, 2},
 		},
 		"machine.09-from_input": {
-			matrixValues: [][]float64{
+			matrixValues: [][]int64{
 				{1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 72},
 				{0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 59},
 				{0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 15},
@@ -147,7 +146,7 @@ func TestReduce(t *testing.T) {
 				{0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 48},
 				{0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 32},
 			},
-			expectedMat: [][]float64{
+			expectedMat: [][]int64{
 				{1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 10},
 				{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 				{0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 7},
@@ -157,10 +156,37 @@ func TestReduce(t *testing.T) {
 				{0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 15},
 				{0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 14},
 			},
-			expectedSolution: []float64{10, 0, 7, 16, 0, 23, 2, 15, 14, 0},
+			expectedSolution: []int64{10, 0, 7, 16, 0, 23, 2, 15, 14, 0},
+		},
+		"machine.11-from_input": {
+			matrixValues: [][]int64{
+				{0, 0, 0, 1, 0, 1, 1, 1, 40},
+				{0, 0, 1, 0, 1, 1, 0, 0, 203},
+				{0, 1, 0, 0, 0, 1, 1, 0, 34},
+				{1, 0, 0, 0, 0, 1, 0, 0, 33},
+				{0, 0, 0, 0, 1, 1, 0, 1, 45},
+				{0, 1, 0, 0, 0, 1, 0, 1, 51},
+				{1, 0, 1, 0, 0, 1, 0, 0, 211},
+				{0, 1, 1, 0, 0, 1, 0, 0, 209},
+				{0, 0, 1, 1, 1, 0, 0, 1, 210},
+				{0, 1, 0, 1, 1, 1, 0, 0, 43},
+			},
+			expectedMat: [][]int64{
+				{1, 0, 0, 0, 0, 1, 0, 0, 33},
+				{0, 1, 0, 0, 0, 1, 0, 0, 31},
+				{0, 0, 1, 0, 0, 0, 0, 0, 178},
+				{0, 0, 0, 1, 0, 1, 0, 0, 17},
+				{0, 0, 0, 0, 1, 1, 0, 0, 25},
+				{0, 0, 0, 0, 0, 2, 0, 0, 30},
+				{0, 0, 0, 0, 0, 0, 1, 0, 3},
+				{0, 0, 0, 0, 0, 0, 0, 1, 20},
+				{0, 0, 0, 0, 0, 0, 0, 0, 0},
+				{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			},
+			expectedSolution: []int64{18, 16, 178, 2, 10, 15, 3, 20},
 		},
 		"machine-33-documented_use-case": {
-			matrixValues: [][]float64{
+			matrixValues: [][]int64{
 				{1, 0, 1, 1, 0, 1, 0, 0, 33},
 				{1, 1, 1, 0, 1, 0, 1, 0, 60},
 				{1, 1, 0, 1, 1, 0, 0, 1, 46},
@@ -169,16 +195,39 @@ func TestReduce(t *testing.T) {
 				{0, 1, 1, 1, 0, 0, 0, 0, 37},
 				{1, 1, 1, 0, 1, 0, 0, 0, 58},
 			},
-			expectedMat: [][]float64{
-				{1, 0, 0, 0, 0, 0, 0, 0, 11},
-				{0, 1, 0, 0, 0, 0, 0, -0.3333, 13.6667},
-				{0, 0, 1, 0, 0, 0, 0, -0.3333, 17.6667},
-				{0, 0, 0, 1, 0, 0, 0, 0.6667, 5.6667},
-				{0, 0, 0, 0, 1, 0, 0, 0.6667, 15.6667},
-				{0, 0, 0, 0, 0, 1, 0, -0.3333, -1.3333},
+			expectedMat: [][]int64{
+				{1, 0, 0, 0, 0, -3, 0, 1, 15},
+				{0, 1, 0, 0, 0, 2, 0, -1, 11},
+				{0, 0, 1, 0, 0, 2, 0, -1, 15},
+				{0, 0, 0, 1, 0, 2, 0, 0, 3},
+				{0, 0, 0, 0, 1, 2, 0, 0, 13},
+				{0, 0, 0, 0, 0, 3, 0, -1, -4},
 				{0, 0, 0, 0, 0, 0, 1, 0, 2},
 			},
-			expectedSolution: []float64{11, 15, 19, 3, 13, 0, 2, 4},
+			expectedSolution: []int64{11, 15, 19, 3, 13, 0, 2, 4},
+		},
+		"machine.124-from_input": {
+			matrixValues: [][]int64{
+				{1, 1, 1, 1, 0, 0, 0, 0, 32},
+				{1, 1, 0, 1, 0, 1, 1, 1, 60},
+				{1, 0, 0, 0, 1, 0, 1, 1, 29},
+				{1, 1, 1, 1, 1, 0, 0, 1, 39},
+				{0, 1, 0, 1, 0, 1, 1, 1, 57},
+				{1, 1, 1, 1, 1, 0, 0, 0, 37},
+				{1, 1, 0, 1, 1, 1, 1, 0, 63},
+				{1, 1, 0, 0, 0, 0, 1, 1, 34},
+			},
+			expectedMat: [][]int64{
+				{1, 0, 0, 0, 0, 0, 0, 0, 3},
+				{0, 1, 0, 0, 0, 0, 0, 0, 10},
+				{0, 0, 1, 0, 0, -1, 0, 0, -7},
+				{0, 0, 0, 1, 0, 1, 0, 0, 26},
+				{0, 0, 0, 0, 1, 0, 0, 0, 5},
+				{0, 0, 0, 0, 0, 0, 0, 1, 2},
+				{0, 0, 0, 0, 0, 0, 1, 0, 19},
+				{0, 0, 0, 0, 0, 0, 0, 2, 4},
+			},
+			expectedSolution: []int64{3, 10, 0, 19, 5, 7, 19, 2},
 		},
 	}
 
@@ -198,8 +247,8 @@ func TestReduce(t *testing.T) {
 				for col := 0; col < m.Cols(); col++ {
 					expected := tc.expectedMat[row][col]
 					actual := actualRref.Get(row, col)
-					if !floatEquals(expected, actual, 0.001) {
-						t.Errorf("Matrix[%d][%d]: expected %.4f, got %.4f", row, col, expected, actual)
+					if expected != actual {
+						t.Errorf("Matrix[%d][%d]: expected %d, got %d", row, col, expected, actual)
 					}
 				}
 			}
@@ -212,22 +261,17 @@ func TestReduce(t *testing.T) {
 			fmt.Println("Expected solution")
 			PrintSlice(tc.expectedSolution)
 
-			if actualSolution.Count() != uint(len(tc.expectedSolution)) {
+			if actualSolution.Count() != uint64(len(tc.expectedSolution)) {
 				t.Errorf("Solution length: expected %d, got %d", len(tc.expectedSolution), actualSolution.Count())
 			} else {
 				for i := 0; i < len(tc.expectedSolution); i++ {
 					expected := tc.expectedSolution[i]
 					actual := actualSolution.GetValue(VariableNumber(i + 1))
-					if !floatEquals(expected, actual, 0.001) {
-						t.Errorf("Solution[%d]: expected %.4f, got %.4f", i, expected, actual)
+					if expected != actual {
+						t.Errorf("Solution[%d]: expected %d, got %d", i, expected, actual)
 					}
 				}
 			}
 		})
 	}
-}
-
-// floatEquals checks if two floats are equal within a tolerance
-func floatEquals(a, b, tolerance float64) bool {
-	return math.Abs(a-b) <= tolerance
 }

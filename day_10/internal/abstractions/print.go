@@ -11,7 +11,7 @@ func Print(
 			if col+1 == m.Cols() {
 				fmt.Printf(" | ")
 			}
-			fmt.Printf("% .2f ", m.Get(row, col))
+			fmt.Printf("% d ", m.Get(row, col))
 		}
 		fmt.Println("] ")
 	}
@@ -19,13 +19,13 @@ func Print(
 }
 
 func PrintSlice(
-	vector []float64,
+	vector []int64,
 ) {
 
 	fmt.Printf("[")
 
 	for row := 0; row < len(vector); row++ {
-		fmt.Printf(" %.2f ", vector[row])
+		fmt.Printf(" %d: %d ", row+1, vector[row])
 	}
 	fmt.Println("]")
 }

@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	MinNumbers = 0
+	MinNumbers = -250
 	MaxNumbers = 250
 )
 
@@ -51,7 +51,7 @@ func (r *ReducedRowEchelonForm) Solve(
 
 	/* To increase the speed of the process, we use different max numbers */
 	var solution *Variables = nil
-	maxVariableValues := []float64{10, 250, 500}
+	maxVariableValues := []int64{10, 250, 500}
 	maxVariableValueIndex := 0
 
 	for solution == nil {
@@ -76,13 +76,32 @@ func (r *ReducedRowEchelonForm) Solve(
 
 func (r *ReducedRowEchelonForm) getUniqueSolution() *Variables {
 
-	variablesCount := uint(r.matrix.Cols() - 1)
+	variablesCount := uint64(r.matrix.Cols() - 1)
 	variables := NewVariables(variablesCount)
 
-	for row := uint(0); row < variablesCount; row++ {
+	for row := r.matrix.Rows() - 1; row >= 0; row-- {
+
+		/* The column where the leading 1 is found is the variable number */
+		pivotCol := findPivotCol(r.matrix, row)
+
+		if pivotCol == NotFound {
+			continue
+		}
+
+		pivot := r.matrix.Get(row, pivotCol)
+
+		if pivot == 0 {
+			continue
+		}
+
+		total := r.matrix.Get(row, int(variablesCount))
+		left := int64(0)
+		for col := row + 1; col < int(variablesCount); col++ {
+			left += r.matrix.Get(row, col) * variables.GetValue(VariableNumber(col+1))
+		}
 		variables.SetVariable(&Variable{
 			VariableNumber(row + 1),
-			r.matrix.Get(int(row), r.matrix.Cols()-1),
+			(total - left) / pivot,
 		})
 	}
 
@@ -103,8 +122,20 @@ func (r *ReducedRowEchelonForm) detectFreeVariables() []VariableNumber {
 		pivotCol := findPivotCol(r.matrix, row)
 
 		if pivotCol != NotFound {
-			foundVariables = append(foundVariables, VariableNumber(pivotCol+1))
+
+			alreadyExists := false
+			for _, foundVariable := range foundVariables {
+				if foundVariable == VariableNumber(pivotCol+1) {
+					alreadyExists = true
+					break
+				}
+			}
+
+			if !alreadyExists {
+				foundVariables = append(foundVariables, VariableNumber(pivotCol+1))
+			}
 		}
+
 	}
 
 	if expectedVariablesCount != len(foundVariables) {
@@ -120,13 +151,13 @@ func (r *ReducedRowEchelonForm) detectFreeVariables() []VariableNumber {
 
 func (r *ReducedRowEchelonForm) findMinimalSolution(
 	freeVariableNumbers []VariableNumber,
-	maxVariableValue float64,
+	maxVariableValue int64,
 	verbose bool,
 ) *Variables {
 
-	variablesCount := uint(r.matrix.Cols() - 1)
-	minVariableValue := float64(MinNumbers)
-	lowestTotal := float64(9999)
+	variablesCount := uint64(r.matrix.Cols() - 1)
+	minVariableValue := int64(MinNumbers)
+	lowestTotal := int64(9999)
 	var solution *Variables
 
 	r.testCombination(
@@ -135,7 +166,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 		maxVariableValue,
 		func(freeVariables *Variables) {
 
-			total := float64(0)
+			total := int64(0)
 			solvedVariables := NewVariables(variablesCount)
 
 			for _, freeVariable := range freeVariables.Get() {
@@ -165,42 +196,28 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 					}
 
 					/* We start from the constant and then apply the operations */
-					currentVariableConstant := r.matrix.Get(row, r.matrix.Cols()-1)
-					currentVariableValue := currentVariableConstant
-					currentVariableSign := r.matrix.Get(row, pivotCol)
-					isVariableComputed := true
+					rowConstant := r.matrix.Get(row, int(variablesCount))
+					pivot := r.matrix.Get(row, pivotCol)
+					left := int64(0)
 
 					for columnIndex := pivotCol + 1; columnIndex < r.matrix.Cols()-1; columnIndex++ {
-
-						operationSign := r.matrix.Get(row, columnIndex)
-
-						if operationSign == 0 {
-							continue
-						}
-
-						dependantVariableValue := 0.0
-						dependantVariableNumber := VariableNumber(columnIndex + 1)
-
-						if solvedVariables.Contains(dependantVariableNumber) {
-							/* The current column / variable has been assigned a value */
-							dependantVariableValue = solvedVariables.GetValue(dependantVariableNumber)
-						} else {
-							/* The current column / variable is NOT available yet
-							on the last column */
-							isVariableComputed = false
-							break
-						}
-
-						currentVariableValue -= operationSign * dependantVariableValue
+						left += r.matrix.Get(row, columnIndex) * solvedVariables.GetValue(VariableNumber(columnIndex+1))
 					}
 
-					if isVariableComputed {
-						solvedVariables.SetVariable(&Variable{
-							Number: currentVariableNumber,
-							Value:  currentVariableValue,
-						})
-						total += currentVariableSign * currentVariableValue
+					remainder := (rowConstant - left) % pivot
+
+					if remainder != 0 {
+						/* This solution won't provide an integer */
+						return
 					}
+
+					solvedVariableValue := (rowConstant - left) / (pivot)
+					solvedVariable := &Variable{
+						Number: currentVariableNumber,
+						Value:  solvedVariableValue,
+					}
+					solvedVariables.SetVariable(solvedVariable)
+					total += solvedVariable.Value
 				}
 
 				allVariablesAssigned = solvedVariables.Count() == variablesCount
@@ -211,7 +228,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 			}
 
 			for _, solvedVariable := range solvedVariables.Get() {
-				if solvedVariable.Value < -0.01 {
+				if solvedVariable.Value < 0 {
 					return
 				}
 			}
@@ -221,10 +238,10 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 
 				fmt.Printf("[ ")
 				for _, variable := range solvedVariables.Get() {
-					fmt.Printf("%d=%.2f ", variable.Number, variable.Value)
+					fmt.Printf("%d=%d ", variable.Number, variable.Value)
 				}
 
-				fmt.Printf("] = %.2f\n", total)
+				fmt.Printf("] = %d\n", total)
 			}
 
 			lowestTotal = total
@@ -239,15 +256,15 @@ func (r *ReducedRowEchelonForm) testCombination(
 	/* Indicates the number of combinations to test (#,#,#) */
 	variableNumbers []VariableNumber,
 	/* Indicates the biggest number to test (0->5,0,0) -> (0,0->5,0) -> (0,0,0->5) -> ... */
-	minVariableValue float64,
-	maxVariableValue float64,
+	minVariableValue int64,
+	maxVariableValue int64,
 	/* Function to call to test the combination */
 	testCombinationFunc func(*Variables),
 ) {
 
-	var generateCombinationFunc func(variables *Variables, currentVariableIndex uint)
+	var generateCombinationFunc func(variables *Variables, currentVariableIndex uint64)
 
-	generateCombinationFunc = func(variables *Variables, currentVariableIndex uint) {
+	generateCombinationFunc = func(variables *Variables, currentVariableIndex uint64) {
 
 		isLastVariable := currentVariableIndex+1 == variables.Count()
 		currentVariableNumber := variables.GetNumberByIndex(currentVariableIndex)
@@ -260,7 +277,7 @@ func (r *ReducedRowEchelonForm) testCombination(
 		}
 
 		if !isLastVariable {
-			for currentVariableValue := float64(0); currentVariableValue < maxVariableValue; currentVariableValue++ {
+			for currentVariableValue := minVariableValue; currentVariableValue < maxVariableValue; currentVariableValue++ {
 				variables.Set(currentVariableNumber, currentVariableValue)
 				generateCombinationFunc(variables, currentVariableIndex+1)
 			}

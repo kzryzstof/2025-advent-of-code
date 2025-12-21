@@ -25,7 +25,7 @@ func ToAugmentedMatrix(
 	/* Injects the voltages as constant terms of the matrix on the last column */
 	lastColumn := len(groups)
 	for voltageIndex, voltage := range voltages {
-		groupsMatrix.Set(voltageIndex, lastColumn, float64(voltage.GetValue()))
+		groupsMatrix.Set(voltageIndex, lastColumn, int64(voltage.GetValue()))
 	}
 
 	/* Now we have the augmented matrix */

@@ -2,7 +2,6 @@ package abstractions
 
 import (
 	"fmt"
-	"math"
 )
 
 // VariableNumber /* Defines a type for variable number used in equations. 1st-based indexed */
@@ -10,7 +9,7 @@ type VariableNumber uint8
 
 type Variable struct {
 	Number VariableNumber
-	Value  float64
+	Value  int64
 }
 
 type Variables struct {
@@ -18,11 +17,11 @@ type Variables struct {
 }
 
 func NewVariables(
-	count uint,
+	count uint64,
 ) *Variables {
 	variables := make([]*Variable, count)
 
-	for i := uint(0); i < count; i++ {
+	for i := uint64(0); i < count; i++ {
 		variables[i] = nil
 	}
 
@@ -52,13 +51,13 @@ func CopyVariable(
 
 	return &Variable{
 		variable.Number,
-		math.Floor(variable.Value),
+		variable.Value,
 	}
 }
 
 func FromVariableNumbers(
 	variableNumbers []VariableNumber,
-	defaultValue float64,
+	defaultValue int64,
 ) *Variables {
 
 	v := make([]*Variable, len(variableNumbers))
@@ -78,7 +77,7 @@ func (v *Variables) Get() []*Variable {
 }
 
 func (v *Variables) GetNumberByIndex(
-	index uint,
+	index uint64,
 ) VariableNumber {
 	return v.variables[index].Number
 }
@@ -87,8 +86,8 @@ func (v *Variables) SetVariable(variable *Variable) {
 	v.variables[variable.Number-1] = variable
 }
 
-func (v *Variables) Count() uint {
-	count := uint(0)
+func (v *Variables) Count() uint64 {
+	count := uint64(0)
 	for _, variable := range v.variables {
 		if variable != nil {
 			count++
@@ -105,7 +104,7 @@ func (v *Variables) IsLast(
 
 func (v *Variables) Set(
 	number VariableNumber,
-	value float64,
+	value int64,
 ) {
 	for _, variable := range v.variables {
 		if variable.Number == number {
@@ -132,7 +131,7 @@ func (v *Variables) Contains(
 
 func (v *Variables) GetValue(
 	number VariableNumber,
-) float64 {
+) int64 {
 	for _, variable := range v.variables {
 		if variable == nil {
 			continue
@@ -145,10 +144,10 @@ func (v *Variables) GetValue(
 	panic(fmt.Errorf("no variable %d found", number))
 }
 
-func (v *Variables) GetValues() []float64 {
+func (v *Variables) GetValues() []int64 {
 
 	// BUG WITH NIL
-	values := make([]float64, v.Count())
+	values := make([]int64, v.Count())
 
 	for i, variable := range v.variables {
 		values[i] = variable.Value
@@ -177,7 +176,7 @@ func (v *Variables) Print() {
 			fmt.Printf(" XX: XXX ")
 			continue
 		}
-		fmt.Printf(" %d: %.2f ", variable.Number, variable.Value)
+		fmt.Printf(" %d: %d ", variable.Number, variable.Value)
 	}
 	fmt.Print(" ]\n")
 }

@@ -141,7 +141,7 @@ func (r *FactoryReader) extractVoltages(
 		// For each character inside the brackets, create a LightIndicator
 		for i := 0; i < len(voltageValues); i++ {
 			voltage, _ := strconv.ParseUint(voltageValues[i], 10, 64)
-			voltages = append(voltages, abstractions.NewVoltage(uint32(voltage)))
+			voltages = append(voltages, abstractions.NewVoltage(int64(voltage)))
 		}
 	}
 

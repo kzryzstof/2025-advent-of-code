@@ -13,9 +13,9 @@ const (
 
 func ActivateMachines(
 	factory *abstractions.Factory,
-) uint64 {
+) int64 {
 
-	totalPresses := float64(0)
+	totalPresses := int64(0)
 
 	for machineIndex, machine := range factory.Machines {
 
@@ -48,19 +48,19 @@ func ActivateMachines(
 			os.Exit(1)
 		}
 
-		total := float64(0)
+		total := int64(0)
 
 		for _, presses := range solution.GetValues() {
 			total += presses
 		}
 
 		elapsed := time.Since(startTime)
-		fmt.Printf("Processed machine %d with %d button groups: %d presses needed (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), int(total), elapsed)
+		fmt.Printf("Processed machine %d with %d button groups: %d presses needed (%v)\n", machineIndex+1, machine.GetButtonGroupsCount(), total, elapsed)
 
 		totalPresses += total
 	}
 
 	fmt.Println()
 
-	return uint64(totalPresses)
+	return totalPresses
 }

@@ -3,8 +3,9 @@ package abstractions
 import "fmt"
 
 const (
-	PivotValue = 1
-	NotFound   = -1
+	PivotValue              = 1
+	NotFound                = -1
+	AuthorizedScalingFactor = -1
 )
 
 func ToReducedRowEchelonForm(
@@ -46,13 +47,13 @@ func doBackwardElimination(
 
 	fromRow := m.Rows() - 1
 
-	for currentRow := fromRow; currentRow > 0; currentRow-- {
+	for pivotRow := fromRow; pivotRow > 0; pivotRow-- {
 
 		/* When doing a backward elimination, we need to find the actual pivot column,
 		since some rows may be all zeroes at this point.
 		By definition, the pivot is the first non-zero entry in the row
 		*/
-		pivotCol := findPivotCol(m, currentRow)
+		pivotCol := findPivotCol(m, pivotRow)
 
 		if pivotCol == NotFound {
 			continue
@@ -60,39 +61,40 @@ func doBackwardElimination(
 
 		if verbose {
 			fmt.Println("-----------------------------------------------------------------------------------------------")
-			fmt.Printf("Working on row %d. Pivot found on column %d\n", currentRow+1, pivotCol+1)
+			fmt.Printf("Working on row %d. Pivot found on column %d\n", pivotRow+1, pivotCol+1)
 			Print(m)
 		}
 
-		pivotValue := m.Get(currentRow, pivotCol)
-		if pivotValue != 0 && pivotValue != PivotValue {
-			scaleRow(m, pivotValue, currentRow, verbose)
+		pivotValue := m.Get(pivotRow, pivotCol)
+
+		/* We need the pivot to be positive, so we scale the row if it's negative */
+		if pivotValue < 0 {
+			scaleRow(m, AuthorizedScalingFactor, pivotRow, verbose)
+			pivotValue = -pivotValue
 		}
 
-		for row := currentRow - 1; row >= 0; row-- {
+		for row := pivotRow - 1; row >= 0; row-- {
 
-			factor := m.Get(row, pivotCol)
+			cellRowValue := m.Get(row, pivotCol)
 
-			if verbose {
-				fmt.Printf("E%d - %.0f E%d | ", row+1, factor, row)
+			q := cellRowValue / pivotValue
+
+			remainder := cellRowValue % pivotValue
+
+			if remainder < 0 {
+				q--
 			}
 
-			/* Skips rows where the factor is already 0
-			because this is what we are looking for */
-			if factor == 0 {
-				continue
-			}
-
-			/* We can start the inner column loop at pivot instead of 0
-			since entries left of the pivot are already zero by construction. */
-			for col := pivotCol; col < m.Cols(); col++ {
-				m.Set(row, col, m.Get(row, col)-factor*m.Get(currentRow, col))
+			if q != 0 {
+				for col := pivotCol; col < m.Cols(); col++ {
+					m.Set(row, col, m.Get(row, col)-q*m.Get(pivotRow, col))
+				}
 			}
 		}
 
 		if verbose {
 			fmt.Print("\n\n")
-			fmt.Printf("Backward elimination done on row %d\n\n", currentRow+1)
+			fmt.Printf("Backward elimination done on row %d\n\n", pivotRow+1)
 			Print(m)
 		}
 	}
@@ -131,16 +133,18 @@ func doForwardElimination(
 
 		pivotValue := m.Get(pivot, pivot)
 
-		if pivotValue != 0 && pivotValue != PivotValue {
+		/* Contrary to Gaussian, HNF only allows scaling with a value of -1 */
+		if pivotValue < 0 {
 
-			/* The scaling is necessary only if the pivot is not 0 or 1 */
-			scaleRow(m, pivotValue, pivot, verbose)
+			/* The scaling is necessary only if the pivot is negative */
+			const AuthorizedScalingFactor = -1
+			scaleRow(m, AuthorizedScalingFactor, pivot, verbose)
 		}
 
 		/* ********** Forward eliminate ********** */
 
 		/* Now that we have a pivot of one, let's eliminate all the cells for the current column, row after row */
-		eliminateRow(m, pivot, verbose)
+		eliminateRowForward(m, pivot, verbose)
 
 		if verbose {
 			fmt.Printf("Forward elimination done on row %d\n\n", pivot+1)
@@ -149,41 +153,83 @@ func doForwardElimination(
 	}
 }
 
-func eliminateRow(
+func eliminateRowForward(
 	m *Matrix,
-	pivot int,
+	pivotRow int,
 	verbose bool,
 ) {
 
-	for row := pivot + 1; row < m.Rows(); row++ {
+	for row := pivotRow + 1; row < m.Rows(); row++ {
 
-		factor := m.Get(row, pivot)
+		// Only work on the pivot column, not all columns
+		pivotCol := pivotRow
 
-		if verbose {
-			fmt.Printf("E%d - %.2f E%d | ", row+1, factor, row)
-		}
+		for m.Get(row, pivotCol) != 0 {
 
-		/* Skips rows where the factor is already 0
-		because this is what we are looking for */
-		if factor == 0 {
-			continue
-		}
+			pivotCellValue := m.Get(pivotRow, pivotCol)
+			rowCellValue := m.Get(row, pivotCol)
 
-		/* We can start the inner column loop at pivot instead of 0
-		since entries left of the pivot are already zero by construction. */
-		for col := pivot; col < m.Cols(); col++ {
-			m.Set(row, col, m.Get(row, col)-factor*m.Get(pivot, col))
+			if pivotCellValue == 0 {
+				m.Swap(pivotRow, row)
+				continue
+			}
+
+			// Euclidean Step:
+			// We want to reduce m[i][col] using m[pivotRow][col]
+			// This loop runs until m[i][col] becomes 0 (GCD logic)
+
+			q := rowCellValue / pivotCellValue
+
+			remainder := rowCellValue % pivotCellValue
+
+			if remainder < 0 {
+				q--
+			}
+
+			for col := pivotCol; col < m.Cols(); col++ {
+				// Row operation: Row[i] = Row[i] - q * Row[pivotRow]
+				m.Set(row, col, m.Get(row, col)-q*m.Get(pivotRow, col))
+			}
+
+			// Essential HNF step: Swap to continue GCD reduction
+			if m.Get(row, pivotCol) != 0 {
+				m.Swap(pivotRow, row)
+			}
 		}
 	}
+}
 
-	if verbose {
-		fmt.Print("\n\n")
+func eliminateRowAbove(
+	m *Matrix,
+	pivotRow int,
+	pivotValue int64,
+	verbose bool,
+) {
+	pivotCol := findPivotCol(m, pivotRow)
+
+	for row := pivotRow - 1; row >= 0; row-- {
+
+		cellRowValue := m.Get(row, pivotCol)
+
+		q := cellRowValue / pivotValue
+
+		remainder := cellRowValue % pivotValue
+
+		if remainder < 0 {
+			q--
+		}
+
+		if q != 0 {
+			for col := pivotCol; col < m.Cols(); col++ {
+				m.Set(row, col, m.Get(row, col)-q*m.Get(pivotRow, col))
+			}
+		}
 	}
 }
 
 func scaleRow(
 	m *Matrix,
-	pivotValue float64,
+	pivotValue int64,
 	pivot int,
 	verbose bool,
 ) {
@@ -193,7 +239,7 @@ func scaleRow(
 	m.Scale(pivot, scaling)
 
 	if verbose {
-		fmt.Printf("Scaling done on row %d (scaling: %.2f)\n\n", pivot+1, scaling)
+		fmt.Printf("Scaling done on row %d (scaling: %d)\n\n", pivot+1, scaling)
 		Print(m)
 	}
 }
@@ -212,7 +258,7 @@ func pivotRow(
 	m.Swap(pivot, pivotRow)
 
 	if verbose {
-		fmt.Printf("Pivoting row %d with %d\n", pivot+1, pivotRow+1)
+		fmt.Printf("Pivoting row %d with %d\n\n", pivot+1, pivotRow+1)
 		Print(m)
 	}
 }
