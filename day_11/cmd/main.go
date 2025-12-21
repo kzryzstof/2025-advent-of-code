@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day_11/internal/abstractions"
 	"day_11/internal/io"
 	"fmt"
 	"os"
@@ -23,10 +24,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	graph := abstractions.BuildGraph(devices)
+
 	elapsed := time.Since(startTime)
 
 	/* Prints the result */
-	fmt.Printf("The room has %d devices.\n", len(devices))
+	fmt.Printf("The room has %d devices. Graph has %d root nodes .\n", len(devices), graph.GetRootNodesCount())
 
 	fmt.Printf("Execution time: %v\n", elapsed)
 }
