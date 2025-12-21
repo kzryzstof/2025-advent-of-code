@@ -6,6 +6,8 @@ func TestGraph_BuildGraph(t *testing.T) {
 	tests := []struct {
 		name               string
 		devices            []*Device
+		fromNode           string
+		toNode             string
 		expectedPathsCount uint
 	}{
 		{
@@ -19,7 +21,30 @@ func TestGraph_BuildGraph(t *testing.T) {
 				NewDevice("fff", []string{"out"}),
 				NewDevice("ggg", []string{"out"}),
 			},
+			fromNode:           "you",
+			toNode:             "out",
 			expectedPathsCount: 5,
+		},
+		{
+			name: "1.2-eight_paths_case",
+			devices: []*Device{
+				NewDevice("svr", []string{"aaa", "bbb"}),
+				NewDevice("aaa", []string{"fft"}),
+				NewDevice("bbb", []string{"tty"}),
+				NewDevice("fft", []string{"ccc"}),
+				NewDevice("tty", []string{"ccc"}),
+				NewDevice("ccc", []string{"ddd", "eee"}),
+				NewDevice("ddd", []string{"hub"}),
+				NewDevice("eee", []string{"dac"}),
+				NewDevice("hub", []string{"fff"}),
+				NewDevice("dac", []string{"fff"}),
+				NewDevice("fff", []string{"ggg", "hhh"}),
+				NewDevice("ggg", []string{"out"}),
+				NewDevice("hhh", []string{"out"}),
+			},
+			fromNode:           "svr",
+			toNode:             "out",
+			expectedPathsCount: 8,
 		},
 	}
 
@@ -27,7 +52,7 @@ func TestGraph_BuildGraph(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			graph := BuildGraph(tt.devices)
 
-			actualPathsCount := graph.CountPaths("you", "out")
+			actualPathsCount := graph.CountPaths(tt.fromNode, tt.toNode)
 
 			if actualPathsCount != tt.expectedPathsCount {
 				t.Errorf("Expected %d paths, got %d", tt.expectedPathsCount, actualPathsCount)
