@@ -35,6 +35,16 @@ func BuildGraph(
 	return graph
 }
 
+func (g *Graph) CountPaths(
+	from string,
+	to string,
+) uint {
+
+	fromNode := g.getNodeByName(from)
+
+	return fromNode.CountPathsTo(to)
+}
+
 func (g *Graph) getNodeByName(
 	deviceName string,
 ) *Node {
@@ -61,14 +71,4 @@ func (g *Graph) createNewNode(
 	newNode := NewNode(deviceName)
 	g.nodesByName[deviceName] = newNode
 	return newNode
-}
-
-func (g *Graph) CountPaths(
-	from string,
-	to string,
-) uint {
-
-	fromNode := g.getNodeByName(from)
-
-	return fromNode.CountPathsTo(to)
 }
