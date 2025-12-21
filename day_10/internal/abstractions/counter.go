@@ -1,7 +1,7 @@
 package abstractions
 
 type Counter struct {
-	value uint32
+	value int64
 }
 
 func NewCounter() *Counter {
@@ -12,7 +12,7 @@ func (c *Counter) Increment() {
 	c.value++
 }
 
-func (c *Counter) GetValue() uint32 {
+func (c *Counter) GetValue() int64 {
 	return c.value
 }
 

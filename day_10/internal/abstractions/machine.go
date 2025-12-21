@@ -1,9 +1,8 @@
 package abstractions
 
-var combinations chan []int
+import "fmt"
 
 type Machine struct {
-	lights       []*Light
 	buttonGroups []*ButtonGroup
 	voltages     []*Voltage
 	counters     []*Counter
@@ -22,7 +21,6 @@ func NewMachine(
 	}
 
 	return &Machine{
-		nil,
 		buttonGroups,
 		voltages,
 		counters,
@@ -41,18 +39,6 @@ func (m *Machine) GetButtonGroupsCount() int {
 	return len(m.buttonGroups)
 }
 
-func (m *Machine) IsActivated() bool {
-
-	/* The machine is activated if all lights are in their expected states */
-	for _, light := range m.lights {
-		if !light.IsValid() {
-			return false
-		}
-	}
-
-	return true
-}
-
 func (m *Machine) IsVoltageValid() bool {
 
 	/* The machine is activated if all lights are in their expected states */
@@ -65,22 +51,13 @@ func (m *Machine) IsVoltageValid() bool {
 	return true
 }
 
-func (m *Machine) CloseLights() {
-	for _, light := range m.lights {
-		light.Close()
-	}
-}
+func (m *Machine) PrintVoltages() {
 
-func (m *Machine) ResetCounters() {
-	for _, counter := range m.counters {
-		counter.Reset()
+	fmt.Print("-- Voltages --\n")
+	/* The machine is activated if all lights are in their expected states */
+	for voltageIndex, voltage := range m.voltages {
+		fmt.Printf("\tVoltage %d: expected=%d, actual=%d\n", voltageIndex, voltage.GetValue(), m.counters[voltageIndex].GetValue())
 	}
-}
-
-func (m *Machine) GetLight(
-	number int,
-) *Light {
-	return m.lights[number]
 }
 
 func (m *Machine) GetCounter(

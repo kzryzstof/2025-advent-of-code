@@ -1,15 +1,15 @@
 package abstractions
 
 type Voltage struct {
-	value uint32
+	value int64
 }
 
 func NewVoltage(
-	value uint32,
+	value int64,
 ) *Voltage {
 	return &Voltage{value}
 }
 
-func (v *Voltage) GetValue() uint32 {
+func (v *Voltage) GetValue() int64 {
 	return v.value
 }

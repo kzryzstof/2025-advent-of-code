@@ -1,9 +1,9 @@
 package abstractions
 
-import "fmt"
+import "math"
 
 type Matrix struct {
-	values   [][]float64
+	values   [][]int64
 	colCount int
 	rowCount int
 }
@@ -12,10 +12,10 @@ func CopyMatrix(
 	m *Matrix,
 ) *Matrix {
 
-	values := make([][]float64, m.Rows())
+	values := make([][]int64, m.Rows())
 
 	for row := 0; row < m.Rows(); row++ {
-		values[row] = make([]float64, m.Cols())
+		values[row] = make([]int64, m.Cols())
 
 		for col := 0; col < m.Cols(); col++ {
 			values[row][col] = m.Get(row, col)
@@ -34,10 +34,14 @@ func NewMatrix(
 	colCount int,
 ) *Matrix {
 
-	values := make([][]float64, rowCount)
+	values := make([][]int64, rowCount)
 
 	for i := 0; i < rowCount; i++ {
-		values[i] = make([]float64, colCount)
+		values[i] = make([]int64, colCount)
+
+		for j := 0; j < colCount; j++ {
+			values[i][j] = 0
+		}
 	}
 
 	return &Matrix{
@@ -48,16 +52,16 @@ func NewMatrix(
 }
 
 func FromSlice(
-	slice [][]float64,
+	slice [][]int64,
 ) *Matrix {
 
 	rowsCount := len(slice)
 	colsCount := len(slice[0])
 
-	values := make([][]float64, rowsCount)
+	values := make([][]int64, rowsCount)
 
 	for i := 0; i < rowsCount; i++ {
-		values[i] = make([]float64, colsCount)
+		values[i] = make([]int64, colsCount)
 		for j := 0; j < colsCount; j++ {
 			values[i][j] = slice[i][j]
 		}
@@ -78,11 +82,11 @@ func (m *Matrix) Cols() int {
 	return int(m.colCount)
 }
 
-func (m *Matrix) Set(row, col int, value float64) {
+func (m *Matrix) Set(row, col int, value int64) {
 	m.values[row][col] = value
 }
 
-func (m *Matrix) Get(row, col int) float64 {
+func (m *Matrix) Get(row, col int) int64 {
 	return m.values[row][col]
 }
 
@@ -94,19 +98,19 @@ func (m *Matrix) Swap(fromRow, toRow int) {
 	}
 }
 
-func (m *Matrix) Scale(row int, factor float64) {
+func (m *Matrix) Scale(row int, factor int64) {
 	for col := 0; col < m.Cols(); col++ {
 		m.Set(row, col, m.Get(row, col)*factor)
 	}
 }
 
-func (m *Matrix) Print() {
-	for row := 0; row < m.Rows(); row++ {
-		fmt.Printf("[ ")
-		for col := 0; col < m.Cols(); col++ {
-			fmt.Printf("%.2f ", m.Get(row, col))
-		}
-		fmt.Println("]")
+func (m *Matrix) MoveRowToEnd(
+	row int,
+	lastRow int,
+) {
+	endRow := int(math.Min(float64(m.Rows()-1), float64(lastRow)))
+
+	for startRow := row; startRow < endRow; startRow++ {
+		m.Swap(startRow, startRow+1)
 	}
-	fmt.Println()
 }
