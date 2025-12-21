@@ -78,7 +78,7 @@ func TestReduce(t *testing.T) {
 			},
 			expectedSolution: []int64{5, 0, 5, 1},
 		},
-		"machine.04-from_input": {
+		"machine.004-from_input": {
 			matrixValues: [][]int64{
 				{0, 1, 0, 12},
 				{1, 1, 0, 29},
@@ -93,7 +93,7 @@ func TestReduce(t *testing.T) {
 			},
 			expectedSolution: []int64{17, 12, 128},
 		},
-		"machine.05-from_input": {
+		"machine.005-from_input": {
 			matrixValues: [][]int64{
 				{1, 1, 1, 1, 37},
 				{1, 0, 1, 0, 4},
@@ -108,7 +108,7 @@ func TestReduce(t *testing.T) {
 			},
 			expectedSolution: []int64{0, 16, 4, 17},
 		},
-		"machine-06-from_input": {
+		"machine-006-from_input": {
 			matrixValues: [][]int64{
 				{1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 82},
 				{1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 77},
@@ -135,7 +135,7 @@ func TestReduce(t *testing.T) {
 			},
 			expectedSolution: []int64{8, 20, 3, 14, 20, 15, 17, 0, 1, 4, 18, 2},
 		},
-		"machine.09-from_input": {
+		"machine.009-from_input": {
 			matrixValues: [][]int64{
 				{1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 72},
 				{0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 59},
@@ -158,7 +158,7 @@ func TestReduce(t *testing.T) {
 			},
 			expectedSolution: []int64{10, 0, 7, 16, 0, 23, 2, 15, 14, 0},
 		},
-		"machine.11-from_input": {
+		"machine.011-from_input": {
 			matrixValues: [][]int64{
 				{0, 0, 0, 1, 0, 1, 1, 1, 40},
 				{0, 0, 1, 0, 1, 1, 0, 0, 203},
@@ -185,7 +185,7 @@ func TestReduce(t *testing.T) {
 			},
 			expectedSolution: []int64{18, 16, 178, 2, 10, 15, 3, 20},
 		},
-		"machine-33-documented_use-case": {
+		"machine-033-from_input": {
 			matrixValues: [][]int64{
 				{1, 0, 1, 1, 0, 1, 0, 0, 33},
 				{1, 1, 1, 0, 1, 0, 1, 0, 60},
@@ -223,11 +223,36 @@ func TestReduce(t *testing.T) {
 				{0, 0, 1, 0, 0, -1, 0, 0, -7},
 				{0, 0, 0, 1, 0, 1, 0, 0, 26},
 				{0, 0, 0, 0, 1, 0, 0, 0, 5},
-				{0, 0, 0, 0, 0, 0, 0, 1, 2},
 				{0, 0, 0, 0, 0, 0, 1, 0, 19},
+				{0, 0, 0, 0, 0, 0, 0, 1, 2},
 				{0, 0, 0, 0, 0, 0, 0, 2, 4},
 			},
 			expectedSolution: []int64{3, 10, 0, 19, 5, 7, 19, 2},
+		},
+		"machine.133-from_input": {
+			matrixValues: [][]int64{
+				{1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 37},
+				{1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 39},
+				{1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 16},
+				{1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 47},
+				{1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 76},
+				{1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 55},
+				{1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 61},
+				{0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 176},
+				{0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 19},
+			},
+			expectedMat: [][]int64{
+				{1, 0, 0, 0, 0, 0, 0, 0, -1, 0, -5},
+				{0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 31},
+				{0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 13},
+				{0, 0, 0, 1, 0, -1, 0, 0, 1, 0, 166},
+				{0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 21},
+				{0, 0, 0, 0, 0, 0, 1, 0, -1, 0, -2},
+				{0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 23},
+				{0, 0, 0, 0, 0, 0, 0, 0, 2, -1, 16},
+				{0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 8},
+			},
+			expectedSolution: []int64{7, 19, 1, 154, 21, 0, 10, 11, 12, 8},
 		},
 	}
 

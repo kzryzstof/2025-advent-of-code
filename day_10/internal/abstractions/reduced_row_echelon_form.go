@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	MinNumbers = -250
-	MaxNumbers = 250
+	MinNumbers = 0
+	MaxNumbers = 10
 )
 
 type ReducedRowEchelonForm struct {

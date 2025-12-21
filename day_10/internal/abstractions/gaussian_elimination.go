@@ -29,7 +29,29 @@ func ToReducedRowEchelonForm(
 	doBackwardElimination(rref, verbose)
 
 	if verbose {
-		fmt.Printf("Reduced Row Echelon Form\n")
+		fmt.Printf("Hermite Nominal Form\n")
+		Print(rref)
+	}
+
+	for row := 0; row < rref.Rows(); row++ {
+		pivotCol := findPivotCol(rref, row)
+
+		if pivotCol == NotFound {
+			continue
+		}
+
+		if pivotCol != row {
+			if verbose {
+				fmt.Printf("Moving row from %d to row %d\n", row+1, pivotCol+1)
+			}
+			for startRow := row; startRow < pivotCol-1; startRow++ {
+				rref.Swap(startRow, startRow+1)
+			}
+		}
+	}
+
+	if verbose {
+		fmt.Printf("After pivoting\n")
 		Print(rref)
 	}
 
