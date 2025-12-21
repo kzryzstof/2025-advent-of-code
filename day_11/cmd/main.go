@@ -28,6 +28,7 @@ func main() {
 
 	from := "you"
 	to := "out"
+
 	pathsCount := graph.CountPaths(from, to)
 
 	elapsed := time.Since(startTime)
