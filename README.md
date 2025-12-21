@@ -15,6 +15,7 @@ Each day lives in its own folder (`day_1`, `day_2`, `day_3`, `day_4`, …) with 
 - `day_7/` – solution for Day 7 (multiverse timeline splitter with tachyon beams). See `day_7/README.md` for full details.
 - `day_8/` – solution for Day 8 (junction box playground wiring). See `day_8/README.md` for full details.
 - `day_9/` – solution for Day 9 (movie theater seating and largest rectangle). See `day_9/README.md` for full details.
+- `day_10/` – solution for Day 10 (factory machine joltage configuration using Hermite Normal Form). See `day_10/README.md` for full details.
 
 Each day generally includes:
 
