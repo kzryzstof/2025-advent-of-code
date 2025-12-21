@@ -26,10 +26,14 @@ func main() {
 
 	graph := abstractions.BuildGraph(devices)
 
+	from := "you"
+	to := "out"
+	pathsCount := graph.CountPaths(from, to)
+
 	elapsed := time.Since(startTime)
 
 	/* Prints the result */
-	fmt.Printf("The room has %d devices. Graph has %d root nodes .\n", len(devices), graph.GetRootNodesCount())
+	fmt.Printf("The room has %d devices. Graph has %d path from '%s' to '%s' .\n", len(devices), pathsCount, from, to)
 
 	fmt.Printf("Execution time: %v\n", elapsed)
 }

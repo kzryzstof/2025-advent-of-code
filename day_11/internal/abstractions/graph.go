@@ -9,10 +9,9 @@ func BuildGraph(
 	devices []*Device,
 ) *Graph {
 
-	rootNode := NewNode("root")
 	graph := &Graph{
-		[]*Node{rootNode},
-		map[string]*Node{"root": rootNode},
+		[]*Node{},
+		map[string]*Node{},
 	}
 
 	for _, device := range devices {
@@ -22,11 +21,11 @@ func BuildGraph(
 			deviceNode = graph.createNewNode(device.name)
 			graph.addNodeToRoot(deviceNode)
 		}
-		for _, outputDevice := range device.outputs {
-			outputNode := graph.getNodeByName(outputDevice)
+		for _, outputDeviceName := range device.outputs {
+			outputNode := graph.getNodeByName(outputDeviceName)
 
 			if outputNode == nil {
-				outputNode = graph.createNewNode(device.name)
+				outputNode = graph.createNewNode(outputDeviceName)
 			}
 
 			deviceNode.AddNext(outputNode)
@@ -34,10 +33,6 @@ func BuildGraph(
 	}
 
 	return graph
-}
-
-func (g *Graph) GetRootNodesCount() uint {
-	return uint(len(g.nodes))
 }
 
 func (g *Graph) getNodeByName(
@@ -73,5 +68,7 @@ func (g *Graph) CountPaths(
 	to string,
 ) uint {
 
-	return 0
+	fromNode := g.getNodeByName(from)
+
+	return fromNode.CountPathsTo(to)
 }
