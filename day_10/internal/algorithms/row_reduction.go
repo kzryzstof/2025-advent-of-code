@@ -1,69 +1,59 @@
-package abstractions
+package algorithms
 
 import (
+	"day_10/internal/abstractions"
 	"fmt"
 	"math"
 )
 
 const (
-	PivotValue              = 1
 	NotFound                = -1
 	AuthorizedScalingFactor = -1
 )
 
-func ToReducedRowEchelonForm(
-	augmentedMatrix *AugmentedMatrix,
+func ToHermiteNormalForm(
+	augmentedMatrix *abstractions.AugmentedMatrix,
 	verbose bool,
-) *ReducedRowEchelonForm {
+) *HermiteNormalForm {
 
-	rref := CopyMatrix(augmentedMatrix.Matrix)
+	matrixCopy := abstractions.CopyMatrix(augmentedMatrix.Matrix)
 
 	if verbose {
-		fmt.Print("\n** Gaussian elimination **\n\n")
-		Print(rref)
+		fmt.Print("\n** Row reduction **\n\n")
+		abstractions.Print(matrixCopy)
 	}
 
-	doForwardElimination(rref, verbose)
+	doForwardElimination(matrixCopy, verbose)
 
 	if verbose {
 		fmt.Print("***********************************************************************************************\n\n")
 	}
 
-	doBackwardElimination(rref, verbose)
+	doBackwardElimination(matrixCopy, verbose)
 
 	if verbose {
 		fmt.Printf("Hermite Nominal Form\n")
-		Print(rref)
+		abstractions.Print(matrixCopy)
 	}
 
-	for row := 0; row < rref.Rows(); row++ {
-		pivotCol := findPivotCol(rref, row)
-
-		if pivotCol == NotFound {
-			continue
-		}
-
-		if pivotCol != row {
-			if verbose {
-				fmt.Printf("Moving row from %d to row %d\n", row+1, pivotCol+1)
-			}
-			endRow := int(math.Min(float64(rref.Rows()-1), float64(pivotCol-1)))
-			for startRow := row; startRow < endRow; startRow++ {
-				rref.Swap(startRow, startRow+1)
-			}
-		}
-	}
+	/*
+		In certain cases, a pivot may not be on the expected row,
+		which makes solving the equation a bit harder later on.
+		So we try to force the pivots to be on the diagonal
+		by moving rows around.
+	*/
+	pivotRows(matrixCopy)
 
 	if verbose {
-		fmt.Printf("After pivoting\n")
-		Print(rref)
+		fmt.Printf("After final pivoting\n")
+		abstractions.Print(matrixCopy)
 	}
 
-	return NewReducedRowEchelonForm(rref)
+	return NewHermiteNormalForm(matrixCopy)
 }
 
 func doBackwardElimination(
-	m *Matrix,
+	m *abstractions.Matrix,
 	verbose bool,
 ) {
 
@@ -88,7 +78,7 @@ func doBackwardElimination(
 		if verbose {
 			fmt.Println("-----------------------------------------------------------------------------------------------")
 			fmt.Printf("Working on row %d. Pivot found on column %d\n", pivotRow+1, pivotCol+1)
-			Print(m)
+			abstractions.Print(m)
 		}
 
 		pivotValue := m.Get(pivotRow, pivotCol)
@@ -121,13 +111,13 @@ func doBackwardElimination(
 		if verbose {
 			fmt.Print("\n\n")
 			fmt.Printf("Backward elimination done on row %d\n\n", pivotRow+1)
-			Print(m)
+			abstractions.Print(m)
 		}
 	}
 }
 
 func doForwardElimination(
-	m *Matrix,
+	m *abstractions.Matrix,
 	verbose bool,
 ) {
 
@@ -144,7 +134,7 @@ func doForwardElimination(
 		if verbose {
 			fmt.Println("-----------------------------------------------------------------------------------------------")
 			fmt.Printf("Working on row %d\n\n", pivot+1)
-			Print(m)
+			abstractions.Print(m)
 		}
 
 		/* ********** Pivot row ********** */
@@ -163,26 +153,24 @@ func doForwardElimination(
 		if pivotValue < 0 {
 
 			/* The scaling is necessary only if the pivot is negative */
-			const AuthorizedScalingFactor = -1
 			scaleRow(m, AuthorizedScalingFactor, pivot, verbose)
 		}
 
 		/* ********** Forward eliminate ********** */
 
 		/* Now that we have a pivot of one, let's eliminate all the cells for the current column, row after row */
-		eliminateRowForward(m, pivot, verbose)
+		eliminateRowForward(m, pivot)
 
 		if verbose {
 			fmt.Printf("Forward elimination done on row %d\n\n", pivot+1)
-			Print(m)
+			abstractions.Print(m)
 		}
 	}
 }
 
 func eliminateRowForward(
-	m *Matrix,
+	m *abstractions.Matrix,
 	pivotRow int,
-	verbose bool,
 ) {
 
 	for row := pivotRow + 1; row < m.Rows(); row++ {
@@ -225,36 +213,8 @@ func eliminateRowForward(
 	}
 }
 
-func eliminateRowAbove(
-	m *Matrix,
-	pivotRow int,
-	pivotValue int64,
-	verbose bool,
-) {
-	pivotCol := findPivotCol(m, pivotRow)
-
-	for row := pivotRow - 1; row >= 0; row-- {
-
-		cellRowValue := m.Get(row, pivotCol)
-
-		q := cellRowValue / pivotValue
-
-		remainder := cellRowValue % pivotValue
-
-		if remainder < 0 {
-			q--
-		}
-
-		if q != 0 {
-			for col := pivotCol; col < m.Cols(); col++ {
-				m.Set(row, col, m.Get(row, col)-q*m.Get(pivotRow, col))
-			}
-		}
-	}
-}
-
 func scaleRow(
-	m *Matrix,
+	m *abstractions.Matrix,
 	pivotValue int64,
 	pivot int,
 	verbose bool,
@@ -266,12 +226,12 @@ func scaleRow(
 
 	if verbose {
 		fmt.Printf("Scaling done on row %d (scaling: %d)\n\n", pivot+1, scaling)
-		Print(m)
+		abstractions.Print(m)
 	}
 }
 
 func pivotRow(
-	m *Matrix,
+	m *abstractions.Matrix,
 	pivot int,
 	verbose bool,
 ) {
@@ -285,12 +245,12 @@ func pivotRow(
 
 	if verbose {
 		fmt.Printf("Pivoting row %d with %d\n\n", pivot+1, pivotRow+1)
-		Print(m)
+		abstractions.Print(m)
 	}
 }
 
 func findPivotCol(
-	m *Matrix,
+	m *abstractions.Matrix,
 	row int,
 ) int {
 
@@ -304,7 +264,7 @@ func findPivotCol(
 }
 
 func findSwappableRow(
-	m *Matrix,
+	m *abstractions.Matrix,
 	pivotRow int,
 ) int {
 
@@ -317,4 +277,22 @@ func findSwappableRow(
 	}
 
 	return NotFound
+}
+
+func pivotRows(
+	m *abstractions.Matrix,
+) {
+	for row := 0; row < m.Rows(); row++ {
+
+		pivotCol := findPivotCol(m, row)
+
+		if pivotCol == NotFound {
+			continue
+		}
+
+		if pivotCol != row {
+			endRow := int(math.Min(float64(m.Rows()-1), float64(pivotCol-1)))
+			m.MoveRowToEnd(row, endRow)
+		}
+	}
 }

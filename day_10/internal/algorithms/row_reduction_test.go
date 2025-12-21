@@ -1,11 +1,12 @@
-package abstractions
+package algorithms
 
 import (
+	"day_10/internal/abstractions"
 	"fmt"
 	"testing"
 )
 
-func TestReduce(t *testing.T) {
+func TestRowReduction_ToHermiteNormalForm(t *testing.T) {
 	tests := map[string]struct {
 		matrixValues     [][]int64
 		expectedMat      [][]int64
@@ -260,10 +261,10 @@ func TestReduce(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 
 			// Create matrix and vector
-			m := FromSlice(tc.matrixValues)
+			m := abstractions.FromSlice(tc.matrixValues)
 
 			// Run the reduction
-			rref := ToReducedRowEchelonForm(&AugmentedMatrix{m}, true)
+			rref := ToHermiteNormalForm(&abstractions.AugmentedMatrix{m}, true)
 
 			actualRref := rref.Get()
 
@@ -284,14 +285,14 @@ func TestReduce(t *testing.T) {
 			actualSolution.Print()
 
 			fmt.Println("Expected solution")
-			PrintSlice(tc.expectedSolution)
+			abstractions.PrintSlice(tc.expectedSolution)
 
 			if actualSolution.Count() != uint64(len(tc.expectedSolution)) {
 				t.Errorf("Solution length: expected %d, got %d", len(tc.expectedSolution), actualSolution.Count())
 			} else {
 				for i := 0; i < len(tc.expectedSolution); i++ {
 					expected := tc.expectedSolution[i]
-					actual := actualSolution.GetValue(VariableNumber(i + 1))
+					actual := actualSolution.GetValue(abstractions.VariableNumber(i + 1))
 					if expected != actual {
 						t.Errorf("Solution[%d]: expected %d, got %d", i, expected, actual)
 					}

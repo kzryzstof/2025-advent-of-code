@@ -2,6 +2,7 @@ package app
 
 import (
 	"day_10/internal/abstractions"
+	"day_10/internal/algorithms"
 	"fmt"
 	"os"
 	"time"
@@ -22,20 +23,25 @@ func ActivateMachines(
 		startTime := time.Now()
 		fmt.Printf("Processing machine %d with %d button groups\r", machineIndex+1, machine.GetButtonGroupsCount())
 
-		/* Integer Linear Programming Fun Time! */
-
 		/*
-			1. I have to transform the list of button groups into
+			Transforms the list of button groups into
 			an augmented matrix (variables) and the list of voltages into
-			a vector form (solutions)
+			a vector form (constants)
 		*/
 		augmentedMatrix := abstractions.ToAugmentedMatrix(machine)
 
-		/*	2. I use Gaussian elimination to solve the system of equations */
-		rref := abstractions.ToReducedRowEchelonForm(augmentedMatrix, Verbose)
+		/*
+			Uses an HNF to solve the system of equations with integers
+		*/
+		hnf := algorithms.ToHermiteNormalForm(augmentedMatrix, Verbose)
 
-		solution := rref.Solve(Verbose)
+		solution := hnf.Solve(Verbose)
 
+		/*
+			Although the solution is supposed to be valid,
+			testing the solution provided helpful feedback
+			to catch mistakes in the algorithm
+		*/
 		for _, variable := range solution.Get() {
 			for counter := 0; counter < int(variable.Value); counter++ {
 				machine.PressGroup(int(variable.Number - 1))

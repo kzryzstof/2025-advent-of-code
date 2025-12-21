@@ -4,41 +4,9 @@ import (
 	"fmt"
 )
 
-// VariableNumber /* Defines a type for variable number used in equations. 1st-based indexed */
-type VariableNumber uint8
-
 type Variable struct {
 	Number VariableNumber
 	Value  int64
-}
-
-type Variables struct {
-	variables []*Variable
-}
-
-func NewVariables(
-	count uint64,
-) *Variables {
-	variables := make([]*Variable, count)
-
-	for i := uint64(0); i < count; i++ {
-		variables[i] = nil
-	}
-
-	return &Variables{variables}
-}
-
-func CopyVariables(
-	variables *Variables,
-) *Variables {
-
-	variablesCopy := make([]*Variable, len(variables.variables))
-
-	for i := 0; i < len(variablesCopy); i++ {
-		variablesCopy[i] = CopyVariable(variables.variables[i])
-	}
-
-	return &Variables{variablesCopy}
 }
 
 func CopyVariable(
@@ -94,12 +62,6 @@ func (v *Variables) Count() uint64 {
 		}
 	}
 	return count
-}
-
-func (v *Variables) IsLast(
-	number VariableNumber,
-) bool {
-	return number == VariableNumber(len(v.variables))
 }
 
 func (v *Variables) Set(

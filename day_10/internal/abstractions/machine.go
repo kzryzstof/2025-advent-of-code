@@ -2,10 +2,7 @@ package abstractions
 
 import "fmt"
 
-var combinations chan []int
-
 type Machine struct {
-	lights       []*Light
 	buttonGroups []*ButtonGroup
 	voltages     []*Voltage
 	counters     []*Counter
@@ -24,7 +21,6 @@ func NewMachine(
 	}
 
 	return &Machine{
-		nil,
 		buttonGroups,
 		voltages,
 		counters,
@@ -41,18 +37,6 @@ func (m *Machine) GetVoltages() []*Voltage {
 
 func (m *Machine) GetButtonGroupsCount() int {
 	return len(m.buttonGroups)
-}
-
-func (m *Machine) IsActivated() bool {
-
-	/* The machine is activated if all lights are in their expected states */
-	for _, light := range m.lights {
-		if !light.IsValid() {
-			return false
-		}
-	}
-
-	return true
 }
 
 func (m *Machine) IsVoltageValid() bool {
@@ -74,24 +58,6 @@ func (m *Machine) PrintVoltages() {
 	for voltageIndex, voltage := range m.voltages {
 		fmt.Printf("\tVoltage %d: expected=%d, actual=%d\n", voltageIndex, voltage.GetValue(), m.counters[voltageIndex].GetValue())
 	}
-}
-
-func (m *Machine) CloseLights() {
-	for _, light := range m.lights {
-		light.Close()
-	}
-}
-
-func (m *Machine) ResetCounters() {
-	for _, counter := range m.counters {
-		counter.Reset()
-	}
-}
-
-func (m *Machine) GetLight(
-	number int,
-) *Light {
-	return m.lights[number]
 }
 
 func (m *Machine) GetCounter(

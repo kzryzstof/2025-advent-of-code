@@ -1,34 +1,35 @@
-package abstractions
+package algorithms
 
 import (
+	"day_10/internal/abstractions"
 	"fmt"
 	"os"
 )
 
 const (
-	MinNumbers = 0
-	MaxNumbers = 10
+	MinNumbers = -50
+	MaxNumbers = 50
 )
 
-type ReducedRowEchelonForm struct {
-	matrix *Matrix
+type HermiteNormalForm struct {
+	matrix *abstractions.Matrix
 }
 
-func NewReducedRowEchelonForm(
-	matrix *Matrix,
-) *ReducedRowEchelonForm {
-	return &ReducedRowEchelonForm{matrix}
+func NewHermiteNormalForm(
+	matrix *abstractions.Matrix,
+) *HermiteNormalForm {
+	return &HermiteNormalForm{matrix}
 }
 
-func (r *ReducedRowEchelonForm) Get() *Matrix {
+func (r *HermiteNormalForm) Get() *abstractions.Matrix {
 	return r.matrix
 }
 
-func (r *ReducedRowEchelonForm) Solve(
+func (r *HermiteNormalForm) Solve(
 	verbose bool,
-) *Variables {
+) *abstractions.Variables {
 
-	variablesNumbers := r.detectFreeVariables()
+	variablesNumbers := r.findFreeVariables()
 
 	if len(variablesNumbers) == 0 {
 
@@ -50,8 +51,8 @@ func (r *ReducedRowEchelonForm) Solve(
 	}
 
 	/* To increase the speed of the process, we use different max numbers */
-	var solution *Variables = nil
-	maxVariableValues := []int64{10, 250, 500}
+	var solution *abstractions.Variables = nil
+	maxVariableValues := []int64{25, 100, 250}
 	maxVariableValueIndex := 0
 
 	for solution == nil {
@@ -74,10 +75,10 @@ func (r *ReducedRowEchelonForm) Solve(
 	return solution
 }
 
-func (r *ReducedRowEchelonForm) getUniqueSolution() *Variables {
+func (r *HermiteNormalForm) getUniqueSolution() *abstractions.Variables {
 
 	variablesCount := uint64(r.matrix.Cols() - 1)
-	variables := NewVariables(variablesCount)
+	variables := abstractions.NewVariables(variablesCount)
 
 	for row := r.matrix.Rows() - 1; row >= 0; row-- {
 
@@ -97,10 +98,10 @@ func (r *ReducedRowEchelonForm) getUniqueSolution() *Variables {
 		total := r.matrix.Get(row, int(variablesCount))
 		left := int64(0)
 		for col := row + 1; col < int(variablesCount); col++ {
-			left += r.matrix.Get(row, col) * variables.GetValue(VariableNumber(col+1))
+			left += r.matrix.Get(row, col) * variables.GetValue(abstractions.VariableNumber(col+1))
 		}
-		variables.SetVariable(&Variable{
-			VariableNumber(row + 1),
+		variables.SetVariable(&abstractions.Variable{
+			abstractions.VariableNumber(row + 1),
 			(total - left) / pivot,
 		})
 	}
@@ -108,10 +109,10 @@ func (r *ReducedRowEchelonForm) getUniqueSolution() *Variables {
 	return variables
 }
 
-func (r *ReducedRowEchelonForm) detectFreeVariables() []VariableNumber {
+func (r *HermiteNormalForm) findFreeVariables() []abstractions.VariableNumber {
 
-	freeVariables := make([]VariableNumber, 0)
-	foundVariables := make([]VariableNumber, 0)
+	freeVariables := make([]abstractions.VariableNumber, 0)
+	foundVariables := make([]abstractions.VariableNumber, 0)
 
 	/* Note: The last column is the constants, so we skip it */
 	expectedVariablesCount := r.matrix.Cols() - 1
@@ -125,14 +126,14 @@ func (r *ReducedRowEchelonForm) detectFreeVariables() []VariableNumber {
 
 			alreadyExists := false
 			for _, foundVariable := range foundVariables {
-				if foundVariable == VariableNumber(pivotCol+1) {
+				if foundVariable == abstractions.VariableNumber(pivotCol+1) {
 					alreadyExists = true
 					break
 				}
 			}
 
 			if !alreadyExists {
-				foundVariables = append(foundVariables, VariableNumber(pivotCol+1))
+				foundVariables = append(foundVariables, abstractions.VariableNumber(pivotCol+1))
 			}
 		}
 
@@ -140,8 +141,8 @@ func (r *ReducedRowEchelonForm) detectFreeVariables() []VariableNumber {
 
 	if expectedVariablesCount != len(foundVariables) {
 		for variable := 1; variable <= expectedVariablesCount; variable++ {
-			if !ContainsNumber(foundVariables, variable) {
-				freeVariables = append(freeVariables, VariableNumber(variable))
+			if !abstractions.ContainsNumber(foundVariables, variable) {
+				freeVariables = append(freeVariables, abstractions.VariableNumber(variable))
 			}
 		}
 	}
@@ -149,25 +150,25 @@ func (r *ReducedRowEchelonForm) detectFreeVariables() []VariableNumber {
 	return freeVariables
 }
 
-func (r *ReducedRowEchelonForm) findMinimalSolution(
-	freeVariableNumbers []VariableNumber,
+func (r *HermiteNormalForm) findMinimalSolution(
+	freeVariableNumbers []abstractions.VariableNumber,
 	maxVariableValue int64,
 	verbose bool,
-) *Variables {
+) *abstractions.Variables {
 
 	variablesCount := uint64(r.matrix.Cols() - 1)
 	minVariableValue := int64(MinNumbers)
 	lowestTotal := int64(9999)
-	var solution *Variables
+	var solution *abstractions.Variables
 
 	r.testCombination(
 		freeVariableNumbers,
 		minVariableValue,
 		maxVariableValue,
-		func(freeVariables *Variables) {
+		func(freeVariables *abstractions.Variables) {
 
 			total := int64(0)
-			solvedVariables := NewVariables(variablesCount)
+			solvedVariables := abstractions.NewVariables(variablesCount)
 
 			for _, freeVariable := range freeVariables.Get() {
 				solvedVariables.SetVariable(freeVariable)
@@ -188,7 +189,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 						continue
 					}
 
-					currentVariableNumber := VariableNumber(pivotCol + 1)
+					currentVariableNumber := abstractions.VariableNumber(pivotCol + 1)
 
 					if solvedVariables.Contains(currentVariableNumber) {
 						/* Variable is already assigned. Move on to the next one */
@@ -201,7 +202,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 					left := int64(0)
 
 					for columnIndex := pivotCol + 1; columnIndex < r.matrix.Cols()-1; columnIndex++ {
-						left += r.matrix.Get(row, columnIndex) * solvedVariables.GetValue(VariableNumber(columnIndex+1))
+						left += r.matrix.Get(row, columnIndex) * solvedVariables.GetValue(abstractions.VariableNumber(columnIndex+1))
 					}
 
 					remainder := (rowConstant - left) % pivot
@@ -212,7 +213,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 					}
 
 					solvedVariableValue := (rowConstant - left) / (pivot)
-					solvedVariable := &Variable{
+					solvedVariable := &abstractions.Variable{
 						Number: currentVariableNumber,
 						Value:  solvedVariableValue,
 					}
@@ -223,7 +224,7 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 				allVariablesAssigned = solvedVariables.Count() == variablesCount
 			}
 
-			if lowestTotal < 0 || total >= lowestTotal {
+			if total >= lowestTotal {
 				return
 			}
 
@@ -245,26 +246,26 @@ func (r *ReducedRowEchelonForm) findMinimalSolution(
 			}
 
 			lowestTotal = total
-			solution = CopyVariables(solvedVariables)
+			solution = abstractions.CopyVariables(solvedVariables)
 		},
 	)
 
 	return solution
 }
 
-func (r *ReducedRowEchelonForm) testCombination(
+func (r *HermiteNormalForm) testCombination(
 	/* Indicates the number of combinations to test (#,#,#) */
-	variableNumbers []VariableNumber,
+	variableNumbers []abstractions.VariableNumber,
 	/* Indicates the biggest number to test (0->5,0,0) -> (0,0->5,0) -> (0,0,0->5) -> ... */
 	minVariableValue int64,
 	maxVariableValue int64,
 	/* Function to call to test the combination */
-	testCombinationFunc func(*Variables),
+	testCombinationFunc func(*abstractions.Variables),
 ) {
 
-	var generateCombinationFunc func(variables *Variables, currentVariableIndex uint64)
+	var generateCombinationFunc func(variables *abstractions.Variables, currentVariableIndex uint64)
 
-	generateCombinationFunc = func(variables *Variables, currentVariableIndex uint64) {
+	generateCombinationFunc = func(variables *abstractions.Variables, currentVariableIndex uint64) {
 
 		isLastVariable := currentVariableIndex+1 == variables.Count()
 		currentVariableNumber := variables.GetNumberByIndex(currentVariableIndex)
@@ -284,6 +285,6 @@ func (r *ReducedRowEchelonForm) testCombination(
 		}
 	}
 
-	initialVariables := FromVariableNumbers(variableNumbers, minVariableValue)
+	initialVariables := abstractions.FromVariableNumbers(variableNumbers, minVariableValue)
 	generateCombinationFunc(initialVariables, 0)
 }

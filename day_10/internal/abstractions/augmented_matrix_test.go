@@ -14,12 +14,12 @@ func TestToAugmentedMatrix(t *testing.T) {
 		{
 			name: "1.1-documented_use_case",
 			buttonGroups: []*ButtonGroup{
-				{Buttons: []*Button{{CounterIndex: 3}}},
-				{Buttons: []*Button{{CounterIndex: 1}, {CounterIndex: 3}}},
-				{Buttons: []*Button{{CounterIndex: 2}}},
-				{Buttons: []*Button{{CounterIndex: 2}, {CounterIndex: 3}}},
-				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 2}}},
-				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 1}}},
+				{Buttons: []*Button{NewButton(3)}},
+				{Buttons: []*Button{NewButton(1), NewButton(3)}},
+				{Buttons: []*Button{NewButton(2)}},
+				{Buttons: []*Button{NewButton(2), NewButton(3)}},
+				{Buttons: []*Button{NewButton(0), NewButton(2)}},
+				{Buttons: []*Button{NewButton(0), NewButton(1)}},
 			},
 			voltages: []*Voltage{
 				NewVoltage(3),
@@ -37,11 +37,11 @@ func TestToAugmentedMatrix(t *testing.T) {
 		{
 			name: "1.2-documented_use_case",
 			buttonGroups: []*ButtonGroup{
-				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 2}, {CounterIndex: 3}, {CounterIndex: 4}}},
-				{Buttons: []*Button{{CounterIndex: 2}, {CounterIndex: 3}}},
-				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 4}}},
-				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 1}, {CounterIndex: 2}}},
-				{Buttons: []*Button{{CounterIndex: 1}, {CounterIndex: 2}, {CounterIndex: 3}, {CounterIndex: 4}}},
+				{Buttons: []*Button{NewButton(0), NewButton(2), NewButton(3), NewButton(4)}},
+				{Buttons: []*Button{NewButton(2), NewButton(3)}},
+				{Buttons: []*Button{NewButton(0), NewButton(4)}},
+				{Buttons: []*Button{NewButton(0), NewButton(1), NewButton(2)}},
+				{Buttons: []*Button{NewButton(1), NewButton(2), NewButton(3), NewButton(4)}},
 			},
 			voltages: []*Voltage{
 				NewVoltage(7),
@@ -61,10 +61,10 @@ func TestToAugmentedMatrix(t *testing.T) {
 		{
 			name: "1.3-documented_use_case",
 			buttonGroups: []*ButtonGroup{
-				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 1}, {CounterIndex: 2}, {CounterIndex: 3}, {CounterIndex: 4}}},
-				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 3}, {CounterIndex: 4}}},
-				{Buttons: []*Button{{CounterIndex: 0}, {CounterIndex: 1}, {CounterIndex: 2}, {CounterIndex: 4}, {CounterIndex: 5}}},
-				{Buttons: []*Button{{CounterIndex: 1}, {CounterIndex: 2}}},
+				{Buttons: []*Button{NewButton(0), NewButton(1), NewButton(2), NewButton(3), NewButton(4)}},
+				{Buttons: []*Button{NewButton(0), NewButton(3), NewButton(4)}},
+				{Buttons: []*Button{NewButton(0), NewButton(1), NewButton(2), NewButton(4), NewButton(5)}},
+				{Buttons: []*Button{NewButton(1), NewButton(2)}},
 			},
 			voltages: []*Voltage{
 				NewVoltage(10),

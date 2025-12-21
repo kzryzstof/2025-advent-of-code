@@ -18,7 +18,7 @@ func ToAugmentedMatrix(
 	/* Injects the button groups as coefficient of the matrix */
 	for groupIndex, group := range groups {
 		for _, button := range group.Buttons {
-			groupsMatrix.Set(button.CounterIndex, groupIndex, 1)
+			groupsMatrix.Set(button.counterIndex, groupIndex, 1)
 		}
 	}
 

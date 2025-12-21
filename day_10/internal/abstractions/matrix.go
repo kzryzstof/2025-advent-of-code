@@ -1,6 +1,6 @@
 package abstractions
 
-import "fmt"
+import "math"
 
 type Matrix struct {
 	values   [][]int64
@@ -104,13 +104,13 @@ func (m *Matrix) Scale(row int, factor int64) {
 	}
 }
 
-func (m *Matrix) Print() {
-	for row := 0; row < m.Rows(); row++ {
-		fmt.Printf("[ ")
-		for col := 0; col < m.Cols(); col++ {
-			fmt.Printf("%d ", m.Get(row, col))
-		}
-		fmt.Println("]")
+func (m *Matrix) MoveRowToEnd(
+	row int,
+	lastRow int,
+) {
+	endRow := int(math.Min(float64(m.Rows()-1), float64(lastRow)))
+
+	for startRow := row; startRow < endRow; startRow++ {
+		m.Swap(startRow, startRow+1)
 	}
-	fmt.Println()
 }
