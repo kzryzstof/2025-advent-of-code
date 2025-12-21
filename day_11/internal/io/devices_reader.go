@@ -58,7 +58,7 @@ func (r *DevicesReader) extractDevice(
 
 	nameOutputs := strings.Split(line, ":")
 	name := nameOutputs[0]
-	outputs := strings.Split(nameOutputs[1], " ")
+	outputs := strings.Split(nameOutputs[1][1:], " ")
 
 	return abstractions.NewDevice(
 		name,
