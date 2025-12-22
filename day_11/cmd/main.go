@@ -26,16 +26,15 @@ func main() {
 
 	fmt.Printf("%d devices read\n", len(devices))
 
-	requiredNodes := []string{"fft", "dac"}
+	requiredNodes := []string{"svr", "fft", "dac", "out"}
 
 	graph := abstractions.BuildGraph(devices, requiredNodes)
-
 	fmt.Printf("Graph built\n")
 
 	from := "svr"
 	to := "out"
 
-	pathsCount := graph.CountPathsBackwards(from, to, requiredNodes)
+	pathsCount := graph.CountPaths(from, to, requiredNodes)
 
 	elapsed := time.Since(startTime)
 

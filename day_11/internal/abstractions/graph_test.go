@@ -46,7 +46,7 @@ func TestGraph_BuildGraph(t *testing.T) {
 			},
 			fromNode:           "svr",
 			toNode:             "out",
-			requiredNodes:      []string{"fft", "dac"},
+			requiredNodes:      []string{"svr", "fft", "dac", "out"},
 			expectedPathsCount: 2,
 		},
 	}

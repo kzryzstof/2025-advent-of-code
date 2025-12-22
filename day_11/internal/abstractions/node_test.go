@@ -29,7 +29,7 @@ func TestNode_NewNode(t *testing.T) {
 
 	for testName, tc := range tests {
 		t.Run(testName, func(t *testing.T) {
-			node := NewNode(tc.name, false)
+			node := NewNode(tc.name, []string{})
 
 			if node == nil {
 				t.Fatal("Expected node, got nil")
@@ -80,10 +80,10 @@ func TestNode_AddNext(t *testing.T) {
 
 	for testName, tc := range tests {
 		t.Run(testName, func(t *testing.T) {
-			node := NewNode(tc.nodeName, false)
+			node := NewNode(tc.nodeName, []string{})
 
 			for _, nextName := range tc.nextNodes {
-				nextNode := NewNode(nextName, false)
+				nextNode := NewNode(nextName, []string{})
 				node.AddNext(nextNode)
 			}
 
@@ -110,7 +110,7 @@ func TestNode_FindNodeByName(t *testing.T) {
 	}{
 		"find_root_node": {
 			setupTree: func() *Node {
-				return NewNode("root", false)
+				return NewNode("root", []string{})
 			},
 			searchName:   "root",
 			shouldFind:   true,
@@ -118,8 +118,8 @@ func TestNode_FindNodeByName(t *testing.T) {
 		},
 		"find_direct_child": {
 			setupTree: func() *Node {
-				root := NewNode("root", false)
-				child := NewNode("child1", false)
+				root := NewNode("root", []string{})
+				child := NewNode("child1", []string{})
 				root.AddNext(child)
 				return root
 			},
@@ -129,9 +129,9 @@ func TestNode_FindNodeByName(t *testing.T) {
 		},
 		"find_grandchild": {
 			setupTree: func() *Node {
-				root := NewNode("root", false)
-				child := NewNode("child1", false)
-				grandchild := NewNode("grandchild1", false)
+				root := NewNode("root", []string{})
+				child := NewNode("child1", []string{})
+				grandchild := NewNode("grandchild1", []string{})
 				child.AddNext(grandchild)
 				root.AddNext(child)
 				return root
@@ -142,10 +142,10 @@ func TestNode_FindNodeByName(t *testing.T) {
 		},
 		"find_in_multiple_branches": {
 			setupTree: func() *Node {
-				root := NewNode("root", false)
-				child1 := NewNode("child1", false)
-				child2 := NewNode("child2", false)
-				grandchild := NewNode("target", false)
+				root := NewNode("root", []string{})
+				child1 := NewNode("child1", []string{})
+				child2 := NewNode("child2", []string{})
+				grandchild := NewNode("target", []string{})
 				child2.AddNext(grandchild)
 				root.AddNext(child1)
 				root.AddNext(child2)
@@ -157,11 +157,11 @@ func TestNode_FindNodeByName(t *testing.T) {
 		},
 		"find_deep_nested_node": {
 			setupTree: func() *Node {
-				root := NewNode("root", false)
-				level1 := NewNode("level1", false)
-				level2 := NewNode("level2", false)
-				level3 := NewNode("level3", false)
-				level4 := NewNode("deep_target", false)
+				root := NewNode("root", []string{})
+				level1 := NewNode("level1", []string{})
+				level2 := NewNode("level2", []string{})
+				level3 := NewNode("level3", []string{})
+				level4 := NewNode("deep_target", []string{})
 				level3.AddNext(level4)
 				level2.AddNext(level3)
 				level1.AddNext(level2)
@@ -174,8 +174,8 @@ func TestNode_FindNodeByName(t *testing.T) {
 		},
 		"node_not_found": {
 			setupTree: func() *Node {
-				root := NewNode("root", false)
-				child := NewNode("child1", false)
+				root := NewNode("root", []string{})
+				child := NewNode("child1", []string{})
 				root.AddNext(child)
 				return root
 			},
@@ -184,17 +184,17 @@ func TestNode_FindNodeByName(t *testing.T) {
 		},
 		"search_in_empty_tree": {
 			setupTree: func() *Node {
-				return NewNode("root", false)
+				return NewNode("root", []string{})
 			},
 			searchName: "missing",
 			shouldFind: false,
 		},
 		"find_first_occurrence_in_tree": {
 			setupTree: func() *Node {
-				root := NewNode("root", false)
-				child1 := NewNode("duplicate", false)
-				child2 := NewNode("child2", false)
-				child3 := NewNode("duplicate", false)
+				root := NewNode("root", []string{})
+				child1 := NewNode("duplicate", []string{})
+				child2 := NewNode("child2", []string{})
+				child3 := NewNode("duplicate", []string{})
 				root.AddNext(child1)
 				root.AddNext(child2)
 				root.AddNext(child3)
@@ -237,15 +237,15 @@ func TestNode_FindNodeByName_ComplexTree(t *testing.T) {
 	//  /         \
 	// G           H
 
-	root := NewNode("root", false)
-	nodeA := NewNode("A", false)
-	nodeB := NewNode("B", false)
-	nodeC := NewNode("C", false)
-	nodeD := NewNode("D", false)
-	nodeE := NewNode("E", false)
-	nodeF := NewNode("F", false)
-	nodeG := NewNode("G", false)
-	nodeH := NewNode("H", false)
+	root := NewNode("root", []string{})
+	nodeA := NewNode("A", []string{})
+	nodeB := NewNode("B", []string{})
+	nodeC := NewNode("C", []string{})
+	nodeD := NewNode("D", []string{})
+	nodeE := NewNode("E", []string{})
+	nodeF := NewNode("F", []string{})
+	nodeG := NewNode("G", []string{})
+	nodeH := NewNode("H", []string{})
 
 	root.AddNext(nodeA)
 	root.AddNext(nodeB)
@@ -292,10 +292,10 @@ func TestNode_FindNodeByName_ComplexTree(t *testing.T) {
 }
 
 func TestNode_AddNext_ChainedOperations(t *testing.T) {
-	root := NewNode("root", false)
-	child1 := NewNode("child1", false)
-	child2 := NewNode("child2", false)
-	child3 := NewNode("child3", false)
+	root := NewNode("root", []string{})
+	child1 := NewNode("child1", []string{})
+	child2 := NewNode("child2", []string{})
+	child3 := NewNode("child3", []string{})
 
 	// Add nodes one by one
 	root.AddNext(child1)

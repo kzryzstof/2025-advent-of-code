@@ -24,26 +24,25 @@ func BuildGraph(
 
 		fmt.Printf("Processing device '%s' | %d / %d...\r", device.name, deviceIndex, len(devices))
 
-		isRequiredNode := slices.Contains(requiredNodes, device.name)
-
 		deviceNode := graph.getNodeByName(device.name)
 
 		if deviceNode == nil {
-			deviceNode = graph.createNewNode(device.name, isRequiredNode)
+			deviceNode = graph.createNewNode(device.name, requiredNodes)
 			graph.addNodeToRoot(deviceNode)
 		}
+
 		for _, outputDeviceName := range device.outputs {
 			outputNode := graph.getNodeByName(outputDeviceName)
 
 			if outputNode == nil {
-				outputNode = graph.createNewNode(outputDeviceName, isRequiredNode)
+				outputNode = graph.createNewNode(outputDeviceName, requiredNodes)
 			}
 
 			deviceNode.AddNext(outputNode)
 		}
 	}
 
-	fmt.Println()
+	fmt.Printf("%d nodes have been processed                                       \n", len(devices))
 
 	return graph
 }
@@ -79,20 +78,17 @@ func (g *Graph) addNodeToRoot(
 
 func (g *Graph) createNewNode(
 	deviceName string,
-	isRequiredNode bool,
-) *Node {
-	newNode := NewNode(deviceName, isRequiredNode)
-	g.nodesByName[deviceName] = newNode
-	return newNode
-}
-
-func (g *Graph) CountPathsBackwards(
-	from string,
-	to string,
 	requiredNodes []string,
-) uint {
+) *Node {
+	var actualRequiredNodes []string
 
-	toNode := g.getNodeByName(to)
+	if slices.Contains(requiredNodes, deviceName) {
+		actualRequiredNodes = append(actualRequiredNodes, deviceName)
+	}
 
-	return toNode.CountPathsToBackwards(from, requiredNodes)
+	newNode := NewNode(deviceName, actualRequiredNodes)
+
+	g.nodesByName[deviceName] = newNode
+
+	return newNode
 }
