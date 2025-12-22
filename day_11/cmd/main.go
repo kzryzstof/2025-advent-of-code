@@ -24,18 +24,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	graph := abstractions.BuildGraph(devices)
+	fmt.Printf("%d devices read\n", len(devices))
+
+	requiredNodes := []string{"fft", "dac"}
+
+	graph := abstractions.BuildGraph(devices, requiredNodes)
+
+	fmt.Printf("Graph built\n")
 
 	from := "svr"
 	to := "out"
-	requiredNodes := []string{"fft", "dac"}
 
-	pathsCount := graph.CountPaths(from, to, requiredNodes)
+	pathsCount := graph.CountPathsBackwards(from, to, requiredNodes)
 
 	elapsed := time.Since(startTime)
 
 	/* Prints the result */
-	fmt.Printf("The room has %d devices. Graph has %d path from '%s' to '%s' .\n", len(devices), pathsCount, from, to)
+	fmt.Printf("Graph has %d path from '%s' to '%s'\n", pathsCount, from, to)
 
 	fmt.Printf("Execution time: %v\n", elapsed)
 }

@@ -53,7 +53,7 @@ func TestGraph_BuildGraph(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			graph := BuildGraph(tt.devices)
+			graph := BuildGraph(tt.devices, tt.requiredNodes)
 
 			actualPathsCount := graph.CountPaths(
 				tt.fromNode,
