@@ -1,12 +1,17 @@
 package abstractions
 
-import "slices"
+import (
+	"os"
+	"slices"
+)
 
 type Node struct {
 	name          string
 	parents       []*Node
 	next          []*Node
 	requiredNodes []string
+	visited       int
+	newPathsCount int64
 }
 
 func NewNode(
@@ -18,6 +23,8 @@ func NewNode(
 		[]*Node{},
 		[]*Node{},
 		requiredNodes,
+		0,
+		-1,
 	}
 }
 
@@ -102,13 +109,17 @@ func (n *Node) testPaths(
 	visitedNodes []string,
 ) uint {
 
+	if n.newPathsCount != -1 {
+		return currentCount + uint(n.newPathsCount)
+	}
+
 	Print(visitedNodes, currentCount, encounteredNodes)
 
 	if !slices.Contains(visitedNodes, n.name) {
 		visitedNodes = AddOnce(visitedNodes, n.name)
 	} else {
 		/* Loop detected */
-		return currentCount
+		os.Exit(1)
 	}
 
 	if slices.Contains(requiredNodes, n.name) {
@@ -121,6 +132,8 @@ func (n *Node) testPaths(
 		}
 		return currentCount
 	}
+
+	previousCurrentCount := currentCount
 
 	for _, nextNode := range n.next {
 
@@ -142,5 +155,6 @@ func (n *Node) testPaths(
 		)
 	}
 
+	n.newPathsCount = int64(currentCount) - int64(previousCurrentCount)
 	return currentCount
 }

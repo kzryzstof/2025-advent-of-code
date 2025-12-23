@@ -2,7 +2,6 @@ package abstractions
 
 import (
 	"fmt"
-	"slices"
 )
 
 const (
@@ -28,16 +27,29 @@ func Print(
 	currentCount uint,
 	encounteredNodes []string,
 ) {
-	fmt.Printf("%d | > ", currentCount)
+	fmt.Printf("%d | > %d nodes", currentCount, len(slice))
 
-	for _, sliceItem := range slice {
-		if slices.Contains(encounteredNodes, sliceItem) {
-			/* Invert colors for encountered nodes */
-			fmt.Print(Reverse + sliceItem + Reset + ", ")
-		} else {
-			fmt.Print(sliceItem + ", ")
-		}
-	}
+	//for _, sliceItem := range slice {
+	//	if slices.Contains(encounteredNodes, sliceItem) {
+	//		/* Invert colors for encountered nodes */
+	//		fmt.Print(Reverse + sliceItem + Reset + ", ")
+	//	} else {ß
+	//		fmt.Print(sliceItem + ", ")
+	//	}
+	//}
+
+	/*
+		A
+		|
+		B
+		| \
+		C D
+		| /
+		E
+		|
+		F
+
+	*/
 
 	fmt.Print("\r")
 }
