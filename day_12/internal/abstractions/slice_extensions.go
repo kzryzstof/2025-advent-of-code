@@ -19,3 +19,10 @@ func Reverse(
 		slice[r][0], slice[r][2] = slice[r][2], slice[r][0]
 	}
 }
+
+func RotateClockwise(
+	slice [][]byte,
+) {
+	Transpose(slice)
+	Reverse(slice)
+}
