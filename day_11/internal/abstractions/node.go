@@ -95,7 +95,7 @@ func (n *Node) CountPathsTo(
 ) uint {
 	currentCount := uint(0)
 
-	return n.testPaths(to, currentCount, requiredNodes, []string{}, []string{})
+	return n.testPaths(to, currentCount, requiredNodes, []string{})
 }
 
 func (n *Node) testPaths(
@@ -103,7 +103,6 @@ func (n *Node) testPaths(
 	currentCount uint,
 	requiredNodes []string,
 	encounteredNodes []string,
-	visitedNodes []string,
 ) uint {
 
 	if n.newPathsCount != -1 {
@@ -111,12 +110,6 @@ func (n *Node) testPaths(
 			We have already visited this node before. Let's return the cached value containing the number of paths.
 		*/
 		return currentCount + uint(n.newPathsCount)
-	}
-
-	Print(visitedNodes, currentCount)
-
-	if !slices.Contains(visitedNodes, n.name) {
-		visitedNodes = AddOnce(visitedNodes, n.name)
 	}
 
 	if slices.Contains(requiredNodes, n.name) {
@@ -148,7 +141,6 @@ func (n *Node) testPaths(
 			currentCount,
 			requiredNodes,
 			encounteredNodes,
-			visitedNodes,
 		)
 	}
 
