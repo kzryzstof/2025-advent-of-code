@@ -44,7 +44,7 @@ func (r *CavernReader) Read() (*abstractions.Cavern, error) {
 	}
 
 	return abstractions.NewCavern(
-		presents,
+		abstractions.NewPresents(presents),
 		christmasTrees,
 	), nil
 }

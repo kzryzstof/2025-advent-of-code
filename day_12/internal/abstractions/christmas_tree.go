@@ -18,3 +18,9 @@ func NewChristmasTree(
 		presentIndices,
 	}
 }
+
+func (ct *ChristmasTree) TryFit(
+	presents *Presents,
+) bool {
+	return false
+}

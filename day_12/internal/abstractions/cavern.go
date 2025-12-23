@@ -1,12 +1,12 @@
 package abstractions
 
 type Cavern struct {
-	presents       map[uint]*Present
+	presents       *Presents
 	christmasTrees []*ChristmasTree
 }
 
 func NewCavern(
-	presents map[uint]*Present,
+	presents *Presents,
 	christmasTrees []*ChristmasTree,
 ) *Cavern {
 	return &Cavern{
@@ -16,7 +16,7 @@ func NewCavern(
 }
 
 func (c *Cavern) GetPresentsCount() uint {
-	return uint(len(c.presents))
+	return c.presents.Count()
 }
 
 func (c *Cavern) GetChristmasTreesCount() uint {
