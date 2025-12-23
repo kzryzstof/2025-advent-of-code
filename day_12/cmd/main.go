@@ -25,7 +25,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("%d presents read\n", cavern.GetPresentsCount())
+	fmt.Printf("Found %d presents\n", cavern.GetPresentsCount())
+	fmt.Printf("Found %d Christmas trees\n", cavern.GetChristmasTreesCount())
 
 	/* Prints the result */
 	fmt.Printf("Execution time: %v\n", elapsed)
