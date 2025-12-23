@@ -1,30 +1,21 @@
 package abstractions
 
-import (
-	"fmt"
-)
+func Transpose(
+	slice [][]byte,
+) {
+	/* We assume square data for simplicity */
 
-const (
-	Reset   = "\033[0m"
-	Reverse = "\033[7m" // Inverts foreground and background
-)
-
-func AddOnce(
-	slice []string,
-	text string,
-) []string {
-	for _, sliceItem := range slice {
-		if sliceItem == text {
-			return slice
+	for row := 0; row < len(slice); row++ {
+		for col := row + 1; col < len(slice); col++ {
+			slice[row][col], slice[col][row] = slice[col][row], slice[row][col]
 		}
 	}
-
-	return append(slice, text)
 }
 
-func Print(
-	slice []string,
-	currentCount uint,
+func Reverse(
+	slice [][]byte,
 ) {
-	fmt.Printf("%d | > %d nodes\r", currentCount, len(slice))
+	for r := 0; r < 3; r++ {
+		slice[r][0], slice[r][2] = slice[r][2], slice[r][0]
+	}
 }
