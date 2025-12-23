@@ -1,7 +1,6 @@
 package abstractions
 
 import (
-	"os"
 	"slices"
 )
 
@@ -10,7 +9,6 @@ type Node struct {
 	parents       []*Node
 	next          []*Node
 	requiredNodes []string
-	visited       int
 	newPathsCount int64
 }
 
@@ -23,7 +21,6 @@ func NewNode(
 		[]*Node{},
 		[]*Node{},
 		requiredNodes,
-		0,
 		-1,
 	}
 }
@@ -110,16 +107,16 @@ func (n *Node) testPaths(
 ) uint {
 
 	if n.newPathsCount != -1 {
+		/*
+			We have already visited this node before. Let's return the cached value containing the number of paths.
+		*/
 		return currentCount + uint(n.newPathsCount)
 	}
 
-	Print(visitedNodes, currentCount, encounteredNodes)
+	Print(visitedNodes, currentCount)
 
 	if !slices.Contains(visitedNodes, n.name) {
 		visitedNodes = AddOnce(visitedNodes, n.name)
-	} else {
-		/* Loop detected */
-		os.Exit(1)
 	}
 
 	if slices.Contains(requiredNodes, n.name) {
@@ -155,6 +152,11 @@ func (n *Node) testPaths(
 		)
 	}
 
+	/*
+		Important.
+		Keep track how many new paths have been added going through all the nodes below.
+		Since the nodes are being visited multiple times, again and again, let's cache the value.
+	*/
 	n.newPathsCount = int64(currentCount) - int64(previousCurrentCount)
 	return currentCount
 }

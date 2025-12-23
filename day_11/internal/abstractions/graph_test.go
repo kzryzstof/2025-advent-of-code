@@ -24,7 +24,7 @@ func TestGraph_BuildGraph(t *testing.T) {
 			},
 			fromNode:           "you",
 			toNode:             "out",
-			requiredNodes:      []string{},
+			requiredNodes:      []string{"you", "out"},
 			expectedPathsCount: 5,
 		},
 		{
