@@ -56,8 +56,8 @@ func TestTranspose3x3(t *testing.T) {
 	}
 }
 
-func TestReverse3x3(t *testing.T) {
-	// Only 3x3 matrices, table-driven.
+func TestHorizontalFlip3x3(t *testing.T) {
+	// renamed from Reverse; horizontal flip of each row.
 	tests := []struct {
 		name string
 		in   [][]byte
@@ -84,7 +84,46 @@ func TestReverse3x3(t *testing.T) {
 			got[i] = append([]byte(nil), tt.in[i]...)
 		}
 
-		Reverse(got)
+		HorizontalFlip(got)
+
+		for r := 0; r < 3; r++ {
+			for c := 0; c < 3; c++ {
+				if got[r][c] != tt.want[r][c] {
+					t.Fatalf("%s: mismatch at (%d,%d): got %q, want %q", tt.name, r, c, got[r][c], tt.want[r][c])
+				}
+			}
+		}
+	}
+}
+
+func TestVerticalFlip3x3(t *testing.T) {
+	tests := []struct {
+		name string
+		in   [][]byte
+		want [][]byte
+	}{
+		{
+			name: "vertical flip of rows",
+			in: [][]byte{
+				{'A', 'B', 'C'},
+				{'D', 'E', 'F'},
+				{'G', 'H', 'I'},
+			},
+			want: [][]byte{
+				{'G', 'H', 'I'},
+				{'D', 'E', 'F'},
+				{'A', 'B', 'C'},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		got := make([][]byte, len(tt.in))
+		for i := range tt.in {
+			got[i] = append([]byte(nil), tt.in[i]...)
+		}
+
+		VerticalFlip(got)
 
 		for r := 0; r < 3; r++ {
 			for c := 0; c < 3; c++ {

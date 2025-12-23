@@ -12,7 +12,7 @@ func Transpose(
 	}
 }
 
-func Reverse(
+func HorizontalFlip(
 	slice [][]byte,
 ) {
 	for r := 0; r < 3; r++ {
@@ -20,9 +20,17 @@ func Reverse(
 	}
 }
 
+func VerticalFlip(
+	slice [][]byte,
+) {
+	for c := 0; c < 3; c++ {
+		slice[0][c], slice[2][c] = slice[2][c], slice[0][c]
+	}
+}
+
 func RotateClockwise(
 	slice [][]byte,
 ) {
 	Transpose(slice)
-	Reverse(slice)
+	HorizontalFlip(slice)
 }
