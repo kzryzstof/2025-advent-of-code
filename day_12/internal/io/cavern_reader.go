@@ -84,6 +84,7 @@ func (r *CavernReader) extractPresents(
 		}
 
 		presents[presentIndex] = abstractions.NewPresent(
+			presentIndex,
 			shape,
 			3,
 			3,

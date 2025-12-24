@@ -1,5 +1,7 @@
 package abstractions
 
+import "fmt"
+
 func Transpose(
 	slice [][]byte,
 ) {
@@ -33,4 +35,59 @@ func RotateClockwise(
 ) {
 	Transpose(slice)
 	HorizontalFlip(slice)
+}
+
+func GetCopy(
+	slice [][]byte,
+) [][]byte {
+
+	sliceCopy := make([][]byte, len(slice))
+
+	for row := 0; row < len(sliceCopy); row++ {
+		sliceCopy[row] = make([]byte, len(slice[row]))
+		for col := 0; col < len(sliceCopy[row]); col++ {
+			sliceCopy[row][col] = slice[row][col]
+		}
+	}
+
+	return sliceCopy
+}
+
+func Clear(
+	slice [][]byte,
+) {
+
+	for row := 0; row < len(slice); row++ {
+		for col := 0; col < len(slice[row]); col++ {
+			slice[row][col] = 0
+		}
+	}
+}
+
+func CopyTo(
+	dst [][]byte,
+	src [][]byte,
+	x, y int,
+) {
+
+	for row := 0; row < len(src); row++ {
+		for col := 0; col < len(src[row]); col++ {
+			dst[row+y][col+x] = src[row][col]
+		}
+	}
+}
+
+func Print(
+	slice [][]byte,
+) {
+	for _, row := range slice {
+		for _, cell := range row {
+			if cell == 0 {
+				fmt.Print(".")
+			} else {
+				fmt.Print("#")
+			}
+		}
+		println()
+	}
 }
