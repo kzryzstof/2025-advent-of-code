@@ -2,6 +2,10 @@ package abstractions
 
 import "fmt"
 
+const (
+	NotFound = -1
+)
+
 func Transpose(
 	slice [][]byte,
 ) {
@@ -75,6 +79,30 @@ func CopyTo(
 			dst[row+y][col+x] = src[row][col]
 		}
 	}
+}
+
+func IsEmpty(
+	slice [][]byte,
+	position Position,
+) bool {
+	return slice[position.Row][position.Col] == 0
+}
+
+func FindEmptyIndex(
+	slice [][]byte,
+	position Position,
+	direction Direction,
+	boundary Position,
+) Position {
+
+	for IsEmpty(slice, position) {
+		if position.Equals(boundary) {
+			return Position{NotFound, NotFound}
+		}
+		position = position.Add(direction)
+	}
+
+	return position
 }
 
 func Print(
