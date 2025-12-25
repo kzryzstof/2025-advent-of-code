@@ -1,5 +1,7 @@
 package abstractions
 
+import "math"
+
 type Position struct {
 	Row int
 	Col int
@@ -43,4 +45,64 @@ func (p Position) Equals(
 	otherPosition Position,
 ) bool {
 	return p.Row == otherPosition.Row && p.Col == otherPosition.Col
+}
+
+func FindMinCol(positions []Position) int {
+
+	if len(positions) == 0 {
+		return -1
+	}
+
+	minCol := math.MaxInt32
+
+	for _, position := range positions {
+		minCol = int(math.Min(float64(minCol), float64(position.Col)))
+	}
+
+	return minCol
+}
+
+func FindMinRow(positions []Position) int {
+
+	if len(positions) == 0 {
+		return -1
+	}
+
+	minRow := math.MaxInt32
+
+	for _, position := range positions {
+		minRow = int(math.Min(float64(minRow), float64(position.Row)))
+	}
+
+	return minRow
+}
+
+func FindMaxCol(positions []Position) int {
+
+	if len(positions) == 0 {
+		return -1
+	}
+
+	maxCol := math.MinInt32
+
+	for _, position := range positions {
+		maxCol = int(math.Max(float64(maxCol), float64(position.Col)))
+	}
+
+	return maxCol
+}
+
+func FindMaxRow(positions []Position) int {
+
+	if len(positions) == 0 {
+		return -1
+	}
+
+	maxRow := math.MinInt32
+
+	for _, position := range positions {
+		maxRow = int(math.Max(float64(maxRow), float64(position.Row)))
+	}
+
+	return maxRow
 }

@@ -97,34 +97,41 @@ func pack(
 	testDirection abstractions.Direction,
 ) abstractions.Dimension {
 
-	leftObjectFreePositions := make([]abstractions.Position, 0, MaximumShapeSize)
-	rightObjectFreePositions := make([]abstractions.Position, 0, MaximumShapeSize)
+	/*
+		The approach here is that, row after row, we measure how far left the shape can go
+		until it overlaps with the other shape
+	*/
+
+	stableObjectFreePositions := make([]abstractions.Position, 0)
+	packedObjectFreePositions := make([]abstractions.Position, 0)
 
 	oppositeDirection := packDirection.Opposite()
 
-	/* The approach here, row after row, we measure how far left the shape can go */
+	stableShapeBoundary := abstractions.OriginPosition()
+	packedShapeBoundary := otherPosition.Offset(MaximumShapeSize, oppositeDirection)
+
 	for sectionIndex := 0; sectionIndex < MaximumShapeSize; sectionIndex++ {
 
 		/* Find out how much space in the opposite direction the shape can be packed */
-		leftObjectFreePositions = append(
-			leftObjectFreePositions,
+		stableObjectFreePositions = append(
+			stableObjectFreePositions,
 			abstractions.FindEmptyIndex(
 				shape,
 				position,
 				packDirection,
 				/* Sets the boundary for testing cells */
-				position.Offset(MaximumShapeSize, packDirection),
+				stableShapeBoundary,
 			),
 		)
 
-		rightObjectFreePositions = append(
-			rightObjectFreePositions,
+		packedObjectFreePositions = append(
+			packedObjectFreePositions,
 			abstractions.FindEmptyIndex(
 				otherShape,
 				otherPosition,
 				oppositeDirection,
 				/* Sets the boundary for testing cells */
-				otherPosition.Offset(MaximumShapeSize, oppositeDirection),
+				packedShapeBoundary,
 			),
 		)
 
@@ -132,5 +139,18 @@ func pack(
 		otherPosition = otherPosition.Add(testDirection)
 	}
 
-	return abstractions.Dimension{Wide: 0, Long: 0}
+	/*
+		The overlap has been detected. Let's get the boundaries of the new shape */
+
+	/* Note: the other shape has an offset compared to the shape */
+	minColLeft := abstractions.FindMinCol(stableObjectFreePositions)
+	maxColRight := abstractions.FindMaxCol(packedObjectFreePositions) + packDirection.Col*MaximumShapeSize
+
+	minRowRight := abstractions.FindMinRow(stableObjectFreePositions)
+	maxRowRight := abstractions.FindMaxRow(packedObjectFreePositions) + packDirection.Row*MaximumShapeSize
+
+	wide := maxColRight - minColLeft + 1
+	long := maxRowRight - minRowRight + 1
+
+	return abstractions.Dimension{Wide: wide, Long: long}
 }
