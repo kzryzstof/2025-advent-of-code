@@ -107,8 +107,8 @@ func (r *CavernReader) extractChristmasTrees(
 		}
 
 		var wide, long uint
-		var presents0Count, presents1Count, presents2Count, presents3Count, presents4Count uint
-		_, err := fmt.Sscanf(line, "%dx%d: %d %d %d %d %d", &wide, &long, &presents0Count, &presents1Count, &presents2Count, &presents3Count, &presents4Count)
+		var presents0Count, presents1Count, presents2Count, presents3Count, presents4Count, presents5Count uint
+		_, err := fmt.Sscanf(line, "%dx%d: %d %d %d %d %d %d", &wide, &long, &presents0Count, &presents1Count, &presents2Count, &presents3Count, &presents4Count, &presents5Count)
 
 		if err != nil {
 			return nil, fmt.Errorf("Error reading Christmas trees: %v\n", err)
@@ -123,6 +123,7 @@ func (r *CavernReader) extractChristmasTrees(
 				2: presents2Count,
 				3: presents3Count,
 				4: presents4Count,
+				5: presents5Count,
 			}),
 		)
 	}

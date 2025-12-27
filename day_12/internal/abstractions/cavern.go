@@ -39,7 +39,14 @@ func (c *Cavern) PackAll() uint {
 
 	for christmasTreeIndex, christmasTree := range c.christmasTrees {
 
-		fmt.Printf("Placing presents under Christmas tree %d. Region available: %d\n", christmasTreeIndex, christmasTree.Region.GetArea())
+		presents := christmasTree.GetPresents()
+
+		presentsCount := uint(0)
+		for _, count := range presents {
+			presentsCount += count
+		}
+
+		fmt.Printf("Placing %d presents under Christmas tree %d. Region available: %d\n", presentsCount, christmasTreeIndex, christmasTree.Region.GetArea())
 
 		catalog := ComputePermutations(
 			c.GetPresents(),
@@ -47,18 +54,21 @@ func (c *Cavern) PackAll() uint {
 			false,
 		)
 
-		//catalog.PrintOptimalCombinations(christmasTree.Region)
+		catalog.PrintOptimalCombinations(christmasTree.Region)
 
 		totalRegionArea := christmasTree.Region.GetArea()
 		currentRegionArea := uint(0)
-
-		presents := christmasTree.GetPresents()
 
 		for currentPresentIndex, currentPresentsCount := range presents {
 
 			if currentPresentsCount == 0 {
 				/* Nice */
 				continue
+			}
+
+			if currentRegionArea > totalRegionArea {
+				/* It is over */
+				break
 			}
 
 			fmt.Printf("\tPlacing %d presents #%d\r", currentPresentsCount, currentPresentIndex)
@@ -76,9 +86,20 @@ func (c *Cavern) PackAll() uint {
 					}
 
 					if combination.OtherPresentIndex == currentPresentIndex {
+						if otherPresentCount < 2 {
+							/* Not enough presents to split */
+							continue
+						}
+
 						/* We split the presents in two groups */
 						otherPresentCount = uint(math.Floor(float64(otherPresentCount) / 2.0))
 						currentPresentsCount = otherPresentCount
+					} else {
+						if currentPresentsCount < otherPresentCount {
+							otherPresentCount = currentPresentsCount
+						} else if otherPresentCount > currentPresentsCount {
+							currentPresentsCount = otherPresentCount
+						}
 					}
 
 					presents[currentPresentIndex] -= currentPresentsCount
