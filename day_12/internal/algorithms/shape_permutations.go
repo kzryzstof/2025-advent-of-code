@@ -2,20 +2,22 @@ package algorithms
 
 import (
 	"day_12/internal/abstractions"
+	"fmt"
 )
 
 type operation func([][]byte)
 
 var (
-	packDown  = abstractions.Direction{Row: 1, Col: 0}
-	packUp    = abstractions.Direction{Row: -1, Col: 0}
-	packRight = abstractions.Direction{Row: 0, Col: -1}
-	packLeft  = abstractions.Direction{Row: 0, Col: 1}
+	packDown    = abstractions.Direction{Row: 1, Col: 0}
+	packUp      = abstractions.Direction{Row: -1, Col: 0}
+	packToLeft  = abstractions.Direction{Row: 0, Col: -1}
+	packToRight = abstractions.Direction{Row: 0, Col: 1}
 )
 
 const (
 	// MaximumShapeSize /* All the presents occupies a 3x3 region */
 	MaximumShapeSize = 3
+	CanvasSize       = MaximumShapeSize * 2
 )
 
 /*
@@ -31,9 +33,12 @@ of presents every time.
 */
 func ComputePermutations(
 	presents *abstractions.Presents,
-) {
+) *abstractions.CombinationCatalog {
+	combinationsCount := 0
+
 	/* List of operations to apply to the presents */
 	operations := []operation{
+		abstractions.NoOp,
 		abstractions.RotateClockwise,
 		abstractions.RotateClockwise,
 		abstractions.RotateClockwise,
@@ -50,7 +55,13 @@ func ComputePermutations(
 		abstractions.RotateClockwise,
 	}
 
+	catalog := abstractions.NewCombinationCatalog()
+
 	for leftPresent := range presents.GetAllPresents() {
+
+		//if leftPresent.GetIndex() != 0 {
+		//	continue
+		//}
 
 		leftShape := leftPresent.GetShape()
 
@@ -63,94 +74,190 @@ func ComputePermutations(
 
 				rightShape := rightPresent.GetShape()
 
-				for _, rightOperation := range operations {
+				for operationIndex, rightOperation := range operations {
+
+					fmt.Printf("Packing present %d with %d (%d/%d)\r", leftPresent.GetIndex(), rightPresent.GetIndex(), operationIndex+1, len(operations))
 
 					/* Apply the operation in-place on the left shape */
 					rightOperation(rightShape)
 
+					//abstractions.Print(leftShape)
+					//fmt.Println("---")
+					//abstractions.Print(rightShape)
+
 					/* Test packing the shape from the right */
+					//for rowIndex := 0; rowIndex < 3; rowIndex++ {
 
-					for rowIndex := 0; rowIndex < 3; rowIndex++ {
+					packedDimension := pack(
+						leftShape,
+						rightShape,
+						packToLeft,
+					)
 
-						pack(
-							leftShape,
-							rightShape,
-							abstractions.Position{Row: rowIndex, Col: 2},
-							abstractions.Position{Row: rowIndex, Col: 0},
-							packRight,
-							abstractions.Direction{Row: 0, Col: 1},
-						)
-					}
+					//fmt.Printf("%dx%d\n", packedDimension.Wide, packedDimension.Long)
 
+					combinationsCount++
+
+					catalog.StoreNewCombination(
+						leftPresent.GetIndex(),
+						rightPresent.GetIndex(),
+						packedDimension,
+					)
 				}
 			}
 		}
 	}
+
+	fmt.Printf("All presents packed: %d combinations tested              \n", combinationsCount)
+
+	return catalog
 }
 
 func pack(
-	shape [][]byte,
-	otherShape [][]byte,
-	position abstractions.Position,
-	otherPosition abstractions.Position,
+	stableShape [][]byte,
+	packedShape [][]byte,
 	packDirection abstractions.Direction,
-	testDirection abstractions.Direction,
 ) abstractions.Dimension {
 
-	/*
-		The approach here is that, row after row, we measure how far left the shape can go
-		until it overlaps with the other shape
-	*/
+	packOffset := computePackOffset(
+		stableShape,
+		packedShape,
+		packDirection,
+	)
 
-	stableObjectFreePositions := make([]abstractions.Position, 0)
-	packedObjectFreePositions := make([]abstractions.Position, 0)
+	// Temporary canvas large enough to hold both shapes plus offset.
+	// For 3x3 inputs, 6x6 is safe.
+
+	canvas := make([][]byte, CanvasSize)
+	for i := range canvas {
+		canvas[i] = make([]byte, CanvasSize)
+	}
+
+	// Helper to place a shape at an offset.
+	placeShape := func(shape [][]byte, rowOffset, colOffset int) {
+		for r := 0; r < MaximumShapeSize; r++ {
+			for c := 0; c < MaximumShapeSize; c++ {
+				if shape[r][c] == 0 {
+					continue
+				}
+				rr := r + rowOffset
+				cc := c + colOffset
+				if rr < 0 || rr >= CanvasSize || cc < 0 || cc >= CanvasSize {
+					continue
+				}
+				canvas[rr][cc] = 1
+			}
+		}
+	}
+
+	// Stable at origin (0,0).
+	placeShape(
+		stableShape,
+		0,
+		0,
+	)
+
+	// Packed shape translated by packOffset.
+	placeShape(
+		packedShape,
+		packDirection.Opposite().Row*MaximumShapeSize+packOffset.Row,
+		packDirection.Opposite().Col*MaximumShapeSize+packOffset.Col,
+	)
+
+	/*
+		.###
+		####
+		####
+	*/
+	// Compute bounding box of the combined shape.
+	minRow, maxRow := CanvasSize, -1
+	minCol, maxCol := CanvasSize, -1
+
+	for r := 0; r < CanvasSize; r++ {
+		for c := 0; c < CanvasSize; c++ {
+			if canvas[r][c] == 0 {
+				continue
+			}
+			if r < minRow {
+				minRow = r
+			}
+			if r > maxRow {
+				maxRow = r
+			}
+			if c < minCol {
+				minCol = c
+			}
+			if c > maxCol {
+				maxCol = c
+			}
+		}
+	}
+
+	if maxRow == -1 {
+		// No cells set; return empty.
+		return abstractions.Dimension{}
+	}
+
+	wide := maxCol - minCol + 1
+	long := maxRow - minRow + 1
+
+	return abstractions.Dimension{Wide: wide, Long: long}
+}
+
+func computePackOffset(
+	stableShape [][]byte,
+	packedShape [][]byte,
+	packDirection abstractions.Direction,
+) abstractions.Position {
 
 	oppositeDirection := packDirection.Opposite()
 
 	stableShapeBoundary := abstractions.OriginPosition()
-	packedShapeBoundary := otherPosition.Offset(MaximumShapeSize, oppositeDirection)
+	packedShapeBoundary := abstractions.OriginPosition().Offset(MaximumShapeSize, oppositeDirection)
 
-	for sectionIndex := 0; sectionIndex < MaximumShapeSize; sectionIndex++ {
+	/* We compute the delta at each row, and the smallest delta tells us how far we can pack the shape */
+	minimumDelta := abstractions.Position{Row: 3, Col: 3}
+	minimumDistance := abstractions.OriginPosition().GetDistanceTo(minimumDelta)
 
-		/* Find out how much space in the opposite direction the shape can be packed */
-		stableObjectFreePositions = append(
-			stableObjectFreePositions,
-			abstractions.FindEmptyIndex(
-				shape,
-				position,
-				packDirection,
-				/* Sets the boundary for testing cells */
-				stableShapeBoundary,
-			),
+	for row := 0; row < MaximumShapeSize; row++ {
+
+		/* At this specific row, we figure out many empty spots they are looking from the right to the left */
+		initialStablePosition := abstractions.Position{Row: row, Col: MaximumShapeSize - 1}
+
+		stablePosition := abstractions.FindEmptyIndex(
+			stableShape,
+			initialStablePosition,
+			packDirection,
+			/* Sets the boundary for testing cells */
+			stableShapeBoundary,
 		)
 
-		packedObjectFreePositions = append(
-			packedObjectFreePositions,
-			abstractions.FindEmptyIndex(
-				otherShape,
-				otherPosition,
-				oppositeDirection,
-				/* Sets the boundary for testing cells */
-				packedShapeBoundary,
-			),
+		stableShapeDelta := initialStablePosition.SubPosition(stablePosition)
+
+		/* Gets the empty spot available in the stable shape */
+		initialPackedPosition := abstractions.Position{Row: row, Col: 0}
+
+		packedPosition := abstractions.FindEmptyIndex(
+			packedShape,
+			initialPackedPosition,
+			oppositeDirection,
+			/* Sets the boundary for testing cells */
+			packedShapeBoundary,
 		)
 
-		position = position.Add(testDirection)
-		otherPosition = otherPosition.Add(testDirection)
+		packedShapeDelta := initialPackedPosition.SubPosition(packedPosition)
+
+		// ~~~ TODO We must return a general direction> In the last test, it gives the ero
+		/* Compute the number of cells the packed shape can be moved to the left */
+		deltaShape := stableShapeDelta.Mul(packDirection).AddPosition(packedShapeDelta)
+
+		distance := abstractions.OriginPosition().GetDistanceTo(deltaShape)
+
+		if distance < minimumDistance {
+			minimumDistance = distance
+			minimumDelta = deltaShape
+		}
 	}
 
-	/*
-		The overlap has been detected. Let's get the boundaries of the new shape */
-
-	/* Note: the other shape has an offset compared to the shape */
-	minColLeft := abstractions.FindMinCol(stableObjectFreePositions)
-	maxColRight := abstractions.FindMaxCol(packedObjectFreePositions) + packDirection.Col*MaximumShapeSize
-
-	minRowRight := abstractions.FindMinRow(stableObjectFreePositions)
-	maxRowRight := abstractions.FindMaxRow(packedObjectFreePositions) + packDirection.Row*MaximumShapeSize
-
-	wide := maxColRight - minColLeft + 1
-	long := maxRowRight - minRowRight + 1
-
-	return abstractions.Dimension{Wide: wide, Long: long}
+	return abstractions.Position{Row: packDirection.Row * int(minimumDistance), Col: packDirection.Col * int(minimumDistance)}
 }

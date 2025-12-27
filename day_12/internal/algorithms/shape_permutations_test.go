@@ -10,10 +10,7 @@ func TestPack_Empty3x3ShapesPackRight(t *testing.T) {
 		name              string
 		shape             [][]byte
 		otherShape        [][]byte
-		position          abstractions.Position
-		otherPosition     abstractions.Position
 		packDir           abstractions.Direction
-		testDir           abstractions.Direction
 		expectedDimension abstractions.Dimension
 	}{
 		{
@@ -30,10 +27,7 @@ func TestPack_Empty3x3ShapesPackRight(t *testing.T) {
 				{0, 0, 1},
 				{0, 0, 1},
 			},
-			position:          abstractions.Position{Row: 0, Col: 2},
-			otherPosition:     abstractions.Position{Row: 0, Col: 0},
-			packDir:           packRight,
-			testDir:           abstractions.Direction{Row: 1, Col: 0},
+			packDir:           packToLeft,
 			expectedDimension: abstractions.Dimension{Wide: 2, Long: 3},
 		},
 		{
@@ -50,14 +44,11 @@ func TestPack_Empty3x3ShapesPackRight(t *testing.T) {
 				{0, 1, 0},
 				{0, 0, 1},
 			},
-			position:          abstractions.Position{Row: 0, Col: 2},
-			otherPosition:     abstractions.Position{Row: 0, Col: 0},
-			packDir:           packRight,
-			testDir:           abstractions.Direction{Row: 1, Col: 0},
+			packDir:           packToLeft,
 			expectedDimension: abstractions.Dimension{Wide: 6, Long: 3},
 		},
 		{
-			name: "other simple 3x3 columns touching when packed from the right",
+			name: "3x3 shapes that can be packed from the right",
 			// shape has a vertical bar in the first column: (0,0),(1,0),(2,0) = 1
 			shape: [][]byte{
 				{0, 0, 1},
@@ -70,10 +61,7 @@ func TestPack_Empty3x3ShapesPackRight(t *testing.T) {
 				{0, 1, 0},
 				{1, 0, 0},
 			},
-			position:          abstractions.Position{Row: 0, Col: 2},
-			otherPosition:     abstractions.Position{Row: 0, Col: 0},
-			packDir:           packRight,
-			testDir:           abstractions.Direction{Row: 1, Col: 0},
+			packDir:           packToLeft,
 			expectedDimension: abstractions.Dimension{Wide: 4, Long: 3},
 		},
 		{
@@ -90,11 +78,25 @@ func TestPack_Empty3x3ShapesPackRight(t *testing.T) {
 				{0, 1, 0},
 				{0, 0, 1},
 			},
-			position:          abstractions.Position{Row: 0, Col: 2},
-			otherPosition:     abstractions.Position{Row: 0, Col: 0},
 			packDir:           packUp,
-			testDir:           abstractions.Direction{Row: 1, Col: 0},
 			expectedDimension: abstractions.Dimension{Wide: 3, Long: 6},
+		},
+		{
+			name: "present_0-present_2-documented_use_case",
+			// shape has a vertical bar in the first column: (0,0),(1,0),(2,0) = 1
+			shape: [][]byte{
+				{0, 1, 1},
+				{1, 1, 0},
+				{1, 0, 0},
+			},
+			// otherShape has a vertical bar in the last column: (0,2),(1,2),(2,2) = 1
+			otherShape: [][]byte{
+				{0, 0, 1},
+				{0, 1, 1},
+				{1, 1, 1},
+			},
+			packDir:           packToLeft,
+			expectedDimension: abstractions.Dimension{Wide: 4, Long: 3},
 		},
 	}
 
@@ -103,10 +105,7 @@ func TestPack_Empty3x3ShapesPackRight(t *testing.T) {
 			got := pack(
 				tt.shape,
 				tt.otherShape,
-				tt.position,
-				tt.otherPosition,
 				tt.packDir,
-				tt.testDir,
 			)
 
 			if !got.Equals(tt.expectedDimension) {

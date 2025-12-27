@@ -13,6 +13,24 @@ func OriginPosition() Position {
 
 var PositionNotFound = Position{-1, -1}
 
+func (p Position) AddPosition(
+	other Position,
+) Position {
+	return Position{
+		Row: p.Row + other.Row,
+		Col: p.Col + other.Col,
+	}
+}
+
+func (p Position) SubPosition(
+	other Position,
+) Position {
+	return Position{
+		Row: p.Row - other.Row,
+		Col: p.Col - other.Col,
+	}
+}
+
 func (p Position) Add(
 	d Direction,
 ) Position {
@@ -31,6 +49,15 @@ func (p Position) Sub(
 	}
 }
 
+func (p Position) Mul(
+	d Direction,
+) Position {
+	return Position{
+		Row: p.Row * d.Row,
+		Col: p.Col * d.Col,
+	}
+}
+
 func (p Position) Offset(
 	offset int,
 	d Direction,
@@ -39,6 +66,14 @@ func (p Position) Offset(
 		Row: p.Row + (offset-1)*d.Row,
 		Col: p.Col + (offset-1)*d.Col,
 	}
+}
+
+func (p Position) GetDistanceTo(
+	other Position,
+) float64 {
+	rowDistance := float64(p.Row - other.Row)
+	columnDistance := float64(p.Col - other.Col)
+	return math.Sqrt(rowDistance*rowDistance + columnDistance*columnDistance)
 }
 
 func (p Position) Equals(

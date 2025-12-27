@@ -41,6 +41,11 @@ func RotateClockwise(
 	HorizontalFlip(slice)
 }
 
+func NoOp(
+	slice [][]byte,
+) {
+}
+
 func GetCopy(
 	slice [][]byte,
 ) [][]byte {
@@ -116,6 +121,6 @@ func Print(
 				fmt.Print("#")
 			}
 		}
-		println()
+		fmt.Println()
 	}
 }

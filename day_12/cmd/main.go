@@ -26,49 +26,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	/*
-					Some precomputation could be useful.
-
-					To reduce the complexity of polygons by grouping them upfront.
-
-					For instance, polygons 0 and 2 could easily be combined:
-
-					0:		2:			-> Super Shape 0-2
-					.##		###			   .##		###     		..#
-					##.		.##			   ##.		.## -> (flip) 	.##
-					#..		..#			   #..		..#    			###
-
-			 							 -> Super Shape 0-2 is 3x4 now.
-				  						  .##
-										  ###
-										  ###
-									      ###
-
-			 						     -> Super Shape 2-2 is 3x4 (which one missing spot)
-										  ###
-										  ###
-										  ###
-									      ###
-
-					Since we can know the new dimensions, we could just quickly an roughly
-					figure out if there is enough space without trying all the solutions.
-
-					Default
-					3x3
-
-					Index 0		Index 1		Index 2		Index 3		Index 4		Index5
-					0+2	-> 3x4													5+5	-> 	4x4
-
-
-		###
-		####
-		####
-		 ###
-	*/
 	fmt.Printf("Found %d presents\n", cavern.GetPresentsCount())
 	fmt.Printf("Found %d Christmas trees\n", cavern.GetChristmasTreesCount())
 
-	algorithms.ComputePermutations(cavern.GetPresents())
+	catalog := algorithms.ComputePermutations(cavern.GetPresents())
+
+	catalog.PrintOptimalCombinations()
 
 	/* Prints the result */
 	fmt.Printf("Execution time: %v\n", elapsed)
