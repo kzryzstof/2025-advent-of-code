@@ -110,6 +110,8 @@ func ComputePermutations(
 
 	fmt.Printf("All presents packed: %d combinations tested              \n", combinationsCount)
 
+	catalog.Sort()
+	
 	return catalog
 }
 

@@ -23,3 +23,7 @@ func NewRegion(
 		space,
 	}
 }
+
+func (r *Region) GetArea() uint {
+	return r.wide * r.long
+}
