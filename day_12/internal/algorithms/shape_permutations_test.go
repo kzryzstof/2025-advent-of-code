@@ -141,19 +141,21 @@ func TestShapePermutations_Pack(t *testing.T) {
 			expectedDimension: abstractions.Dimension{Wide: 4, Long: 3},
 		},
 		{
-			name: "present_4-present_4-documented_use_case",
+			name: "present_4-present_4-documented_use_case-bug_incorrect_pack",
+			// shape has a vertical bar in the first column: (0,0),(1,0),(2,0) = 1
 			shape: [][]byte{
 				{1, 1, 1},
 				{1, 0, 0},
 				{1, 1, 1},
 			},
+			// otherShape has a vertical bar in the last column: (0,2),(1,2),(2,2) = 1
 			otherShape: [][]byte{
+				{0, 0, 0},
 				{1, 1, 1},
-				{1, 0, 0},
-				{1, 1, 1},
+				{0, 0, 1},
 			},
 			packDir:           packToLeft,
-			expectedDimension: abstractions.Dimension{Wide: 4, Long: 3},
+			expectedDimension: abstractions.Dimension{Wide: 4, Long: 4},
 		},
 	}
 
@@ -163,6 +165,7 @@ func TestShapePermutations_Pack(t *testing.T) {
 				tt.shape,
 				tt.otherShape,
 				tt.packDir,
+				true,
 			)
 
 			if !got.Equals(tt.expectedDimension) {

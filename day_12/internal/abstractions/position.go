@@ -11,8 +11,6 @@ func OriginPosition() Position {
 	return Position{Row: 0, Col: 0}
 }
 
-var PositionNotFound = Position{-1, -1}
-
 func (p Position) AddPosition(
 	other Position,
 ) Position {

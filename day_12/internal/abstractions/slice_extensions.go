@@ -74,16 +74,33 @@ func Clear(
 }
 
 func CopyTo(
-	dst [][]byte,
 	src [][]byte,
-	x, y int,
-) {
+	shift Direction,
+) [][]byte {
+
+	dst := make([][]byte, len(src))
 
 	for row := 0; row < len(src); row++ {
+		dst[row] = make([]byte, len(src[0]))
+	}
+
+	for row := 0; row < len(src); row++ {
+
+		if row+shift.Row >= len(src) || row+shift.Row < 0 {
+			continue
+		}
+
 		for col := 0; col < len(src[row]); col++ {
-			dst[row+y][col+x] = src[row][col]
+
+			if col+shift.Col >= len(src[row]) || col+shift.Col < 0 {
+				continue
+			}
+
+			dst[row+shift.Row][col+shift.Col] = src[row][col]
 		}
 	}
+
+	return dst
 }
 
 func IsEmpty(
@@ -97,14 +114,13 @@ func FindEmptyIndex(
 	slice [][]byte,
 	position Position,
 	direction Direction,
-	boundary Position,
 ) Position {
 
 	for IsEmpty(slice, position) {
-		if position.Equals(boundary) {
-			return Position{NotFound, NotFound}
-		}
 		position = position.Add(direction)
+		if position.Col > 2 || position.Row > 2 || position.Col < 0 || position.Row < 0 {
+			return position
+		}
 	}
 
 	return position
@@ -121,6 +137,28 @@ func Print(
 				fmt.Print("#")
 			}
 		}
+		fmt.Println()
+	}
+}
+
+func PrintShapes(
+	leftSlice [][]byte,
+	rightSlice [][]byte,
+) {
+	printRowCell := func(row []byte) {
+		for _, cell := range row {
+			if cell == 0 {
+				fmt.Print(".")
+			} else {
+				fmt.Print("#")
+			}
+		}
+	}
+
+	for rowIndex := range leftSlice {
+		printRowCell(leftSlice[rowIndex])
+		fmt.Print(" | ")
+		printRowCell(rightSlice[rowIndex])
 		fmt.Println()
 	}
 }

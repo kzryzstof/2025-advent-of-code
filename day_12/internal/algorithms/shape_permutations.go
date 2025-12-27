@@ -85,35 +85,47 @@ func ComputePermutations(
 					/* Apply the operation in-place on the left shape */
 					rightOperation(rightShape)
 
-					if verbose {
-						fmt.Println("Left stable shape:")
-						abstractions.Print(leftShape)
-						fmt.Println("\nRight shape:")
-						abstractions.Print(rightShape)
-						fmt.Println()
+					/*
+						Test packing the shape from the right while also altering the row & col
+						to test additional combinations
+					*/
+
+					for directionShift := 0; directionShift < MaximumShapeSize; directionShift++ {
+
+						/*
+							NOTE
+							The computed shift is based on the direction of the packing.
+							If we are packing horizontally, we must shift the vertical position
+						*/
+						additionalShift := abstractions.Direction{Row: directionShift * -packToLeft.Col, Col: directionShift * -packToLeft.Row}
+
+						shiftRightShape := abstractions.CopyTo(rightShape, additionalShift)
+
+						if verbose {
+							abstractions.PrintShapes(leftShape, shiftRightShape)
+							fmt.Println()
+						}
+
+						packedDimension := pack(
+							leftShape,
+							shiftRightShape,
+							packToLeft,
+							verbose,
+						)
+
+						if verbose {
+							fmt.Printf("Dimension of the combination: %dx%d\n", packedDimension.Wide, packedDimension.Long)
+							fmt.Println()
+						}
+
+						combinationsCount++
+
+						catalog.StoreNewCombination(
+							leftPresent.GetIndex(),
+							rightPresent.GetIndex(),
+							packedDimension,
+						)
 					}
-
-					/* Test packing the shape from the right */
-					//for rowIndex := 0; rowIndex < 3; rowIndex++ {
-
-					packedDimension := pack(
-						leftShape,
-						rightShape,
-						packToLeft,
-					)
-
-					if verbose {
-						fmt.Printf("Dimension of the combination: %dx%d\n", packedDimension.Wide, packedDimension.Long)
-						fmt.Println()
-					}
-
-					combinationsCount++
-
-					catalog.StoreNewCombination(
-						leftPresent.GetIndex(),
-						rightPresent.GetIndex(),
-						packedDimension,
-					)
 				}
 			}
 		}
@@ -130,6 +142,7 @@ func pack(
 	stableShape [][]byte,
 	packedShape [][]byte,
 	packDirection abstractions.Direction,
+	verbose bool,
 ) abstractions.Dimension {
 
 	packOffset := computePackOffset(
@@ -138,9 +151,13 @@ func pack(
 		packDirection,
 	)
 
+	if verbose {
+		fmt.Printf("Offset detected is %dx%d\n", packOffset.Row, packOffset.Col)
+	}
+
 	/*
 		Temporary canvas large enough to hold both shapes plus offset.
-		For 3x3 inputs, 6x6 is safe.
+		For 3x3 inputs, 8x8 is safe, taking into account offsets
 	*/
 
 	canvas := make([][]byte, CanvasSize)
@@ -230,9 +247,6 @@ func computePackOffset(
 
 	oppositeDirection := packDirection.Opposite()
 
-	stableShapeBoundary := abstractions.OriginPosition()
-	packedShapeBoundary := abstractions.OriginPosition().Offset(MaximumShapeSize, oppositeDirection)
-
 	/* We compute the delta at each row, and the smallest delta tells us how far we can pack the shape */
 	minimumDelta := abstractions.Position{Row: 3, Col: 3}
 	minimumDistance := abstractions.OriginPosition().GetDistanceTo(minimumDelta)
@@ -246,8 +260,6 @@ func computePackOffset(
 			stableShape,
 			initialStablePosition,
 			packDirection,
-			/* Sets the boundary for testing cells */
-			stableShapeBoundary,
 		)
 
 		stableShapeDelta := initialStablePosition.SubPosition(stablePosition)
@@ -259,8 +271,6 @@ func computePackOffset(
 			packedShape,
 			initialPackedPosition,
 			oppositeDirection,
-			/* Sets the boundary for testing cells */
-			packedShapeBoundary,
 		)
 
 		packedShapeDelta := initialPackedPosition.SubPosition(packedPosition)
