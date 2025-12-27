@@ -45,9 +45,11 @@ func (c *CombinationCatalog) StoreNewCombination(
 		}
 		c.combinations[leftIndex] = append(c.combinations[leftIndex], Combination{PresentIndex: leftIndex, OtherPresentIndex: rightIndex, Dimension: dimension})
 	}
+
+	c.sort()
 }
 
-func (c *CombinationCatalog) Sort() {
+func (c *CombinationCatalog) sort() {
 
 	type kv struct {
 		Index uint

@@ -33,6 +33,7 @@ of presents every time.
 */
 func ComputePermutations(
 	presents *abstractions.Presents,
+	verbose bool,
 ) *abstractions.CombinationCatalog {
 	combinationsCount := 0
 
@@ -59,9 +60,10 @@ func ComputePermutations(
 
 	for leftPresent := range presents.GetAllPresents() {
 
-		//if leftPresent.GetIndex() != 0 {
-		//	continue
-		//}
+		if verbose {
+			fmt.Println("*************************************************")
+			fmt.Printf("Looking for optimal combination for present %d\n", leftPresent.GetIndex())
+		}
 
 		leftShape := leftPresent.GetShape()
 
@@ -76,14 +78,20 @@ func ComputePermutations(
 
 				for operationIndex, rightOperation := range operations {
 
-					fmt.Printf("Packing present %d with %d (%d/%d)\r", leftPresent.GetIndex(), rightPresent.GetIndex(), operationIndex+1, len(operations))
+					if verbose {
+						fmt.Printf("Packing present %d with %d (%d/%d)\r", leftPresent.GetIndex(), rightPresent.GetIndex(), operationIndex+1, len(operations))
+					}
 
 					/* Apply the operation in-place on the left shape */
 					rightOperation(rightShape)
 
-					//abstractions.Print(leftShape)
-					//fmt.Println("---")
-					//abstractions.Print(rightShape)
+					if verbose {
+						fmt.Println("Left stable shape:")
+						abstractions.Print(leftShape)
+						fmt.Println("\nRight shape:")
+						abstractions.Print(rightShape)
+						fmt.Println()
+					}
 
 					/* Test packing the shape from the right */
 					//for rowIndex := 0; rowIndex < 3; rowIndex++ {
@@ -94,7 +102,10 @@ func ComputePermutations(
 						packToLeft,
 					)
 
-					//fmt.Printf("%dx%d\n", packedDimension.Wide, packedDimension.Long)
+					if verbose {
+						fmt.Printf("Dimension of the combination: %dx%d\n", packedDimension.Wide, packedDimension.Long)
+						fmt.Println()
+					}
 
 					combinationsCount++
 
@@ -108,9 +119,9 @@ func ComputePermutations(
 		}
 	}
 
-	fmt.Printf("All presents packed: %d combinations tested              \n", combinationsCount)
-
-	catalog.Sort()
+	if verbose {
+		fmt.Printf("All presents packed: %d combinations tested              \n", combinationsCount)
+	}
 
 	return catalog
 }
@@ -127,27 +138,32 @@ func pack(
 		packDirection,
 	)
 
-	// Temporary canvas large enough to hold both shapes plus offset.
-	// For 3x3 inputs, 6x6 is safe.
+	/*
+		Temporary canvas large enough to hold both shapes plus offset.
+		For 3x3 inputs, 6x6 is safe.
+	*/
 
 	canvas := make([][]byte, CanvasSize)
-	for i := range canvas {
-		canvas[i] = make([]byte, CanvasSize)
+
+	for row := range canvas {
+		canvas[row] = make([]byte, CanvasSize)
 	}
 
 	// Helper to place a shape at an offset.
 	placeShape := func(shape [][]byte, rowOffset, colOffset int) {
-		for r := 0; r < MaximumShapeSize; r++ {
-			for c := 0; c < MaximumShapeSize; c++ {
-				if shape[r][c] == 0 {
+		for row := 0; row < MaximumShapeSize; row++ {
+			for col := 0; col < MaximumShapeSize; col++ {
+				if shape[row][col] == 0 {
 					continue
 				}
-				rr := r + rowOffset
-				cc := c + colOffset
-				if rr < 0 || rr >= CanvasSize || cc < 0 || cc >= CanvasSize {
+				rowWithOffset := row + rowOffset
+				colWithOffset := col + colOffset
+
+				if rowWithOffset < 0 || rowWithOffset >= CanvasSize || colWithOffset < 0 || colWithOffset >= CanvasSize {
 					continue
 				}
-				canvas[rr][cc] = 1
+
+				canvas[rowWithOffset][colWithOffset] = 1
 			}
 		}
 	}
@@ -249,7 +265,6 @@ func computePackOffset(
 
 		packedShapeDelta := initialPackedPosition.SubPosition(packedPosition)
 
-		// ~~~ TODO We must return a general direction> In the last test, it gives the ero
 		/* Compute the number of cells the packed shape can be moved to the left */
 		deltaShape := stableShapeDelta.Mul(packDirection).AddPosition(packedShapeDelta)
 

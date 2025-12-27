@@ -29,7 +29,10 @@ func main() {
 	fmt.Printf("Found %d presents\n", cavern.GetPresentsCount())
 	fmt.Printf("Found %d Christmas trees\n", cavern.GetChristmasTreesCount())
 
-	catalog := algorithms.ComputePermutations(cavern.GetPresents())
+	catalog := algorithms.ComputePermutations(
+		cavern.GetPresents(),
+		false,
+	)
 
 	catalog.PrintOptimalCombinations()
 
