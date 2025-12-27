@@ -23,3 +23,7 @@ func (p *Present) GetShape() [][]byte {
 func (p *Present) GetIndex() uint {
 	return p.index
 }
+
+func (p *Present) GetArea() uint {
+	return p.wide * p.long
+}

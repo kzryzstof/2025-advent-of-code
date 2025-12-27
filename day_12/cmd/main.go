@@ -1,7 +1,6 @@
 package main
 
 import (
-	"day_12/internal/algorithms"
 	"day_12/internal/io"
 	"fmt"
 	"os"
@@ -29,16 +28,10 @@ func main() {
 	fmt.Printf("Found %d presents\n", cavern.GetPresentsCount())
 	fmt.Printf("Found %d Christmas trees\n", cavern.GetChristmasTreesCount())
 
-	catalog := algorithms.ComputePermutations(
-		cavern.GetPresents(),
-		false,
-	)
-
-	catalog.PrintOptimalCombinations()
-
-	failed := cavern.PackAll(catalog)
+	failed := cavern.PackAll()
 
 	//	777 too high!
+	//	589 too high!
 
 	fmt.Printf("\n\nUnable to place presents un %d Christmas trees (out of %d)\n", failed, cavern.GetChristmasTreesCount())
 

@@ -1,17 +1,16 @@
-package algorithms
+package abstractions
 
 import (
-	"day_12/internal/abstractions"
 	"fmt"
 )
 
 type operation func([][]byte)
 
 var (
-	packDown    = abstractions.Direction{Row: 1, Col: 0}
-	packUp      = abstractions.Direction{Row: -1, Col: 0}
-	packToLeft  = abstractions.Direction{Row: 0, Col: -1}
-	packToRight = abstractions.Direction{Row: 0, Col: 1}
+	packDown    = Direction{Row: 1, Col: 0}
+	packUp      = Direction{Row: -1, Col: 0}
+	packToLeft  = Direction{Row: 0, Col: -1}
+	packToRight = Direction{Row: 0, Col: 1}
 )
 
 const (
@@ -20,43 +19,43 @@ const (
 	CanvasSize       = MaximumShapeSize * 2
 )
 
-/*
-Precomputes the combinations of presents together
-The goal is to combine all the presents together, in
-all angles and keep track of the width and length
-of the new shapes.
-
-This way, when trying to fit them in the christmas tree,
-we can quickly check if there is enough space for the
-combined shapes instead of trying all the combinations
-of presents every time.
-*/
+// ComputePermutations /* Precomputes the combinations of presents together
+//
+//	The goal is to combine all the presents together, in
+//	all angles and keep track of the width and length
+//	of the new shapes.
+//
+//	This way, when trying to fit them in the christmas tree,
+//	we can quickly check if there is enough space for the
+//	combined shapes instead of trying all the combinations
+//	of presents every time.
 func ComputePermutations(
-	presents *abstractions.Presents,
+	presents *Presents,
+	region *Region,
 	verbose bool,
-) *abstractions.CombinationCatalog {
+) *CombinationCatalog {
 	combinationsCount := 0
 
 	/* List of operations to apply to the presents */
 	operations := []operation{
-		abstractions.NoOp,
-		abstractions.RotateClockwise,
-		abstractions.RotateClockwise,
-		abstractions.RotateClockwise,
-		abstractions.RotateClockwise,
-		abstractions.VerticalFlip,
-		abstractions.RotateClockwise,
-		abstractions.RotateClockwise,
-		abstractions.RotateClockwise,
-		abstractions.RotateClockwise,
-		abstractions.HorizontalFlip,
-		abstractions.RotateClockwise,
-		abstractions.RotateClockwise,
-		abstractions.RotateClockwise,
-		abstractions.RotateClockwise,
+		NoOp,
+		RotateClockwise,
+		RotateClockwise,
+		RotateClockwise,
+		RotateClockwise,
+		VerticalFlip,
+		RotateClockwise,
+		RotateClockwise,
+		RotateClockwise,
+		RotateClockwise,
+		HorizontalFlip,
+		RotateClockwise,
+		RotateClockwise,
+		RotateClockwise,
+		RotateClockwise,
 	}
 
-	catalog := abstractions.NewCombinationCatalog()
+	catalog := NewCombinationCatalog()
 
 	for leftPresent := range presents.GetAllPresents() {
 
@@ -67,23 +66,23 @@ func ComputePermutations(
 
 		leftShape := leftPresent.GetShape()
 
-		for _, leftOperation := range operations {
+		for _, applyLeftOperation := range operations {
 
 			/* Apply the operation in-place on the left shape */
-			leftOperation(leftShape)
+			applyLeftOperation(leftShape)
 
 			for rightPresent := range presents.GetAllPresents() {
 
 				rightShape := rightPresent.GetShape()
 
-				for operationIndex, rightOperation := range operations {
+				for operationIndex, applyRightOperation := range operations {
 
 					if verbose {
 						fmt.Printf("Packing present %d with %d (%d/%d)\r", leftPresent.GetIndex(), rightPresent.GetIndex(), operationIndex+1, len(operations))
 					}
 
-					/* Apply the operation in-place on the left shape */
-					rightOperation(rightShape)
+					/* Apply the operation in-place on the right shape */
+					applyRightOperation(rightShape)
 
 					/*
 						Test packing the shape from the right while also altering the row & col
@@ -97,12 +96,18 @@ func ComputePermutations(
 							The computed shift is based on the direction of the packing.
 							If we are packing horizontally, we must shift the vertical position
 						*/
-						additionalShift := abstractions.Direction{Row: directionShift * -packToLeft.Col, Col: directionShift * -packToLeft.Row}
+						additionalShift := Direction{
+							Row: directionShift * -packToLeft.Col,
+							Col: directionShift * -packToLeft.Row,
+						}
 
-						shiftRightShape := abstractions.CopyTo(rightShape, additionalShift)
+						shiftRightShape := CopyTo(
+							rightShape,
+							additionalShift,
+						)
 
 						if verbose {
-							abstractions.PrintShapes(leftShape, shiftRightShape)
+							PrintShapes(leftShape, shiftRightShape)
 							fmt.Println()
 						}
 
@@ -123,7 +128,11 @@ func ComputePermutations(
 						catalog.StoreNewCombination(
 							leftPresent.GetIndex(),
 							rightPresent.GetIndex(),
-							abstractions.Dimension{Wide: packedDimension.Wide + additionalShift.Col, Long: packedDimension.Long + additionalShift.Row},
+							Dimension{
+								Wide: packedDimension.Wide + additionalShift.Col,
+								Long: packedDimension.Long + additionalShift.Row,
+							},
+							region,
 						)
 					}
 				}
@@ -141,9 +150,9 @@ func ComputePermutations(
 func pack(
 	stableShape [][]byte,
 	packedShape [][]byte,
-	packDirection abstractions.Direction,
+	packDirection Direction,
 	verbose bool,
-) abstractions.Dimension {
+) Dimension {
 
 	packOffset := computePackOffset(
 		stableShape,
@@ -166,13 +175,15 @@ func pack(
 		canvas[row] = make([]byte, CanvasSize)
 	}
 
-	// Helper to place a shape at an offset.
+	/* Helper to place a shape at an offset */
 	placeShape := func(shape [][]byte, rowOffset, colOffset int) {
 		for row := 0; row < MaximumShapeSize; row++ {
 			for col := 0; col < MaximumShapeSize; col++ {
+
 				if shape[row][col] == 0 {
 					continue
 				}
+
 				rowWithOffset := row + rowOffset
 				colWithOffset := col + colOffset
 
@@ -185,26 +196,29 @@ func pack(
 		}
 	}
 
-	// Stable at origin (0,0).
+	/* Stable shape placed at origin (0,0) */
 	placeShape(
 		stableShape,
 		0,
 		0,
 	)
 
-	// Packed shape translated by packOffset.
+	/* Packed shape translated by packOffset */
 	placeShape(
 		packedShape,
 		packDirection.Opposite().Row*MaximumShapeSize+packOffset.Row,
 		packDirection.Opposite().Col*MaximumShapeSize+packOffset.Col,
 	)
 
-	/*
-		.###
-		####
-		####
-	*/
-	// Compute bounding box of the combined shape.
+	if verbose {
+		fmt.Println()
+		PrintShape(
+			canvas,
+		)
+		fmt.Println()
+	}
+
+	/* Compute bounding box of the combined shape */
 	minRow, maxRow := CanvasSize, -1
 	minCol, maxCol := CanvasSize, -1
 
@@ -230,33 +244,36 @@ func pack(
 
 	if maxRow == -1 {
 		// No cells set; return empty.
-		return abstractions.Dimension{}
+		return Dimension{}
 	}
 
 	wide := maxCol - minCol + 1
 	long := maxRow - minRow + 1
 
-	return abstractions.Dimension{Wide: wide, Long: long}
+	return Dimension{
+		Wide: wide,
+		Long: long,
+	}
 }
 
 func computePackOffset(
 	stableShape [][]byte,
 	packedShape [][]byte,
-	packDirection abstractions.Direction,
-) abstractions.Position {
+	packDirection Direction,
+) Position {
 
 	oppositeDirection := packDirection.Opposite()
 
 	/* We compute the delta at each row, and the smallest delta tells us how far we can pack the shape */
-	minimumDelta := abstractions.Position{Row: 3, Col: 3}
-	minimumDistance := abstractions.OriginPosition().GetDistanceTo(minimumDelta)
+	minimumDelta := Position{Row: 3, Col: 3}
+	minimumDistance := OriginPosition().GetDistanceTo(minimumDelta)
 
 	for row := 0; row < MaximumShapeSize; row++ {
 
 		/* At this specific row, we figure out many empty spots they are looking from the right to the left */
-		initialStablePosition := abstractions.Position{Row: row, Col: MaximumShapeSize - 1}
+		initialStablePosition := Position{Row: row, Col: MaximumShapeSize - 1}
 
-		stablePosition := abstractions.FindEmptyIndex(
+		stablePosition := FindEmptyIndex(
 			stableShape,
 			initialStablePosition,
 			packDirection,
@@ -265,9 +282,9 @@ func computePackOffset(
 		stableShapeDelta := initialStablePosition.SubPosition(stablePosition)
 
 		/* Gets the empty spot available in the stable shape */
-		initialPackedPosition := abstractions.Position{Row: row, Col: 0}
+		initialPackedPosition := Position{Row: row, Col: 0}
 
-		packedPosition := abstractions.FindEmptyIndex(
+		packedPosition := FindEmptyIndex(
 			packedShape,
 			initialPackedPosition,
 			oppositeDirection,
@@ -278,7 +295,7 @@ func computePackOffset(
 		/* Compute the number of cells the packed shape can be moved to the left */
 		deltaShape := stableShapeDelta.Mul(packDirection).AddPosition(packedShapeDelta)
 
-		distance := abstractions.OriginPosition().GetDistanceTo(deltaShape)
+		distance := OriginPosition().GetDistanceTo(deltaShape)
 
 		if distance < minimumDistance {
 			minimumDistance = distance
@@ -286,5 +303,8 @@ func computePackOffset(
 		}
 	}
 
-	return abstractions.Position{Row: packDirection.Row * int(minimumDistance), Col: packDirection.Col * int(minimumDistance)}
+	return Position{
+		Row: packDirection.Row * int(minimumDistance),
+		Col: packDirection.Col * int(minimumDistance),
+	}
 }

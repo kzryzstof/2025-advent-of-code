@@ -33,7 +33,7 @@ func TestShapePermutations_ComputePermutations(t *testing.T) {
 				3,
 				3)
 
-			got := ComputePermutations(
+			got := abstractions.ComputePermutations(
 				abstractions.NewPresents(presents),
 				true,
 			)
@@ -69,7 +69,7 @@ func TestShapePermutations_Pack(t *testing.T) {
 				{0, 0, 1},
 				{0, 0, 1},
 			},
-			packDir:           packToLeft,
+			packDir:           abstractions.packToLeft,
 			expectedDimension: abstractions.Dimension{Wide: 2, Long: 3},
 		},
 		{
@@ -86,7 +86,7 @@ func TestShapePermutations_Pack(t *testing.T) {
 				{0, 1, 0},
 				{0, 0, 1},
 			},
-			packDir:           packToLeft,
+			packDir:           abstractions.packToLeft,
 			expectedDimension: abstractions.Dimension{Wide: 6, Long: 3},
 		},
 		{
@@ -103,7 +103,7 @@ func TestShapePermutations_Pack(t *testing.T) {
 				{0, 1, 0},
 				{1, 0, 0},
 			},
-			packDir:           packToLeft,
+			packDir:           abstractions.packToLeft,
 			expectedDimension: abstractions.Dimension{Wide: 4, Long: 3},
 		},
 		{
@@ -120,7 +120,7 @@ func TestShapePermutations_Pack(t *testing.T) {
 				{0, 1, 0},
 				{0, 0, 1},
 			},
-			packDir:           packUp,
+			packDir:           abstractions.packUp,
 			expectedDimension: abstractions.Dimension{Wide: 3, Long: 6},
 		},
 		{
@@ -137,7 +137,7 @@ func TestShapePermutations_Pack(t *testing.T) {
 				{0, 1, 1},
 				{1, 1, 1},
 			},
-			packDir:           packToLeft,
+			packDir:           abstractions.packToLeft,
 			expectedDimension: abstractions.Dimension{Wide: 4, Long: 3},
 		},
 		{
@@ -154,14 +154,14 @@ func TestShapePermutations_Pack(t *testing.T) {
 				{1, 1, 1},
 				{0, 0, 1},
 			},
-			packDir:           packToLeft,
+			packDir:           abstractions.packToLeft,
 			expectedDimension: abstractions.Dimension{Wide: 4, Long: 3},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := pack(
+			got := abstractions.pack(
 				tt.shape,
 				tt.otherShape,
 				tt.packDir,

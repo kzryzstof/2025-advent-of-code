@@ -1,6 +1,9 @@
 package abstractions
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 const (
 	NotFound = -1
@@ -78,21 +81,30 @@ func CopyTo(
 	shift Direction,
 ) [][]byte {
 
-	dst := make([][]byte, len(src))
+	/*
+		Defines the size of the destination slice, which can differ from the src slice
+		since we must take into account the potential shift
+	*/
+	dstRows := len(src) + int(math.Abs(float64(shift.Row)))
+	dstCols := len(src[0]) + int(math.Abs(float64(shift.Col)))
 
-	for row := 0; row < len(src); row++ {
-		dst[row] = make([]byte, len(src[0]))
+	dst := make([][]byte, dstRows)
+
+	for row := 0; row < dstRows; row++ {
+		dst[row] = make([]byte, dstCols)
 	}
 
+	/* Copies the src slice into the dst slice at the specified shift */
+
 	for row := 0; row < len(src); row++ {
 
-		if row+shift.Row >= len(src) || row+shift.Row < 0 {
+		if row+shift.Row >= dstRows || row+shift.Row < 0 {
 			continue
 		}
 
 		for col := 0; col < len(src[row]); col++ {
 
-			if col+shift.Col >= len(src[row]) || col+shift.Col < 0 {
+			if col+shift.Col >= dstCols || col+shift.Col < 0 {
 				continue
 			}
 
@@ -126,7 +138,7 @@ func FindEmptyIndex(
 	return position
 }
 
-func Print(
+func PrintShape(
 	slice [][]byte,
 ) {
 	for _, row := range slice {

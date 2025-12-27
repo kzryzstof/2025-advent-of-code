@@ -3,6 +3,7 @@ package abstractions
 type Region struct {
 	wide  uint
 	long  uint
+	ratio float64
 	space [][]byte
 }
 
@@ -20,10 +21,15 @@ func NewRegion(
 	return &Region{
 		wide,
 		long,
+		float64(wide) / float64(long),
 		space,
 	}
 }
 
 func (r *Region) GetArea() uint {
 	return r.wide * r.long
+}
+
+func (r *Region) GetRatio() float64 {
+	return r.ratio
 }

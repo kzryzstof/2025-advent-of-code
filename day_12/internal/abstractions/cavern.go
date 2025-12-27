@@ -1,6 +1,9 @@
 package abstractions
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type Cavern struct {
 	presents       *Presents
@@ -29,9 +32,7 @@ func (c *Cavern) GetChristmasTreesCount() uint {
 	return uint(len(c.christmasTrees))
 }
 
-func (c *Cavern) PackAll(
-	catalog *CombinationCatalog,
-) uint {
+func (c *Cavern) PackAll() uint {
 	fmt.Println()
 
 	failed := uint(0)
@@ -40,6 +41,14 @@ func (c *Cavern) PackAll(
 
 		fmt.Printf("Placing presents under Christmas tree %d. Region available: %d\n", christmasTreeIndex, christmasTree.Region.GetArea())
 
+		catalog := ComputePermutations(
+			c.GetPresents(),
+			christmasTree.Region,
+			false,
+		)
+
+		//catalog.PrintOptimalCombinations(christmasTree.Region)
+
 		totalRegionArea := christmasTree.Region.GetArea()
 		currentRegionArea := uint(0)
 
@@ -47,22 +56,30 @@ func (c *Cavern) PackAll(
 
 		for currentPresentIndex, currentPresentsCount := range presents {
 
-			fmt.Printf("\tPlacing %d presents #%d\r", currentPresentsCount, currentPresentIndex)
-
 			if currentPresentsCount == 0 {
 				/* Nice */
 				continue
 			}
 
+			fmt.Printf("\tPlacing %d presents #%d\r", currentPresentsCount, currentPresentIndex)
+
+			/* Prioritizes placing combinations of presents first */
 			for presents[currentPresentIndex] > 0 {
 
 				for _, combination := range catalog.GetOptimalCombinations(currentPresentIndex) {
 
-					if combination.OtherPresentIndex == currentPresentIndex {
+					otherPresentCount := presents[combination.OtherPresentIndex]
+
+					if otherPresentCount == 0 {
+						/* No more other presents available */
 						continue
 					}
 
-					otherPresentCount := presents[combination.OtherPresentIndex]
+					if combination.OtherPresentIndex == currentPresentIndex {
+						/* We split the presents in two groups */
+						otherPresentCount = uint(math.Floor(float64(otherPresentCount) / 2.0))
+						currentPresentsCount = otherPresentCount
+					}
 
 					presents[currentPresentIndex] -= currentPresentsCount
 					presents[combination.OtherPresentIndex] -= otherPresentCount
@@ -76,8 +93,15 @@ func (c *Cavern) PackAll(
 						break
 					}
 				}
-			}
 
+				remainingPresentsCount := presents[currentPresentIndex]
+
+				if remainingPresentsCount > 0 {
+					presents[currentPresentIndex] -= remainingPresentsCount
+					currentRegionArea += remainingPresentsCount * c.GetPresents().GetPresent(currentPresentIndex).GetArea()
+					fmt.Printf("\tPlaced the last %d presents #%d. Area %d\n", remainingPresentsCount, currentPresentIndex, currentRegionArea)
+				}
+			}
 		}
 
 		if currentRegionArea > totalRegionArea {
