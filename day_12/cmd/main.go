@@ -36,7 +36,7 @@ func main() {
 	failed := cavern.PackAll(catalog)
 
 	//	777 too high!
-	
+
 	fmt.Printf("\n\nUnable to place presents un %d Christmas trees (out of %d)\n", failed, cavern.GetChristmasTreesCount())
 
 	/* Prints the result */
