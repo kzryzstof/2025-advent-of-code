@@ -155,7 +155,7 @@ func TestShapePermutations_Pack(t *testing.T) {
 				{0, 0, 1},
 			},
 			packDir:           packToLeft,
-			expectedDimension: abstractions.Dimension{Wide: 4, Long: 4},
+			expectedDimension: abstractions.Dimension{Wide: 4, Long: 3},
 		},
 	}
 

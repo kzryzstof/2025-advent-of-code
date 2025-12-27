@@ -123,7 +123,7 @@ func ComputePermutations(
 						catalog.StoreNewCombination(
 							leftPresent.GetIndex(),
 							rightPresent.GetIndex(),
-							packedDimension,
+							abstractions.Dimension{Wide: packedDimension.Wide + additionalShift.Col, Long: packedDimension.Long + additionalShift.Row},
 						)
 					}
 				}
