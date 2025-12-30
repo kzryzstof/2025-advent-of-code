@@ -4,17 +4,30 @@ import "fmt"
 
 func PackShapes(
 	fixedShapeId uint,
-	fixedShape [][]byte,
+	fixedShape [][]int8,
 	movingShapeId uint,
-	movingShape [][]byte,
+	movingShape [][]int8,
 	slideOffset int,
 	verbose bool,
 ) Shape {
 
+	slidedMovingShape := SlideShape(
+		movingShape,
+		Vector{
+			Row: slideOffset,
+			Col: 0,
+		},
+	)
+
+	if verbose {
+		fmt.Println("Slided moving shape:")
+		PrintShape(slidedMovingShape)
+	}
+
 	/* Finds out the number of empty columns between the 2 shapes */
 	colsOffset := computeColOffset(
 		fixedShape,
-		movingShape,
+		slidedMovingShape,
 	)
 
 	if verbose {
@@ -29,19 +42,19 @@ func PackShapes(
 		the moving shape will slide to the left.
 	*/
 
-	newRowsCount := CanvasSize + slideOffset
-	newColsCount := CanvasSize + (CanvasSize - colsOffset)
+	newRowsCount := MaximumShapeSize + slideOffset
+	newColsCount := MaximumShapeSize + (MaximumShapeSize - colsOffset)
 
-	newShape := make([][]byte, newRowsCount)
+	newShape := make([][]int8, newRowsCount)
 
 	for row := range newShape {
-		newShape[row] = make([]byte, newColsCount)
+		newShape[row] = make([]int8, newColsCount)
 	}
 
 	/* Helper to place a shape at an offset */
-	placeShape := func(shapeId uint, shape [][]byte, rowOffset, colOffset int) {
-		for row := 0; row < MaximumShapeSize; row++ {
-			for col := 0; col < MaximumShapeSize; col++ {
+	placeShape := func(shapeId uint, shape [][]int8, rowOffset, colOffset int) {
+		for row := 0; row < len(shape); row++ {
+			for col := 0; col < len(shape[row]); col++ {
 
 				if shape[row][col] == 0 {
 					continue
@@ -50,11 +63,7 @@ func PackShapes(
 				rowWithOffset := row + rowOffset
 				colWithOffset := col + colOffset
 
-				if rowWithOffset < 0 || rowWithOffset >= CanvasSize || colWithOffset < 0 || colWithOffset >= CanvasSize {
-					continue
-				}
-
-				newShape[rowWithOffset][colWithOffset] = byte(shapeId)
+				newShape[rowWithOffset][colWithOffset] = int8(shapeId)
 			}
 		}
 	}
@@ -70,9 +79,9 @@ func PackShapes(
 	/* Packed shape translated by packOffset */
 	placeShape(
 		movingShapeId,
-		movingShape,
-		slideOffset,
-		CanvasSize+slideOffset,
+		slidedMovingShape,
+		0,
+		MaximumShapeSize-colsOffset,
 	)
 
 	if verbose {
@@ -94,17 +103,17 @@ func PackShapes(
 }
 
 func computeColOffset(
-	fixedShape [][]byte,
-	movingShape [][]byte,
+	fixedShape [][]int8,
+	movingShape [][]int8,
 ) int {
 
 	/* We compute the delta at each row, and the smallest delta tells us how far we can pack the shape */
-	minimumEmptyCells := -1
+	minimumEmptyCells := MaximumShapeSize
 
 	for row := 0; row < MaximumShapeSize; row++ {
 
 		/* Counts the number of empty cells on the stable shape starting from right to left */
-		emptyCellsOnStableShape := countEmptyCells(
+		emptyCellsOnFixedShape, _ := countEmptyCells(
 			row,
 			MaximumShapeSize-1,
 			Vector{Row: 0, Col: -1},
@@ -112,18 +121,23 @@ func computeColOffset(
 		)
 
 		/* Counts the number of empty cells on the packed shape starting from left to right */
-		emptyCellsOnPackedShape := countEmptyCells(
+		emptyCellsOnMovingShape, found := countEmptyCells(
 			row,
 			0,
 			Vector{Row: 0, Col: 1},
 			movingShape,
 		)
 
+		if !found {
+			/* If there are only cells on the moving shape, then we just ignore it */
+			continue
+		}
+
 		/* Compute the number of cells the packed shape can be moved to the left on this current row */
-		totalEmptyCells := -emptyCellsOnStableShape + emptyCellsOnPackedShape
+		totalEmptyCells := emptyCellsOnFixedShape + emptyCellsOnMovingShape
 
 		/* Only the minimum number of empty cells can be used to move the entire packed shape without overlapping the stable shape */
-		if minimumEmptyCells == -1 || totalEmptyCells < minimumEmptyCells {
+		if minimumEmptyCells == MaximumShapeSize || totalEmptyCells > minimumEmptyCells {
 			minimumEmptyCells = totalEmptyCells
 		}
 	}
@@ -135,8 +149,8 @@ func countEmptyCells(
 	fromRow int,
 	fromCol int,
 	direction Vector,
-	shape [][]byte,
-) int {
+	shape [][]int8,
+) (int, bool) {
 	initialPosition := Position{
 		Row: fromRow,
 		Col: fromCol,
@@ -148,5 +162,9 @@ func countEmptyCells(
 		direction,
 	)
 
-	return initialPosition.Col - lastEmptyCellPosition.Col
+	if lastEmptyCellPosition.Col == MaximumShapeSize {
+		return 0, false
+	}
+
+	return initialPosition.Col - lastEmptyCellPosition.Col, true
 }

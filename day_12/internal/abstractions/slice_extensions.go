@@ -10,7 +10,7 @@ const (
 )
 
 func Transpose(
-	slice [][]byte,
+	slice [][]int8,
 ) {
 	/* We assume square data for simplicity */
 
@@ -22,7 +22,7 @@ func Transpose(
 }
 
 func HorizontalFlip(
-	slice [][]byte,
+	slice [][]int8,
 ) {
 	for r := 0; r < 3; r++ {
 		slice[r][0], slice[r][2] = slice[r][2], slice[r][0]
@@ -30,7 +30,7 @@ func HorizontalFlip(
 }
 
 func VerticalFlip(
-	slice [][]byte,
+	slice [][]int8,
 ) {
 	for c := 0; c < 3; c++ {
 		slice[0][c], slice[2][c] = slice[2][c], slice[0][c]
@@ -38,25 +38,25 @@ func VerticalFlip(
 }
 
 func RotateClockwise(
-	slice [][]byte,
+	slice [][]int8,
 ) {
 	Transpose(slice)
 	HorizontalFlip(slice)
 }
 
 func NoOp(
-	slice [][]byte,
+	slice [][]int8,
 ) {
 }
 
 func GetCopy(
-	slice [][]byte,
-) [][]byte {
+	slice [][]int8,
+) [][]int8 {
 
-	sliceCopy := make([][]byte, len(slice))
+	sliceCopy := make([][]int8, len(slice))
 
 	for row := 0; row < len(sliceCopy); row++ {
-		sliceCopy[row] = make([]byte, len(slice[row]))
+		sliceCopy[row] = make([]int8, len(slice[row]))
 		for col := 0; col < len(sliceCopy[row]); col++ {
 			sliceCopy[row][col] = slice[row][col]
 		}
@@ -65,21 +65,10 @@ func GetCopy(
 	return sliceCopy
 }
 
-func Clear(
-	slice [][]byte,
-) {
-
-	for row := 0; row < len(slice); row++ {
-		for col := 0; col < len(slice[row]); col++ {
-			slice[row][col] = 0
-		}
-	}
-}
-
 func SlideShape(
-	src [][]byte,
+	src [][]int8,
 	shift Vector,
-) [][]byte {
+) [][]int8 {
 
 	/*
 		Defines the size of the destination slice, which can differ from the src slice
@@ -88,10 +77,10 @@ func SlideShape(
 	dstRows := len(src) + int(math.Abs(float64(shift.Row)))
 	dstCols := len(src[0]) + int(math.Abs(float64(shift.Col)))
 
-	dst := make([][]byte, dstRows)
+	dst := make([][]int8, dstRows)
 
 	for row := 0; row < dstRows; row++ {
-		dst[row] = make([]byte, dstCols)
+		dst[row] = make([]int8, dstCols)
 	}
 
 	/* Copies the src slice into the dst slice at the specified shift */
@@ -116,14 +105,14 @@ func SlideShape(
 }
 
 func IsEmpty(
-	slice [][]byte,
+	slice [][]int8,
 	position Position,
 ) bool {
 	return slice[position.Row][position.Col] == 0
 }
 
 func FindLastEmptyCell(
-	slice [][]byte,
+	slice [][]int8,
 	position Position,
 	direction Vector,
 ) Position {
@@ -139,7 +128,7 @@ func FindLastEmptyCell(
 }
 
 func ComputeFillRatio(
-	slice [][]byte,
+	slice [][]int8,
 ) float64 {
 
 	empty, occupied := 0, 0
@@ -158,14 +147,14 @@ func ComputeFillRatio(
 }
 
 func PrintShape(
-	slice [][]byte,
+	slice [][]int8,
 ) {
 	for _, row := range slice {
 		for _, cell := range row {
 			if cell == 0 {
 				fmt.Print(".")
 			} else {
-				fmt.Print("#")
+				fmt.Print(fmt.Sprintf("%d", cell))
 			}
 		}
 		fmt.Println()
@@ -173,10 +162,10 @@ func PrintShape(
 }
 
 func PrintShapes(
-	leftSlice [][]byte,
-	rightSlice [][]byte,
+	leftSlice [][]int8,
+	rightSlice [][]int8,
 ) {
-	printRowCell := func(row []byte) {
+	printRowCell := func(row []int8) {
 		for _, cell := range row {
 			if cell == 0 {
 				fmt.Print(".")

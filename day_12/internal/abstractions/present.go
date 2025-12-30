@@ -12,7 +12,7 @@ func NewPresent(
 	return &Present{index, shape}
 }
 
-func (p *Present) GetShape() [][]byte {
+func (p *Present) GetShape() [][]int8 {
 	return p.shape.GetCopy()
 }
 

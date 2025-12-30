@@ -2,7 +2,7 @@ package abstractions
 
 type Shape struct {
 	Dimension Dimension
-	Cells     [][]byte
+	Cells     [][]int8
 	FillRatio float64
 }
 
@@ -20,6 +20,6 @@ func (s Shape) IsMoreOptimalThan(
 	return false
 }
 
-func (s Shape) GetCopy() [][]byte {
+func (s Shape) GetCopy() [][]int8 {
 	return GetCopy(s.Cells)
 }

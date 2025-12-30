@@ -4,12 +4,11 @@ import (
 	"fmt"
 )
 
-type operation func([][]byte)
+type operation func([][]int8)
 
 const (
 	// MaximumShapeSize /* All the presents occupies a 3x3 region */
 	MaximumShapeSize = 3
-	CanvasSize       = MaximumShapeSize * 2
 )
 
 // ComputePermutations /* Precomputes the combinations of presents together
@@ -84,24 +83,11 @@ func ComputePermutations(
 
 					for slideOffset := 0; slideOffset < MaximumShapeSize; slideOffset++ {
 
-						slidedMovingShape := SlideShape(
-							movingShape,
-							Vector{
-								Row: slideOffset,
-								Col: 0,
-							},
-						)
-
-						if verbose {
-							PrintShapes(fixedShape, slidedMovingShape)
-							fmt.Println()
-						}
-
 						packedShape := PackShapes(
 							fixedPresent.GetIndex(),
 							fixedShape,
 							movingPresent.GetIndex(),
-							slidedMovingShape,
+							movingShape,
 							slideOffset,
 							verbose,
 						)
