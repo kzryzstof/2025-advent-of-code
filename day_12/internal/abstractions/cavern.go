@@ -55,7 +55,7 @@ func (c *Cavern) PackAll() uint {
 		}
 
 		fmt.Println("------------------------------------------------------------------------")
-		fmt.Printf("Placing %d presents under Christmas tree %d. Region available: %d\n\n", presentsCount, christmasTreeIndex, christmasTree.Region.GetArea())
+		fmt.Printf("Placing %d presents under Christmas tree #%d. Region available: %d\n\n", presentsCount, christmasTreeIndex+1, christmasTree.Region.GetArea())
 
 		totalRegionArea := christmasTree.Region.GetArea()
 		currentRegionArea := uint(0)
@@ -136,9 +136,9 @@ func (c *Cavern) PackAll() uint {
 
 		if currentRegionArea > totalRegionArea {
 			failed++
-			fmt.Printf("\nNo more space available under christmas tree %d. Current area: %d. Available area %d\n\n", christmasTreeIndex, currentRegionArea, totalRegionArea)
+			fmt.Printf("\nNo more space available under christmas tree #%d. Current area: %d. Available area %d\n\n", christmasTreeIndex+1, currentRegionArea, totalRegionArea)
 		} else {
-			fmt.Printf("\nAll the presents have been successfully placed under christmas tree %d. Current area: %d. Available area %d\n\n", christmasTreeIndex, currentRegionArea, totalRegionArea)
+			fmt.Printf("\nAll the presents have been successfully placed under christmas tree #%d. Current area: %d. Available area %d\n\n", christmasTreeIndex+1, currentRegionArea, totalRegionArea)
 		}
 	}
 
