@@ -30,7 +30,7 @@ func (p Position) SubPosition(
 }
 
 func (p Position) Add(
-	d Direction,
+	d Vector,
 ) Position {
 	return Position{
 		Row: p.Row + d.Row,
@@ -39,7 +39,7 @@ func (p Position) Add(
 }
 
 func (p Position) Sub(
-	d Direction,
+	d Vector,
 ) Position {
 	return Position{
 		Row: p.Row - d.Row,
@@ -48,7 +48,7 @@ func (p Position) Sub(
 }
 
 func (p Position) Mul(
-	d Direction,
+	d Vector,
 ) Position {
 	return Position{
 		Row: p.Row * d.Row,
@@ -58,7 +58,7 @@ func (p Position) Mul(
 
 func (p Position) Offset(
 	offset int,
-	d Direction,
+	d Vector,
 ) Position {
 	return Position{
 		Row: p.Row + (offset-1)*d.Row,

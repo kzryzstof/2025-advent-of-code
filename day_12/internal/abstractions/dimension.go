@@ -1,10 +1,9 @@
 package abstractions
 
-import "math"
-
 type Dimension struct {
-	Wide int
-	Long int
+	Wide      int
+	Long      int
+	FillRatio float64
 }
 
 func (d Dimension) GetRatio() float64 {
@@ -25,15 +24,8 @@ func (d Dimension) Equals(
 	return d.Wide == other.Wide && d.Long == other.Long
 }
 
-func (d Dimension) IsMoreOptimalThan(
-	other Dimension,
-	region *Region,
-) bool {
-	ratioDelta := math.Abs(d.GetRatio() - region.GetRatio())
-
-	otherRatioDelta := math.Abs(other.GetRatio() - region.GetRatio())
-
-	return ratioDelta < otherRatioDelta
+func (d Dimension) IsSquare() bool {
+	return d.Wide == d.Long
 }
 
 func (d Dimension) IsEmpty() bool {

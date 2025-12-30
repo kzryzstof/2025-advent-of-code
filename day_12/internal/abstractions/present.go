@@ -2,22 +2,18 @@ package abstractions
 
 type Present struct {
 	index uint
-	shape [][]byte
-	wide  uint
-	long  uint
+	shape Shape
 }
 
 func NewPresent(
 	index uint,
-	shape [][]byte,
-	wide uint,
-	long uint,
+	shape Shape,
 ) *Present {
-	return &Present{index, shape, wide, long}
+	return &Present{index, shape}
 }
 
 func (p *Present) GetShape() [][]byte {
-	return GetCopy(p.shape)
+	return p.shape.GetCopy()
 }
 
 func (p *Present) GetIndex() uint {
@@ -25,5 +21,5 @@ func (p *Present) GetIndex() uint {
 }
 
 func (p *Present) GetArea() uint {
-	return p.wide * p.long
+	return p.shape.Dimension.GetArea()
 }

@@ -10,7 +10,7 @@ func TestShapePermutations_ComputePermutations(t *testing.T) {
 		name              string
 		shape             [][]byte
 		otherShape        [][]byte
-		packDir           abstractions.Direction
+		packDir           abstractions.Vector
 		expectedDimension abstractions.Dimension
 	}{
 		{
@@ -52,7 +52,7 @@ func TestShapePermutations_Pack(t *testing.T) {
 		name              string
 		shape             [][]byte
 		otherShape        [][]byte
-		packDir           abstractions.Direction
+		packDir           abstractions.Vector
 		expectedDimension abstractions.Dimension
 	}{
 		{

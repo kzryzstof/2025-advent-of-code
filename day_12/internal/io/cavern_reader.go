@@ -72,22 +72,35 @@ func (r *CavernReader) extractPresents(
 
 		shape := make([][]byte, 3)
 
+		empty, occupied := 0, 0
+
 		for row := 0; row < 3; row++ {
 			shape[row] = make([]byte, 3)
 			for col := 0; col < 3; col++ {
 				if b.String()[row*3+col] == '#' {
 					shape[row][col] = byte(1)
+					occupied++
 				} else {
 					shape[row][col] = byte(0)
+					empty++
 				}
 			}
 		}
 
+		fillRatio := float64(occupied) / float64(occupied+empty)
+
+		fmt.Printf("Present %d: %d occupied, %d empty, fill ratio: %.2f\n", presentIndex+1, occupied, empty, fillRatio)
+
 		presents[presentIndex] = abstractions.NewPresent(
 			presentIndex,
-			shape,
-			3,
-			3,
+			abstractions.Shape{
+				Dimension: abstractions.Dimension{
+					Wide:      3,
+					Long:      3,
+					FillRatio: abstractions.ComputeFillRatio(shape),
+				},
+				Cells: shape,
+			},
 		)
 	}
 

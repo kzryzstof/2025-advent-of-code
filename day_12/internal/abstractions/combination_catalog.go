@@ -19,11 +19,10 @@ func NewCombinationCatalog() *CombinationCatalog {
 	}
 }
 
-func (c *CombinationCatalog) StoreNewCombination(
+func (c *CombinationCatalog) StoreNewShape(
 	leftIndex uint,
 	rightIndex uint,
-	dimension Dimension,
-	region *Region,
+	shape Shape,
 ) {
 	if _, ok := c.combinations[leftIndex]; !ok {
 		c.combinations[leftIndex] = make([]Combination, 0)
@@ -40,59 +39,56 @@ func (c *CombinationCatalog) StoreNewCombination(
 		}
 	}
 
-	if combination == nil || dimension.IsMoreOptimalThan(combination.Dimension, region) {
+	if combination == nil || shape.IsMoreOptimalThan(combination.Shape) {
 		if removedIndex != -1 {
 			c.combinations[leftIndex] = append(c.combinations[leftIndex][:removedIndex], c.combinations[leftIndex][removedIndex+1:]...)
 		}
-		c.combinations[leftIndex] = append(c.combinations[leftIndex], Combination{PresentIndex: leftIndex, OtherPresentIndex: rightIndex, Dimension: dimension})
+		c.combinations[leftIndex] = append(
+			c.combinations[leftIndex],
+			Combination{
+				PresentIndex:      leftIndex,
+				OtherPresentIndex: rightIndex,
+				Shape:             shape,
+			})
 	}
 
-	c.sort(region)
+	c.sort()
 }
 
-func (c *CombinationCatalog) sort(
-	region *Region,
-) {
-
-	type kv struct {
-		Index uint
-		Value Dimension
-	}
+func (c *CombinationCatalog) sort() {
 
 	for _, combinations := range c.combinations {
-
 		sort.Slice(combinations, func(i, j int) bool {
-			return combinations[i].Dimension.IsMoreOptimalThan(combinations[j].Dimension, region)
+			return combinations[i].Shape.IsMoreOptimalThan(combinations[j].Shape)
 		})
 	}
 }
 
 func (c *CombinationCatalog) GetOptimalCombination(
 	leftIndex uint,
-	region *Region,
-) (int, Dimension) {
+) (int, Shape) {
 
 	optimalRightIndex := -1
-	var optimalDimension *Dimension = nil
+	var optimalShape *Shape = nil
 
 	for rightIndex, combination := range c.combinations[leftIndex] {
-		if optimalDimension == nil {
+		if optimalShape == nil {
 			optimalRightIndex = rightIndex
-			optimalDimension = &combination.Dimension
+			optimalShape = &combination.Shape
 			continue
 		}
 
-		if combination.Dimension.IsMoreOptimalThan(*optimalDimension, region) {
+		if combination.Shape.IsMoreOptimalThan(*optimalShape) {
 			optimalRightIndex = rightIndex
-			optimalDimension = &combination.Dimension
+			optimalShape = &combination.Shape
 		}
 	}
 
-	if optimalDimension == nil {
+	if optimalShape == nil {
 		panic("I guess I was not expecting that! :sweat_grin:")
 	}
 
-	return optimalRightIndex, *optimalDimension
+	return optimalRightIndex, *optimalShape
 }
 
 func (c *CombinationCatalog) GetOptimalCombinations(
@@ -102,19 +98,19 @@ func (c *CombinationCatalog) GetOptimalCombinations(
 	return c.combinations[leftIndex]
 }
 
-func (c *CombinationCatalog) PrintOptimalCombinations(
-	region *Region,
-) {
+func (c *CombinationCatalog) PrintOptimalCombinations() {
 
 	for leftIndex, combinations := range c.combinations {
 		fmt.Printf("Present %d\n", leftIndex)
 		for rightIndex, combination := range combinations {
-			_, optimalDimension := c.GetOptimalCombination(leftIndex, region)
+			_, optimalShape := c.GetOptimalCombination(leftIndex)
 			isOptimalText := ""
-			if optimalDimension.Equals(combination.Dimension) {
+			if optimalShape.Dimension.Equals(combination.Shape.Dimension) {
 				isOptimalText = " (optimal)"
 			}
-			fmt.Printf("\tWith %d = Dimensions: %dx%d%s\n", rightIndex, combination.Dimension.Wide, combination.Dimension.Long, isOptimalText)
+			fmt.Printf("\tWith %d = Dimensions: %dx%d with fill ratio %.2f%s\n", rightIndex, combination.Shape.Dimension.Wide, combination.Shape.Dimension.Long, combination.Shape.Dimension.FillRatio, isOptimalText)
 		}
 	}
+
+	fmt.Print("\n")
 }

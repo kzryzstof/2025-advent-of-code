@@ -33,7 +33,11 @@ func main() {
 	//	777 too high!
 	//	589 too high!
 
-	fmt.Printf("\n\nUnable to place presents %d Christmas trees (out of %d)\n", failed, cavern.GetChristmasTreesCount())
+	if failed > 0 {
+		fmt.Printf("Unable to place presents %d Christmas trees (out of %d)\n\n", failed, cavern.GetChristmasTreesCount())
+	} else {
+		fmt.Printf("All the presents have been placed under the Christmas trees\n\n")
+	}
 
 	/* Prints the result */
 	fmt.Printf("Execution time: %v\n", elapsed)

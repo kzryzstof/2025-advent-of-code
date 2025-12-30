@@ -1,28 +1,60 @@
 package abstractions
 
+import "sort"
+
 type ChristmasTree struct {
+	/* Size available under the tree */
 	wide uint
 	long uint
-	/* Contains number of presents of a certain index */
-	presentIndices map[uint]uint
-	Region         *Region
+
+	/* Lists all the present configurations in descending order of count */
+	sortedPresentConfigurations []*PresentConfiguration
+	mappedPresentConfigurations map[uint]*PresentConfiguration
+
+	Region *Region
 }
 
 func NewChristmasTree(
 	wide uint,
 	long uint,
-	presentIndices map[uint]uint,
+	presentConfigurations map[uint]uint,
 ) *ChristmasTree {
+
+	mappedPresentConfigurations := make(map[uint]*PresentConfiguration)
+	sortedPresentConfigurations := make([]*PresentConfiguration, 0)
+
+	for presentIndex, presentCount := range presentConfigurations {
+
+		presentConfiguration := &PresentConfiguration{
+			Index: presentIndex,
+			Count: presentCount,
+		}
+
+		sortedPresentConfigurations = append(sortedPresentConfigurations, presentConfiguration)
+		mappedPresentConfigurations[presentIndex] = presentConfiguration
+	}
+
+	sort.Slice(sortedPresentConfigurations, func(i, j int) bool {
+		return sortedPresentConfigurations[i].Count > sortedPresentConfigurations[j].Count
+	})
+
 	return &ChristmasTree{
 		wide,
 		long,
-		presentIndices,
+		sortedPresentConfigurations,
+		mappedPresentConfigurations,
 		NewRegion(wide, long),
 	}
 }
 
-func (ct *ChristmasTree) GetPresents() map[uint]uint {
-	return ct.presentIndices
+func (ct *ChristmasTree) GetPresentConfigurations() []*PresentConfiguration {
+	return ct.sortedPresentConfigurations
+}
+
+func (ct *ChristmasTree) GetPresentConfiguration(
+	presentIndex uint,
+) *PresentConfiguration {
+	return ct.mappedPresentConfigurations[presentIndex]
 }
 
 func (ct *ChristmasTree) GetRegion() [][]byte {

@@ -76,9 +76,9 @@ func Clear(
 	}
 }
 
-func CopyTo(
+func SlideShape(
 	src [][]byte,
-	shift Direction,
+	shift Vector,
 ) [][]byte {
 
 	/*
@@ -122,10 +122,10 @@ func IsEmpty(
 	return slice[position.Row][position.Col] == 0
 }
 
-func FindEmptyIndex(
+func FindLastEmptyCell(
 	slice [][]byte,
 	position Position,
-	direction Direction,
+	direction Vector,
 ) Position {
 
 	for IsEmpty(slice, position) {
@@ -136,6 +136,25 @@ func FindEmptyIndex(
 	}
 
 	return position
+}
+
+func ComputeFillRatio(
+	slice [][]byte,
+) float64 {
+
+	empty, occupied := 0, 0
+
+	for row := 0; row < len(slice); row++ {
+		for col := 0; col < len(slice[row]); col++ {
+			if slice[row][col] == 0 {
+				empty++
+			} else {
+				occupied++
+			}
+		}
+	}
+
+	return float64(occupied) / float64(occupied+empty)
 }
 
 func PrintShape(
