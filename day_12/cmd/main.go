@@ -32,6 +32,7 @@ func main() {
 
 	//	777 too high!
 	//	589 too high!
+	//	431	incorrect.
 
 	if failed > 0 {
 		fmt.Printf("Unable to place presents %d Christmas trees (out of %d)\n\n", failed, cavern.GetChristmasTreesCount())

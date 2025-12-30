@@ -36,6 +36,13 @@ func (c *Cavern) PackAll() uint {
 
 	fmt.Println()
 
+	catalog := ComputePermutations(
+		c.GetPresents(),
+		false,
+	)
+
+	catalog.PrintOptimalCombinations()
+
 	failed := uint(0)
 
 	for christmasTreeIndex, christmasTree := range c.christmasTrees {
@@ -47,15 +54,8 @@ func (c *Cavern) PackAll() uint {
 			presentsCount += presentConfiguration.Count
 		}
 
+		fmt.Println("------------------------------------------------------------------------")
 		fmt.Printf("Placing %d presents under Christmas tree %d. Region available: %d\n\n", presentsCount, christmasTreeIndex, christmasTree.Region.GetArea())
-
-		catalog := ComputePermutations(
-			c.GetPresents(),
-			christmasTree.Region,
-			false,
-		)
-
-		catalog.PrintOptimalCombinations()
 
 		totalRegionArea := christmasTree.Region.GetArea()
 		currentRegionArea := uint(0)
@@ -101,7 +101,7 @@ func (c *Cavern) PackAll() uint {
 					} else {
 						if currentPresentCount < otherPresentCount {
 							otherPresentCount = currentPresentCount
-						} else if otherPresentCount > currentPresentCount {
+						} else if currentPresentCount > otherPresentCount {
 							currentPresentCount = otherPresentCount
 						}
 					}
@@ -112,7 +112,11 @@ func (c *Cavern) PackAll() uint {
 					combinationArea := currentPresentCount * combination.Shape.Dimension.GetArea()
 					currentRegionArea += combinationArea
 
-					fmt.Printf("Placed %d present(s) #%d combined with present(s) #%d. New=%d. Total area=%d\n", currentPresentCount, currentPresentConfiguration.Index, combination.OtherPresentIndex, combinationArea, currentRegionArea)
+					if combination.OtherPresentIndex == currentPresentConfiguration.Index {
+						fmt.Printf("Placed %d present(s) #%d. New=%d. Total area=%d\n", currentPresentCount+otherPresentCount, currentPresentConfiguration.Index, combinationArea, currentRegionArea)
+					} else {
+						fmt.Printf("Placed %d present(s) (%dx#%d combined with %dx#%d). New=%d. Total area=%d\n", currentPresentCount+otherPresentCount, currentPresentCount, currentPresentConfiguration.Index, otherPresentCount, combination.OtherPresentIndex, combinationArea, currentRegionArea)
+					}
 
 					if currentPresentConfiguration.Count == 0 {
 						/* Nice: all the presents have been placed */

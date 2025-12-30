@@ -1,6 +1,9 @@
 package abstractions
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 func PackShapes(
 	fixedShapeId uint,
@@ -107,13 +110,17 @@ func computeColOffset(
 	movingShape [][]int8,
 ) int {
 
-	/* We compute the delta at each row, and the smallest delta tells us how far we can pack the shape */
-	minimumEmptyCells := MaximumShapeSize
+	/*
+		We compute the number of empty cells between the fixed shape and the moving on each row,
+		and the smallest delta tells us how far we can pack the shape
+	*/
+	defaultEmptyCells := MaximumShapeSize
+	minimumEmptyCells := defaultEmptyCells
 
 	for row := 0; row < MaximumShapeSize; row++ {
 
 		/* Counts the number of empty cells on the stable shape starting from right to left */
-		emptyCellsOnFixedShape, _ := countEmptyCells(
+		emptyCellsCountOnFixedShape, isEmptyCellsOnFixedShape := countEmptyCells(
 			row,
 			MaximumShapeSize-1,
 			Vector{Row: 0, Col: -1},
@@ -121,24 +128,28 @@ func computeColOffset(
 		)
 
 		/* Counts the number of empty cells on the packed shape starting from left to right */
-		emptyCellsOnMovingShape, found := countEmptyCells(
+		emptyCellsCountOnMovingShape, isEmptyCellsOnMovingShape := countEmptyCells(
 			row,
 			0,
 			Vector{Row: 0, Col: 1},
 			movingShape,
 		)
 
-		if !found {
-			/* If there are only cells on the moving shape, then we just ignore it */
+		rowEmptyCells := 0
+
+		if isEmptyCellsOnFixedShape && isEmptyCellsOnMovingShape {
+			/* This row has empty cells on both sides; let's add both values */
+			rowEmptyCells = emptyCellsCountOnFixedShape + emptyCellsCountOnMovingShape
+		} else if !isEmptyCellsOnFixedShape && !isEmptyCellsOnMovingShape {
+			/* This row can't be packed: no empty cells on both shapes */
+			rowEmptyCells = MaximumShapeSize
+		} else {
 			continue
 		}
 
-		/* Compute the number of cells the packed shape can be moved to the left on this current row */
-		totalEmptyCells := emptyCellsOnFixedShape + emptyCellsOnMovingShape
-
 		/* Only the minimum number of empty cells can be used to move the entire packed shape without overlapping the stable shape */
-		if minimumEmptyCells == MaximumShapeSize || totalEmptyCells > minimumEmptyCells {
-			minimumEmptyCells = totalEmptyCells
+		if minimumEmptyCells == defaultEmptyCells || rowEmptyCells < minimumEmptyCells {
+			minimumEmptyCells = rowEmptyCells
 		}
 	}
 
@@ -166,5 +177,5 @@ func countEmptyCells(
 		return 0, false
 	}
 
-	return initialPosition.Col - lastEmptyCellPosition.Col, true
+	return int(math.Abs(float64(initialPosition.Col) - float64(lastEmptyCellPosition.Col))), true
 }

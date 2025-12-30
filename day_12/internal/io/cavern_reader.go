@@ -70,18 +70,18 @@ func (r *CavernReader) extractPresents(
 		scanner.Scan()
 		scanner.Text()
 
-		shape := make([][]byte, 3)
+		shape := make([][]int8, 3)
 
 		empty, occupied := 0, 0
 
 		for row := 0; row < 3; row++ {
-			shape[row] = make([]byte, 3)
+			shape[row] = make([]int8, 3)
 			for col := 0; col < 3; col++ {
 				if b.String()[row*3+col] == '#' {
-					shape[row][col] = byte(1)
+					shape[row][col] = int8(1)
 					occupied++
 				} else {
-					shape[row][col] = byte(0)
+					shape[row][col] = int8(0)
 					empty++
 				}
 			}
@@ -95,11 +95,11 @@ func (r *CavernReader) extractPresents(
 			presentIndex,
 			abstractions.Shape{
 				Dimension: abstractions.Dimension{
-					Wide:      3,
-					Long:      3,
-					FillRatio: abstractions.ComputeFillRatio(shape),
+					Wide: 3,
+					Long: 3,
 				},
-				Cells: shape,
+				FillRatio: abstractions.ComputeFillRatio(shape),
+				Cells:     shape,
 			},
 		)
 	}

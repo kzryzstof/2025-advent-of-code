@@ -23,7 +23,6 @@ const (
 //	of presents every time.
 func ComputePermutations(
 	presents *Presents,
-	region *Region,
 	verbose bool,
 ) *CombinationCatalog {
 	combinationsCount := 0
@@ -93,7 +92,7 @@ func ComputePermutations(
 						)
 
 						if verbose {
-							fmt.Printf("Dimensions of the new shape: %dx%d\n", packedShape.Dimension.Wide, packedShape.Dimension.Long)
+							fmt.Printf("Dimensions of the new shape: %dx%d (Ratio: %f)\n", packedShape.Dimension.Wide, packedShape.Dimension.Long, packedShape.FillRatio)
 							fmt.Println()
 						}
 

@@ -1,9 +1,8 @@
 package abstractions
 
 type Dimension struct {
-	Wide      int
-	Long      int
-	FillRatio float64
+	Wide int
+	Long int
 }
 
 func (d Dimension) GetRatio() float64 {

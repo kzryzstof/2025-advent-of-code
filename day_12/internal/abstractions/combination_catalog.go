@@ -108,7 +108,7 @@ func (c *CombinationCatalog) PrintOptimalCombinations() {
 			if optimalShape.Dimension.Equals(combination.Shape.Dimension) {
 				isOptimalText = " (optimal)"
 			}
-			fmt.Printf("\tWith %d = Dimensions: %dx%d with fill ratio %.2f%s\n", rightIndex, combination.Shape.Dimension.Wide, combination.Shape.Dimension.Long, combination.Shape.Dimension.FillRatio, isOptimalText)
+			fmt.Printf("\tWith %d = Dimensions: %dx%d with fill ratio %.2f%s\n", rightIndex, combination.Shape.Dimension.Wide, combination.Shape.Dimension.Long, combination.Shape.FillRatio, isOptimalText)
 		}
 	}
 
