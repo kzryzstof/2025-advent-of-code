@@ -97,6 +97,23 @@ func TestShapePacking_PackShapes(t *testing.T) {
 			slideOffset: 0,
 			wantDim:     Dimension{Wide: 6, Long: 3},
 		},
+		{
+			name:         "documented use case: packing produces expected canvas dimensions",
+			fixedShapeID: 4,
+			fixed: [][]int8{
+				{1, 1, 1},
+				{1, 1, 1},
+				{1, 0, 0},
+			},
+			movingShapeID: 5,
+			moving: [][]int8{
+				{0, 0, 1},
+				{1, 1, 1},
+				{1, 1, 1},
+			},
+			slideOffset: 2,
+			wantDim:     Dimension{Wide: 3, Long: 5},
+		},
 	}
 
 	for _, tt := range tests {

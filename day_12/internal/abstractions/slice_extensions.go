@@ -165,20 +165,30 @@ func PrintShapes(
 	leftSlice [][]int8,
 	rightSlice [][]int8,
 ) {
+	maxRows := int(math.Max(float64(len(leftSlice)), float64(len(rightSlice))))
+
 	printRowCell := func(row []int8) {
 		for _, cell := range row {
 			if cell == 0 {
 				fmt.Print(".")
 			} else {
-				fmt.Print("#")
+				fmt.Print(fmt.Sprintf("%d", cell))
 			}
 		}
 	}
 
-	for rowIndex := range leftSlice {
-		printRowCell(leftSlice[rowIndex])
+	for rowIndex := 0; rowIndex < maxRows; rowIndex++ {
+		if rowIndex < len(leftSlice) {
+			printRowCell(leftSlice[rowIndex])
+		} else {
+			for colIndex := 0; colIndex < MaximumShapeSize; colIndex++ {
+				fmt.Print(" ")
+			}
+		}
 		fmt.Print(" | ")
-		printRowCell(rightSlice[rowIndex])
+		if rowIndex < len(rightSlice) {
+			printRowCell(rightSlice[rowIndex])
+		}
 		fmt.Println()
 	}
 }

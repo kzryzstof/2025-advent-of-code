@@ -38,7 +38,7 @@ func (c *Cavern) PackAll() uint {
 
 	catalog := ComputePermutations(
 		c.GetPresents(),
-		false,
+		true,
 	)
 
 	catalog.PrintOptimalCombinations()

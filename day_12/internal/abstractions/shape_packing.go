@@ -23,8 +23,9 @@ func PackShapes(
 	)
 
 	if verbose {
-		fmt.Println("Slided moving shape:")
-		PrintShape(slidedMovingShape)
+		fmt.Printf("Packing shapes #%d and #%d:\n", fixedShapeId, movingShapeId)
+		PrintShapes(fixedShape, slidedMovingShape)
+		fmt.Println()
 	}
 
 	/* Finds out the number of empty columns between the 2 shapes */
@@ -153,7 +154,7 @@ func computeColOffset(
 		}
 	}
 
-	return minimumEmptyCells
+	return int(math.Min(float64(minimumEmptyCells), float64(MaximumShapeSize)))
 }
 
 func countEmptyCells(
