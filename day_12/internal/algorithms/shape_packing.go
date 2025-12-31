@@ -8,7 +8,7 @@ import (
 	"math"
 )
 
-func PackShapes(
+func CombineShapes(
 	fixedShapeId uint,
 	fixedShape [][]int8,
 	movingShapeId uint,
@@ -17,14 +17,18 @@ func PackShapes(
 	verbose bool,
 ) abstractions.Shape {
 
-	slidedMovingShape := maths.Slide(
-		movingShape,
-		maths.Vector{
-			Row: slideOffset,
-			Col: 0,
-		},
-		abstractions.E,
-	)
+	slidedMovingShape := movingShape
+
+	if slideOffset > 0 {
+		slidedMovingShape = maths.Slide(
+			movingShape,
+			maths.Vector{
+				Row: slideOffset,
+				Col: 0,
+			},
+			abstractions.E,
+		)
+	}
 
 	if verbose {
 		fmt.Printf("Packing shapes #%d and #%d:\n", fixedShapeId, movingShapeId)
@@ -62,6 +66,7 @@ func PackShapes(
 		newShape,
 		0,
 		0,
+		abstractions.E,
 	)
 
 	/* Packed shape translated by packOffset */
@@ -71,6 +76,7 @@ func PackShapes(
 		newShape,
 		0,
 		abstractions.MaximumShapeSize-colsOffset,
+		abstractions.E,
 	)
 
 	if verbose {

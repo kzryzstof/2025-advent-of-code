@@ -149,15 +149,14 @@ func PasteShape(
 	src [][]int8,
 	dst [][]int8,
 	rowOffset, colOffset int,
+	ignoredValue int8,
 ) {
 	for row := 0; row < len(src); row++ {
 		for col := 0; col < len(src[row]); col++ {
 
-			/*
-				if src[row][col] == abstractions.E {
-					continue
-				}
-			*/
+			if src[row][col] == ignoredValue {
+				continue
+			}
 
 			rowWithOffset := row + rowOffset
 			colWithOffset := col + colOffset

@@ -29,11 +29,10 @@ func TestShapePermutations_ComputePermutations(t *testing.T) {
 			presents := map[uint]*abstractions.Present{}
 			presents[0] = abstractions.NewPresent(
 				0,
-				abstractions.Shape{
-					Dimension: maths.Dimension{Wide: 3, Long: 3},
-					Cells:     tt.shape,
-					FillRatio: maths.ComputeFillRatio(tt.shape),
-				},
+				abstractions.NewShape(
+					maths.Dimension{Wide: 3, Long: 3},
+					tt.shape,
+				),
 			)
 
 			got := ComputePermutations(
@@ -76,7 +75,7 @@ func TestShapePermutations_PackShapes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := PackShapes(
+			got := CombineShapes(
 				1,
 				tt.left,
 				2,

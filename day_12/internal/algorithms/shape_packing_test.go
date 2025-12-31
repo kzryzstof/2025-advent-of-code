@@ -14,7 +14,7 @@ func TestShapePacking_PackShape(t *testing.T) {
 		expectedSuccess bool
 	}{
 		{
-			name: "region is empty",
+			name: "given empty region when packing shape then inserted at origin",
 			region: [][]int8{
 				{abstractions.E, abstractions.E, abstractions.E, abstractions.E, abstractions.E},
 				{abstractions.E, abstractions.E, abstractions.E, abstractions.E, abstractions.E},
@@ -51,7 +51,7 @@ func TestShapePacking_PackShape(t *testing.T) {
 			expectedSuccess: true,
 		},
 		{
-			name: "region's first few cols are occupied",
+			name: "given top-left 2x3 occupied block when packing shape then inserted below occupied area",
 			region: [][]int8{
 				{1, 1, abstractions.E, abstractions.E, abstractions.E},
 				{1, 1, abstractions.E, abstractions.E, abstractions.E},
@@ -88,7 +88,7 @@ func TestShapePacking_PackShape(t *testing.T) {
 			expectedSuccess: true,
 		},
 		{
-			name: "region's columns are occupied",
+			name: "given left column mostly occupied when packing shape then inserted at first available lower row",
 			region: [][]int8{
 				{1, 1, abstractions.E, abstractions.E, abstractions.E},
 				{1, 1, abstractions.E, abstractions.E, abstractions.E},
@@ -125,7 +125,7 @@ func TestShapePacking_PackShape(t *testing.T) {
 			expectedSuccess: true,
 		},
 		{
-			name: "region's columns are occupied",
+			name: "given left column fully occupied when packing shape then inserted shifted right",
 			region: [][]int8{
 				{1, 1, abstractions.E, abstractions.E, abstractions.E},
 				{1, 1, abstractions.E, abstractions.E, abstractions.E},
@@ -162,7 +162,7 @@ func TestShapePacking_PackShape(t *testing.T) {
 			expectedSuccess: true,
 		},
 		{
-			name: "first row is occupied",
+			name: "given first row fully occupied when packing shape then inserted on next available row",
 			region: [][]int8{
 				{1, 1, 1, 1, 1},
 				{1, 1, abstractions.E, abstractions.E, abstractions.E},
@@ -199,7 +199,7 @@ func TestShapePacking_PackShape(t *testing.T) {
 			expectedSuccess: true,
 		},
 		{
-			name: "bottom corner is empty",
+			name: "given only bottom-right pocket available when packing shape then inserted in bottom pocket",
 			region: [][]int8{
 				{1, 1, 1, 1, 1},
 				{1, 1, 1, 1, abstractions.E},
@@ -236,7 +236,7 @@ func TestShapePacking_PackShape(t *testing.T) {
 			expectedSuccess: true,
 		},
 		{
-			name: "region is full",
+			name: "given no 3x3 placement possible when packing shape then fails",
 			region: [][]int8{
 				{1, 1, 1, 1, 1},
 				{1, 1, 1, 1, abstractions.E},
@@ -273,7 +273,7 @@ func TestShapePacking_PackShape(t *testing.T) {
 			expectedSuccess: false,
 		},
 		{
-			name: "region has place in the middle",
+			name: "given central 3x3 cavity when packing shape then inserted in cavity",
 			region: [][]int8{
 				{1, 1, 1, 1, 1},
 				{1, 1, 1, 1, abstractions.E},
@@ -316,7 +316,7 @@ func TestShapePacking_PackShape(t *testing.T) {
 			succeeded := PackShape(
 				tt.region,
 				tt.shape,
-				true,
+				false,
 			)
 
 			if succeeded != tt.expectedSuccess {
@@ -334,7 +334,7 @@ func TestShapePacking_PackShape(t *testing.T) {
 	}
 }
 
-func TestShapePacking_PackShapes(t *testing.T) {
+func TestShapePacking_CombineShapes(t *testing.T) {
 	tests := []struct {
 		name          string
 		fixedShapeID  uint
@@ -345,7 +345,7 @@ func TestShapePacking_PackShapes(t *testing.T) {
 		expectedShape [][]int8
 	}{
 		{
-			name:         "documented use case: packing produces expected canvas dimensions",
+			name:         "given shapes #4 and #5 aligned when slideOffset=0 then merged side-by-side",
 			fixedShapeID: 4,
 			fixed: [][]int8{
 				{1, 1, 1},
@@ -366,7 +366,7 @@ func TestShapePacking_PackShapes(t *testing.T) {
 			},
 		},
 		{
-			name:         "documented use case: packing produces expected canvas dimensions",
+			name:         "given shapes #4 and #5 aligned when slideOffset=1 then merged with one-row vertical shift",
 			fixedShapeID: 4,
 			fixed: [][]int8{
 				{1, 1, 1},
@@ -388,7 +388,7 @@ func TestShapePacking_PackShapes(t *testing.T) {
 			},
 		},
 		{
-			name:         "documented use case: packing produces expected canvas dimensions",
+			name:         "given shapes #4 and #5 aligned when slideOffset=2 then merged with two-row vertical shift",
 			fixedShapeID: 4,
 			fixed: [][]int8{
 				{1, 1, 1},
@@ -411,7 +411,7 @@ func TestShapePacking_PackShapes(t *testing.T) {
 			},
 		},
 		{
-			name:         "documented use case: packing produces expected canvas dimensions",
+			name:         "given shapes #4 and #5 aligned when slideOffset=3 then merged stacked vertically",
 			fixedShapeID: 4,
 			fixed: [][]int8{
 				{1, 1, 1},
@@ -435,7 +435,7 @@ func TestShapePacking_PackShapes(t *testing.T) {
 			},
 		},
 		{
-			name:         "documented use case: packing produces expected canvas dimensions",
+			name:         "given rotated/offset moving shape when slideOffset=0 then merged with diagonal contact",
 			fixedShapeID: 4,
 			fixed: [][]int8{
 				{1, 1, 1},
@@ -456,7 +456,7 @@ func TestShapePacking_PackShapes(t *testing.T) {
 			},
 		},
 		{
-			name:         "documented use case: packing produces expected canvas dimensions",
+			name:         "given fixed shape variant and moving shape variant when slideOffset=2 then merged tightly",
 			fixedShapeID: 4,
 			fixed: [][]int8{
 				{1, 1, 1},
@@ -482,13 +482,13 @@ func TestShapePacking_PackShapes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := PackShapes(
+			got := CombineShapes(
 				tt.fixedShapeID,
 				tt.fixed,
 				tt.movingShapeID,
 				tt.moving,
 				tt.slideOffset,
-				true,
+				false,
 			)
 
 			for row := 0; row < len(tt.expectedShape); row++ {
