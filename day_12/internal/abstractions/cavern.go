@@ -36,6 +36,8 @@ func (c *Cavern) PackAll(
 	verbose bool,
 ) uint {
 
+	failedChristmasTrees := make([]uint, 0)
+
 	if verbose {
 		fmt.Println()
 	}
@@ -48,116 +50,164 @@ func (c *Cavern) PackAll(
 		false,
 	)
 
-	if verbose {
-		catalog.PrintOptimalCombinations()
-	}
+	//if verbose {
+	catalog.PrintOptimalCombinations()
+	//}
 
 	failed := uint(0)
 
 	for christmasTreeIndex, christmasTree := range c.christmasTrees {
 
-		presentConfigurations := christmasTree.GetPresentConfigurations()
-		presentsCount := christmasTree.GetPresentsCount()
+		//presentConfigurations := christmasTree.GetPresentConfigurations()
 
 		fmt.Println("------------------------------------------------------------------------")
-		fmt.Printf("Placing %d presents under Christmas tree #%d.\n\n", presentsCount, christmasTreeIndex+1)
+		fmt.Printf("Placing %d presents under Christmas tree #%d (%dx%d).\n\n", christmasTree.GetPresentsCount(), christmasTreeIndex+1, christmasTree.wide, christmasTree.long)
 
 		region := christmasTree.Region.GetSpace()
 
-		allShapesPacked := true
-
 		/*
-			It is best to start with the presents that have the highest count to try and combine them first
+			It is best to start with the combined presents that have the highest count
 		*/
-		for _, currentPresentConfiguration := range presentConfigurations {
+		//for _, currentPresentConfiguration := range presentConfigurations {
+		for _, index := range catalog.GetCombinations() {
 
-			if !allShapesPacked {
-				break
-			}
+			currentPresentConfiguration := christmasTree.GetPresentConfiguration(index)
 
 			if currentPresentConfiguration.Count == 0 {
 				continue
 			}
 
-			fmt.Printf("Placing %d presents #%d\r", currentPresentConfiguration.Count, currentPresentConfiguration.Index)
+			fmt.Printf("Present %d | Placing %d combined presents\n", currentPresentConfiguration.Index, currentPresentConfiguration.Count)
 
 			/* Prioritizes placing combinations of presents first */
-			for currentPresentConfiguration.Count > 0 {
+			for _, combination := range catalog.GetOptimalCombinations(currentPresentConfiguration.Index) {
 
-				for _, combination := range catalog.GetOptimalCombinations(currentPresentConfiguration.Index) {
+				otherPresentConfiguration := christmasTree.GetPresentConfiguration(combination.OtherPresentIndex)
 
-					otherPresentConfiguration := christmasTree.GetPresentConfiguration(combination.OtherPresentIndex)
+				if otherPresentConfiguration.Count == 0 {
+					/* No more other presents available */
+					continue
+				}
 
-					if otherPresentConfiguration.Count == 0 {
-						/* No more other presents available */
+				fmt.Printf("\tUsing combination with presents %d (%.2f)\n", combination.OtherPresentIndex, combination.Shape.FillRatio)
+
+				presentsCount := currentPresentConfiguration.Count
+				otherPresentCount := otherPresentConfiguration.Count
+
+				if combination.OtherPresentIndex == currentPresentConfiguration.Index {
+					if otherPresentConfiguration.Count < 2 {
+						/* Not enough presents to split */
 						continue
 					}
 
-					currentPresentCount := currentPresentConfiguration.Count
-					otherPresentCount := otherPresentConfiguration.Count
+					/* We split the presents in two groups */
+					presentsCount = uint(math.Floor(float64(presentsCount) / 2.0))
+				} else if presentsCount > otherPresentCount {
+					presentsCount = otherPresentCount
+				}
 
-					if combination.OtherPresentIndex == currentPresentConfiguration.Index {
-						if otherPresentConfiguration.Count < 2 {
-							/* Not enough presents to split */
-							continue
-						}
+				shapesPacked := true
+				shapesPackedCount := uint(0)
 
-						/* We split the presents in two groups */
-						otherPresentCount = uint(math.Floor(float64(otherPresentCount) / 2.0))
-						currentPresentCount = otherPresentCount
-					} else {
-						if currentPresentCount < otherPresentCount {
-							otherPresentCount = currentPresentCount
-						} else if currentPresentCount > otherPresentCount {
-							currentPresentCount = otherPresentCount
-						}
-					}
-
-					shapesPacked := true
-
-					for shapeNumber := uint(0); shapeNumber < currentPresentCount; shapeNumber++ {
-						shapesPacked = PackShape(
-							region,
-							combination.PresentIndex,
-							combination.Shape.GetCopy(),
-							verbose,
-						)
-					}
-
-					currentPresentConfiguration.Count -= currentPresentCount
-					otherPresentConfiguration.Count -= otherPresentCount
+				for shapeNumber := uint(0); shapeNumber < presentsCount; shapeNumber++ {
+					shapesPacked = PackShape(
+						region,
+						combination.PresentIndex,
+						combination.Shape.GetCopy(),
+						verbose,
+					)
 
 					if !shapesPacked {
-						allShapesPacked = false
 						break
 					}
 
-					if currentPresentConfiguration.Count == 0 {
-						break
-					}
+					shapesPackedCount++
 				}
 
-				if !allShapesPacked {
+				currentPresentConfiguration.Count -= shapesPackedCount
+				otherPresentConfiguration.Count -= shapesPackedCount
+
+				if !shapesPacked {
+					if combination.OtherPresentIndex == currentPresentConfiguration.Index {
+						fmt.Printf("\tOnly placed %d presents #%d with presents #%d instead of %d\n", shapesPackedCount, currentPresentConfiguration.Index, otherPresentConfiguration.Index, currentPresentConfiguration.Count)
+					} else {
+						fmt.Printf("\tOnly placed %d presents #%d instead of %d\n", shapesPackedCount, currentPresentConfiguration.Index, currentPresentConfiguration.Count)
+					}
 					break
+				} else {
+					if combination.OtherPresentIndex == currentPresentConfiguration.Index {
+						fmt.Printf("\t%d presents #%d have been placed\n", 2*shapesPackedCount, currentPresentConfiguration.Index)
+					} else {
+						fmt.Printf("\t%d presents #%d combined with presents #%d have been placed\n", shapesPackedCount, currentPresentConfiguration.Index, otherPresentConfiguration.Index)
+					}
 				}
 
-				if currentPresentConfiguration.Count > 0 {
-					lastCurrentPresentCount := currentPresentConfiguration.Count
-					currentPresentConfiguration.Count -= lastCurrentPresentCount
-					fmt.Printf("Placed the last %d present(s) #%d\n", lastCurrentPresentCount, currentPresentConfiguration.Index)
+				if currentPresentConfiguration.Count == 0 {
+					break
 				}
 			}
 		}
 
+		allShapesPacked := true
+
+		/*
+			Now place the remaining individual presents
+		*/
+		for _, index := range catalog.GetCombinations() {
+
+			currentPresentConfiguration := christmasTree.GetPresentConfiguration(index)
+
+			if currentPresentConfiguration.Count == 0 {
+				continue
+			}
+
+			fmt.Printf("Placing presents #%d individually \n", currentPresentConfiguration.Index)
+
+			shapePacked := true
+			shapesPackedCount := uint(0)
+
+			shape := c.presents.GetPresent(currentPresentConfiguration.Index).GetShape()
+
+			for presentCount := uint(0); presentCount < currentPresentConfiguration.Count; presentCount++ {
+
+				shapePacked = PackShape(
+					region,
+					currentPresentConfiguration.Index,
+					shape,
+					verbose,
+				)
+
+				if !shapePacked {
+					allShapesPacked = false
+					fmt.Printf("\tOnly placed %d presents #%d instead of %d\n", shapesPackedCount, currentPresentConfiguration.Index, currentPresentConfiguration.Count)
+					break
+				}
+
+				shapesPackedCount++
+			}
+
+			currentPresentConfiguration.Count -= shapesPackedCount
+
+			if !allShapesPacked {
+				break
+			}
+
+			fmt.Printf("\tPlaced %d presents #%d\n", shapesPackedCount, currentPresentConfiguration.Index)
+		}
+
 		if !allShapesPacked {
 			failed++
+			failedChristmasTrees = append(failedChristmasTrees, uint(christmasTreeIndex))
 			fmt.Printf("\nNo more space available under christmas tree #%d\n\n", christmasTreeIndex+1)
-
 			PrintShape(region)
+
 		} else {
 			fmt.Printf("\nAll the presents have been successfully placed under christmas tree #%d\n\n", christmasTreeIndex+1)
 		}
+	}
 
+	for _, failedChristmasTreeIndex := range failedChristmasTrees {
+		fmt.Printf("Christmas tree #%d has been failed\n", failedChristmasTreeIndex+1)
 	}
 
 	return failed

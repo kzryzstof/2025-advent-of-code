@@ -9,8 +9,14 @@ import (
 	Stores combinations of presents (stored by index)
 */
 
+type combinationMetadata struct {
+	presentIndex uint
+	fillRatioAvg float64
+}
+
 type CombinationCatalog struct {
 	combinations map[uint][]Combination
+	metadata     []combinationMetadata
 }
 
 func NewCombinationCatalog() *CombinationCatalog {
@@ -52,16 +58,51 @@ func (c *CombinationCatalog) StoreNewShape(
 			})
 	}
 
+	c.updateFillRatios()
 	c.sort()
+}
+
+func (c *CombinationCatalog) updateFillRatios() {
+
+	c.metadata = make([]combinationMetadata, 0)
+
+	for leftIndex, combinations := range c.combinations {
+		totalFillRatio := float64(0)
+		fillRatioCount := float64(0)
+		for _, combination := range combinations {
+			totalFillRatio += combination.Shape.FillRatio
+			fillRatioCount++
+		}
+		c.metadata = append(c.metadata, combinationMetadata{leftIndex, totalFillRatio / fillRatioCount})
+	}
+
+	sort.Slice(c.metadata, func(i, j int) bool { return c.metadata[i].fillRatioAvg > c.metadata[j].fillRatioAvg })
 }
 
 func (c *CombinationCatalog) sort() {
 
 	for _, combinations := range c.combinations {
 		sort.Slice(combinations, func(i, j int) bool {
+			isEqual := combinations[i].Shape.FillRatio == combinations[j].Shape.FillRatio
+
+			if isEqual {
+				return combinations[i].PresentIndex != combinations[j].OtherPresentIndex
+			}
+
 			return combinations[i].Shape.IsMoreOptimalThan(combinations[j].Shape)
 		})
 	}
+}
+
+func (c *CombinationCatalog) GetCombinations() []uint {
+
+	sortedCombinations := make([]uint, 0)
+
+	for _, combinations := range c.metadata {
+		sortedCombinations = append(sortedCombinations, combinations.presentIndex)
+	}
+
+	return sortedCombinations
 }
 
 func (c *CombinationCatalog) GetOptimalCombination(
@@ -100,7 +141,10 @@ func (c *CombinationCatalog) GetOptimalCombinations(
 
 func (c *CombinationCatalog) PrintOptimalCombinations() {
 
-	for leftIndex, combinations := range c.combinations {
+	for _, metadata := range c.metadata {
+		leftIndex := metadata.presentIndex
+		combinations := c.combinations[leftIndex]
+		totalFillRatio := float64(0)
 		fmt.Printf("Present %d\n", leftIndex)
 		for rightIndex, combination := range combinations {
 			_, optimalShape := c.GetOptimalCombination(leftIndex)
@@ -108,8 +152,10 @@ func (c *CombinationCatalog) PrintOptimalCombinations() {
 			if optimalShape.Dimension.Equals(combination.Shape.Dimension) {
 				isOptimalText = " (optimal)"
 			}
+			totalFillRatio += combination.Shape.FillRatio
 			fmt.Printf("\tWith %d = Dimensions: %dx%d with fill ratio %.2f%s\n", rightIndex, combination.Shape.Dimension.Wide, combination.Shape.Dimension.Long, combination.Shape.FillRatio, isOptimalText)
 		}
+		fmt.Printf("\tAvg fill ratio: %.2f\n", totalFillRatio/6)
 	}
 
 	fmt.Print("\n")

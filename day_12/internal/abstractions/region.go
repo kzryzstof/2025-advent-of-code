@@ -27,14 +27,6 @@ func NewRegion(
 	}
 }
 
-func (r *Region) GetArea() uint {
-	return r.wide * r.long
-}
-
-func (r *Region) GetRatio() float64 {
-	return r.ratio
-}
-
 func (r *Region) GetSpace() [][]int8 {
 	return r.space
 }

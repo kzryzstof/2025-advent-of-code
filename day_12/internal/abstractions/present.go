@@ -19,7 +19,3 @@ func (p *Present) GetShape() [][]int8 {
 func (p *Present) GetIndex() uint {
 	return p.index
 }
-
-func (p *Present) GetArea() uint {
-	return p.shape.Dimension.GetArea()
-}
