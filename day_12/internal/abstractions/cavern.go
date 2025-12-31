@@ -122,17 +122,17 @@ func (c *Cavern) PackAll(
 							combination.Shape.GetCopy(),
 							verbose,
 						)
-
-						if !shapesPacked {
-							break
-						}
 					}
 
 					currentPresentConfiguration.Count -= currentPresentCount
 					otherPresentConfiguration.Count -= otherPresentCount
 
-					if !shapesPacked || currentPresentConfiguration.Count == 0 {
+					if !shapesPacked {
 						allShapesPacked = false
+						break
+					}
+
+					if currentPresentConfiguration.Count == 0 {
 						break
 					}
 				}
