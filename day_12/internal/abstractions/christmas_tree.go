@@ -8,8 +8,7 @@ type ChristmasTree struct {
 	Index ChristmasTreeIndex
 
 	/* Size available under the tree */
-	wide uint
-	long uint
+	Dimension maths.Dimension
 
 	/* Lists all the present configurations mapped by their ID */
 	mappedPresentConfigurations map[PresentIndex]*PresentConfiguration
@@ -26,8 +25,10 @@ func NewChristmasTree(
 
 	return &ChristmasTree{
 		index,
-		wide,
-		long,
+		maths.Dimension{
+			Wide: wide,
+			Long: long,
+		},
 		buildMappedPresentConfigurations(presentConfigurations),
 		maths.NewRegion(wide, long, E),
 	}
@@ -48,14 +49,6 @@ func buildMappedPresentConfigurations(
 	}
 
 	return mappedPresentConfigurations
-}
-
-func (ct *ChristmasTree) GetWide() uint {
-	return ct.wide
-}
-
-func (ct *ChristmasTree) GetLong() uint {
-	return ct.long
 }
 
 func (ct *ChristmasTree) GetPresentConfiguration(

@@ -31,7 +31,7 @@ func PackAll(
 
 		if verbose {
 			fmt.Println("------------------------------------------------------------------------")
-			fmt.Printf("Placing %d presents under Christmas tree #%d (%dx%d).\n", christmasTree.GetPresentsCount(), christmasTree.Index, christmasTree.GetWide(), christmasTree.GetLong())
+			fmt.Printf("Placing %d presents under Christmas tree #%d (%dx%d).\n", christmasTree.GetPresentsCount(), christmasTree.Index, christmasTree.Dimension.Wide, christmasTree.Dimension.Long)
 		}
 
 		region := christmasTree.Region.GetSpace()

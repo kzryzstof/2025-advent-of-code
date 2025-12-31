@@ -16,7 +16,7 @@ func NewRegion(
 		wide,
 		long,
 		float64(wide) / float64(long),
-		NewSlice(int(long), int(wide), defaultValue),
+		NewSlice(long, wide, defaultValue),
 	}
 }
 

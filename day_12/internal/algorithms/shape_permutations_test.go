@@ -53,7 +53,7 @@ func TestShapePermutations_PackShapes(t *testing.T) {
 		name        string
 		left        [][]int8
 		right       [][]int8
-		slideOffset int
+		slideOffset uint
 		wantDim     maths.Dimension
 	}{
 		{

@@ -1,8 +1,8 @@
 package maths
 
 type Dimension struct {
-	Wide int
-	Long int
+	Wide uint
+	Long uint
 }
 
 func (d Dimension) Equals(

@@ -78,7 +78,7 @@ func ComputePermutations(
 						to test additional combinations
 					*/
 
-					for slideOffset := 0; slideOffset < abstractions.MaximumShapeSize; slideOffset++ {
+					for slideOffset := uint(0); slideOffset < abstractions.MaximumShapeSize; slideOffset++ {
 
 						packedShape := CombineShapes(
 							fixedPresent.GetIndex(),

@@ -2,7 +2,7 @@ package abstractions
 
 const (
 	// MaximumShapeSize /* All the presents occupies a 3x3 region */
-	MaximumShapeSize = 3
+	MaximumShapeSize = uint(3)
 )
 
 type Presents struct {

@@ -5,7 +5,7 @@ import (
 )
 
 func NewSlice(
-	rows, cols int,
+	rows, cols uint,
 	defaultVal int8,
 ) [][]int8 {
 	slice := make([][]int8, rows)
@@ -89,7 +89,7 @@ func Slide(
 	dstRows := len(src) + int(math.Abs(float64(direction.Row)))
 	dstCols := len(src[0]) + int(math.Abs(float64(direction.Col)))
 
-	dst := NewSlice(dstRows, dstCols, defaultValue)
+	dst := NewSlice(uint(dstRows), uint(dstCols), defaultValue)
 
 	/* Copies the src slice into the dst slice at the specified shift */
 
@@ -148,11 +148,11 @@ func PasteShape(
 	id uint,
 	src [][]int8,
 	dst [][]int8,
-	rowOffset, colOffset int,
+	rowOffset, colOffset uint,
 	ignoredValue int8,
 ) {
-	for row := 0; row < len(src); row++ {
-		for col := 0; col < len(src[row]); col++ {
+	for row := uint(0); row < uint(len(src)); row++ {
+		for col := uint(0); col < uint(len(src[row])); col++ {
 
 			if src[row][col] == ignoredValue {
 				continue

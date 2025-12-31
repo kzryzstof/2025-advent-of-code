@@ -341,7 +341,7 @@ func TestShapePacking_CombineShapes(t *testing.T) {
 		fixed         [][]int8
 		movingShapeID abstractions.PresentIndex
 		moving        [][]int8
-		slideOffset   int
+		slideOffset   uint
 		expectedShape [][]int8
 	}{
 		{

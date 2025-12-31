@@ -45,7 +45,7 @@ func PrintShapes(
 		if rowIndex < len(leftSlice) {
 			printRowCell(leftSlice[rowIndex])
 		} else {
-			for colIndex := 0; colIndex < abstractions.MaximumShapeSize; colIndex++ {
+			for colIndex := uint(0); colIndex < abstractions.MaximumShapeSize; colIndex++ {
 				fmt.Print(" ")
 			}
 		}

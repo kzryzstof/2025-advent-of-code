@@ -13,7 +13,7 @@ func CombineShapes(
 	fixedShape [][]int8,
 	movingShapeId abstractions.PresentIndex,
 	movingShape [][]int8,
-	slideOffset int,
+	slideOffset uint,
 	verbose bool,
 ) abstractions.Shape {
 
@@ -23,7 +23,7 @@ func CombineShapes(
 		slidedMovingShape = maths.Slide(
 			movingShape,
 			maths.Vector{
-				Row: slideOffset,
+				Row: int(slideOffset),
 				Col: 0,
 			},
 			abstractions.E,
@@ -57,7 +57,11 @@ func CombineShapes(
 	newRowsCount := abstractions.MaximumShapeSize + slideOffset
 	newColsCount := abstractions.MaximumShapeSize + (abstractions.MaximumShapeSize - colsOffset)
 
-	newShape := maths.NewSlice(newRowsCount, newColsCount, abstractions.E)
+	newShape := maths.NewSlice(
+		newRowsCount,
+		newColsCount,
+		abstractions.E,
+	)
 
 	/* Stable shape placed at origin (0,0) */
 	maths.PasteShape(
@@ -162,7 +166,7 @@ func PackShape(
 func computeColOffset(
 	fixedShape [][]int8,
 	movingShape [][]int8,
-) int {
+) uint {
 
 	/*
 		We compute the number of empty cells between the fixed shape and the moving on each row,
@@ -171,7 +175,7 @@ func computeColOffset(
 	defaultEmptyCells := 2 * abstractions.MaximumShapeSize
 	minimumEmptyCells := defaultEmptyCells
 
-	for row := 0; row < abstractions.MaximumShapeSize; row++ {
+	for row := uint(0); row < abstractions.MaximumShapeSize; row++ {
 
 		/* Counts the number of empty cells on the stable shape starting from right to left */
 		emptyCellsCountOnFixedShape, isEmptyCellsOnFixedShape := countEmptyCells(
@@ -189,7 +193,7 @@ func computeColOffset(
 			movingShape,
 		)
 
-		rowEmptyCells := 0
+		rowEmptyCells := uint(0)
 
 		if isEmptyCellsOnFixedShape {
 			/* This row has empty cells on both sides; let's add both values */
@@ -207,7 +211,7 @@ func computeColOffset(
 		}
 	}
 
-	return int(math.Min(float64(minimumEmptyCells), float64(abstractions.MaximumShapeSize)))
+	return uint(math.Min(float64(minimumEmptyCells), float64(abstractions.MaximumShapeSize)))
 }
 
 func findInsertPosition(
@@ -216,8 +220,8 @@ func findInsertPosition(
 	verbose bool,
 ) (maths.Position, bool) {
 
-	regionRows := len(region)
-	shapeRows := len(shape)
+	regionRows := uint(len(region))
+	shapeRows := uint(len(shape))
 
 	/*
 		We compute the number of empty cells between the fixed shape and the moving on each row,
@@ -225,23 +229,23 @@ func findInsertPosition(
 	*/
 	currentInsertPositionFound := false
 	currentInsertPosition := maths.Position{
-		Row: regionRows,
+		Row: int(regionRows),
 		Col: len(region[0]),
 	}
 
-	for regionRow := 0; regionRow < regionRows-shapeRows+1; regionRow++ {
+	for regionRow := uint(0); regionRow < regionRows-shapeRows+1; regionRow++ {
 
 		if verbose {
 			fmt.Printf("Checking region row %d...\n", regionRow)
 		}
 
-		regionCols := len(region[regionRow])
+		regionCols := uint(len(region[regionRow]))
 
 		minimumEmptyCells := regionCols
 
-		for row := 0; row < shapeRows; row++ {
+		for row := uint(0); row < shapeRows; row++ {
 
-			shapeCols := len(shape[row])
+			shapeCols := uint(len(shape[row]))
 
 			/* Counts the number of empty cells on the region starting from right to left */
 			emptyCellsCountOnRegion, isEmptyCellsOnRegion := countEmptyCells(
@@ -260,7 +264,7 @@ func findInsertPosition(
 				shape,
 			)
 
-			rowEmptyCells := 0
+			rowEmptyCells := uint(0)
 
 			if isEmptyCellsOnRegion {
 				/* This row has empty cells on both sides; let's add both values */
@@ -278,11 +282,11 @@ func findInsertPosition(
 
 		insertCol := regionCols - minimumEmptyCells
 
-		if insertCol < currentInsertPosition.Col {
+		if insertCol < uint(currentInsertPosition.Col) {
 			currentInsertPositionFound = true
 			currentInsertPosition = maths.Position{
-				Row: regionRow,
-				Col: insertCol,
+				Row: int(regionRow),
+				Col: int(insertCol),
 			}
 
 			if verbose {
@@ -295,15 +299,15 @@ func findInsertPosition(
 }
 
 func countEmptyCells(
-	fromRow int,
-	fromCol int,
+	fromRow uint,
+	fromCol uint,
 	direction maths.Vector,
 	shape [][]int8,
-) (int, bool) {
+) (uint, bool) {
 
 	initialPosition := maths.Position{
-		Row: fromRow,
-		Col: fromCol,
+		Row: int(fromRow),
+		Col: int(fromCol),
 	}
 
 	lastEmptyCellPosition, isPositionFound := maths.FindLastCellWithValueOnRow(
@@ -317,5 +321,11 @@ func countEmptyCells(
 		return 0, false
 	}
 
-	return int(math.Abs(float64(initialPosition.Col) - float64(lastEmptyCellPosition.Col))), true
+	count := math.Abs(float64(initialPosition.Col) - float64(lastEmptyCellPosition.Col))
+
+	if count < 0 {
+		return 0, false
+	}
+
+	return uint(count), true
 }
