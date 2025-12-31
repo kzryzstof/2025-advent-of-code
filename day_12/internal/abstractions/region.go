@@ -35,8 +35,6 @@ func (r *Region) GetRatio() float64 {
 	return r.ratio
 }
 
-func (r *Region) PushLeft(
-	shape Shape,
-) {
-
+func (r *Region) GetSpace() [][]int8 {
+	return r.space
 }

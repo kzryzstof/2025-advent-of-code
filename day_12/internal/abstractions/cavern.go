@@ -56,14 +56,16 @@ func (c *Cavern) PackAll() uint {
 		fmt.Println("------------------------------------------------------------------------")
 		fmt.Printf("Placing %d presents under Christmas tree #%d.\n\n", presentsCount, christmasTreeIndex+1)
 
-		//region := christmasTree.Region
+		region := christmasTree.Region.GetSpace()
+
+		allShapesPacked := true
 
 		/*
 			It is best to start with the presents that have the highest count to try and combine them first
 		*/
 		for _, currentPresentConfiguration := range presentConfigurations {
 
-			if currentPresentConfiguration.Count == 0 {
+			if !allShapesPacked || currentPresentConfiguration.Count == 0 {
 				continue
 			}
 
@@ -104,39 +106,36 @@ func (c *Cavern) PackAll() uint {
 					currentPresentConfiguration.Count -= currentPresentCount
 					otherPresentConfiguration.Count -= otherPresentCount
 
-					/*
-						combinationArea := currentPresentCount * combination.Shape.Dimension.GetArea()
-						currentRegionArea += combinationArea
+					allShapesPacked = allShapesPacked && PackShape(
+						region,
+						combination.PresentIndex,
+						combination.Shape.GetCopy(),
+						false,
+					)
 
-						if combination.OtherPresentIndex == currentPresentConfiguration.Index {
-							fmt.Printf("Placed %d present(s) #%d. New=%d. Total area=%d\n", currentPresentCount+otherPresentCount, currentPresentConfiguration.Index, combinationArea, currentRegionArea)
-						} else {
-							fmt.Printf("Placed %d present(s) (%dx#%d combined with %dx#%d). New=%d. Total area=%d\n", currentPresentCount+otherPresentCount, currentPresentCount, currentPresentConfiguration.Index, otherPresentCount, combination.OtherPresentIndex, combinationArea, currentRegionArea)
-						}
-					*/
-
-					if currentPresentConfiguration.Count == 0 {
+					if !allShapesPacked || currentPresentConfiguration.Count == 0 {
 						break
 					}
+				}
+
+				if !allShapesPacked {
+					break
 				}
 
 				if currentPresentConfiguration.Count > 0 {
 					lastCurrentPresentCount := currentPresentConfiguration.Count
 					currentPresentConfiguration.Count -= lastCurrentPresentCount
-					//presentsArea := lastCurrentPresentCount * c.GetPresents().GetPresent(currentPresentConfiguration.Index).GetArea()
-					//fmt.Printf("Placed the last %d present(s) #%d. New=%d. Total area=%d\n", lastCurrentPresentCount, currentPresentConfiguration.Index, presentsArea, currentRegionArea)
+					fmt.Printf("Placed the last %d present(s) #%d\n", lastCurrentPresentCount, currentPresentConfiguration.Index)
 				}
 			}
 		}
 
-		/*
-			if currentRegionArea > totalRegionArea {
-				failed++
-				fmt.Printf("\nNo more space available under christmas tree #%d. Current area: %d. Available area %d\n\n", christmasTreeIndex+1, currentRegionArea, totalRegionArea)
-			} else {
-				fmt.Printf("\nAll the presents have been successfully placed under christmas tree #%d. Current area: %d. Available area %d\n\n", christmasTreeIndex+1, currentRegionArea, totalRegionArea)
-			}
-		*/
+		if !allShapesPacked {
+			failed++
+			fmt.Printf("\nNo more space available under christmas tree #%d\n\n", christmasTreeIndex+1)
+		} else {
+			fmt.Printf("\nAll the presents have been successfully placed under christmas tree #%d\n\n", christmasTreeIndex+1)
+		}
 	}
 
 	return failed
