@@ -7,24 +7,24 @@ import (
 )
 
 type combinationMetadata struct {
-	presentIndex uint
+	presentIndex abstractions.PresentIndex
 	fillRatioAvg float64
 }
 
 type CombinationCatalog struct {
-	combinations map[uint][]abstractions.Combination
+	combinations map[abstractions.PresentIndex][]abstractions.Combination
 	metadata     []combinationMetadata
 }
 
 func NewCombinationCatalog() *CombinationCatalog {
 	return &CombinationCatalog{
-		combinations: make(map[uint][]abstractions.Combination),
+		combinations: make(map[abstractions.PresentIndex][]abstractions.Combination),
 	}
 }
 
 func (c *CombinationCatalog) StoreNewShape(
-	leftIndex uint,
-	rightIndex uint,
+	leftIndex abstractions.PresentIndex,
+	rightIndex abstractions.PresentIndex,
 	shape abstractions.Shape,
 ) {
 	if _, ok := c.combinations[leftIndex]; !ok {
@@ -36,7 +36,7 @@ func (c *CombinationCatalog) StoreNewShape(
 	removedIndex := -1
 
 	for existingIndex, existingCombination := range c.combinations[leftIndex] {
-		if existingCombination.OtherPresentIndex == rightIndex {
+		if existingCombination.OtherIndex == rightIndex {
 			combination = &existingCombination
 			removedIndex = existingIndex
 		}
@@ -49,9 +49,9 @@ func (c *CombinationCatalog) StoreNewShape(
 		c.combinations[leftIndex] = append(
 			c.combinations[leftIndex],
 			abstractions.Combination{
-				PresentIndex:      leftIndex,
-				OtherPresentIndex: rightIndex,
-				Shape:             shape,
+				Index:      leftIndex,
+				OtherIndex: rightIndex,
+				Shape:      shape,
 			})
 	}
 
@@ -90,7 +90,7 @@ func (c *CombinationCatalog) sort() {
 			isEqual := combinations[i].Shape.FillRatio == combinations[j].Shape.FillRatio
 
 			if isEqual {
-				return combinations[i].PresentIndex != combinations[j].OtherPresentIndex
+				return combinations[i].Index != combinations[j].OtherIndex
 			}
 
 			return combinations[i].Shape.IsMoreOptimalThan(combinations[j].Shape)
@@ -98,9 +98,9 @@ func (c *CombinationCatalog) sort() {
 	}
 }
 
-func (c *CombinationCatalog) GetCombinationsOrderByFillRatio() []uint {
+func (c *CombinationCatalog) GetCombinationsOrderByFillRatio() []abstractions.PresentIndex {
 
-	sortedCombinations := make([]uint, 0)
+	sortedCombinations := make([]abstractions.PresentIndex, 0)
 
 	for _, combinations := range c.metadata {
 		sortedCombinations = append(sortedCombinations, combinations.presentIndex)
@@ -110,21 +110,22 @@ func (c *CombinationCatalog) GetCombinationsOrderByFillRatio() []uint {
 }
 
 func (c *CombinationCatalog) GetOptimalCombination(
-	leftIndex uint,
-) (int, abstractions.Shape) {
+	leftIndex abstractions.PresentIndex,
+) (abstractions.PresentIndex, abstractions.Shape) {
 
-	optimalRightIndex := -1
+	var optimalRightIndex = abstractions.NoPresentIndex()
+
 	var optimalShape *abstractions.Shape = nil
 
-	for rightIndex, combination := range c.combinations[leftIndex] {
+	for _, combination := range c.combinations[leftIndex] {
 		if optimalShape == nil {
-			optimalRightIndex = rightIndex
+			optimalRightIndex = combination.OtherIndex
 			optimalShape = &combination.Shape
 			continue
 		}
 
 		if combination.Shape.IsMoreOptimalThan(*optimalShape) {
-			optimalRightIndex = rightIndex
+			optimalRightIndex = combination.OtherIndex
 			optimalShape = &combination.Shape
 		}
 	}
@@ -137,7 +138,7 @@ func (c *CombinationCatalog) GetOptimalCombination(
 }
 
 func (c *CombinationCatalog) GetOptimalCombinations(
-	leftIndex uint,
+	leftIndex abstractions.PresentIndex,
 ) []abstractions.Combination {
 
 	return c.combinations[leftIndex]

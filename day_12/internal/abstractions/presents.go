@@ -6,11 +6,11 @@ const (
 )
 
 type Presents struct {
-	presents map[uint]*Present
+	presents map[PresentIndex]*Present
 }
 
 func NewPresents(
-	presents map[uint]*Present,
+	presents map[PresentIndex]*Present,
 ) *Presents {
 	return &Presents{
 		presents,
@@ -35,7 +35,7 @@ func (p *Presents) GetAllPresents() <-chan *Present {
 }
 
 func (p *Presents) GetPresent(
-	index uint,
+	index PresentIndex,
 ) *Present {
 	/* Returns a copy of the present that can be manipulated */
 	return p.presents[index]

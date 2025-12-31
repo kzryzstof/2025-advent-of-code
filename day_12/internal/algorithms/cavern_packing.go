@@ -52,7 +52,7 @@ func PackAll(
 			/* Prioritizes placing combinations of presents first */
 			for _, combination := range catalog.GetOptimalCombinations(currentPresentConfiguration.Index) {
 
-				otherPresentConfiguration := christmasTree.GetPresentConfiguration(combination.OtherPresentIndex)
+				otherPresentConfiguration := christmasTree.GetPresentConfiguration(combination.OtherIndex)
 
 				if otherPresentConfiguration.Count == 0 {
 					/* No more other presents available */
@@ -60,13 +60,13 @@ func PackAll(
 				}
 
 				if verbose {
-					fmt.Printf("\tUsing combination with presents %d (%.2f)\n", combination.OtherPresentIndex, combination.Shape.FillRatio)
+					fmt.Printf("\tUsing combination with presents %d (%.2f)\n", combination.OtherIndex, combination.Shape.FillRatio)
 				}
 
 				presentsCount := currentPresentConfiguration.Count
 				otherPresentCount := otherPresentConfiguration.Count
 
-				if combination.OtherPresentIndex == currentPresentConfiguration.Index {
+				if combination.OtherIndex == currentPresentConfiguration.Index {
 					if otherPresentConfiguration.Count < 2 {
 						/* Not enough presents to split */
 						continue
@@ -102,7 +102,7 @@ func PackAll(
 
 				if !shapesPacked {
 					if verbose {
-						if combination.OtherPresentIndex == currentPresentConfiguration.Index {
+						if combination.OtherIndex == currentPresentConfiguration.Index {
 							fmt.Printf("\tOnly placed %d presents #%d with presents #%d instead of %d\n", shapesPackedCount, currentPresentConfiguration.Index, otherPresentConfiguration.Index, currentPresentConfiguration.Count)
 						} else {
 							fmt.Printf("\tOnly placed %d presents #%d instead of %d\n", shapesPackedCount, currentPresentConfiguration.Index, currentPresentConfiguration.Count)
@@ -111,7 +111,7 @@ func PackAll(
 					break
 				} else {
 					if verbose {
-						if combination.OtherPresentIndex == currentPresentConfiguration.Index {
+						if combination.OtherIndex == currentPresentConfiguration.Index {
 							fmt.Printf("\t%d presents #%d have been placed\n", 2*shapesPackedCount, currentPresentConfiguration.Index)
 						} else {
 							fmt.Printf("\t%d presents #%d combined with presents #%d have been placed\n", shapesPackedCount, currentPresentConfiguration.Index, otherPresentConfiguration.Index)

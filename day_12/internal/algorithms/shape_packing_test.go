@@ -337,9 +337,9 @@ func TestShapePacking_PackShape(t *testing.T) {
 func TestShapePacking_CombineShapes(t *testing.T) {
 	tests := []struct {
 		name          string
-		fixedShapeID  uint
+		fixedShapeID  abstractions.PresentIndex
 		fixed         [][]int8
-		movingShapeID uint
+		movingShapeID abstractions.PresentIndex
 		moving        [][]int8
 		slideOffset   int
 		expectedShape [][]int8

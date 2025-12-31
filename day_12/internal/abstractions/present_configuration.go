@@ -1,6 +1,6 @@
 package abstractions
 
 type PresentConfiguration struct {
-	Index uint
+	Index PresentIndex
 	Count uint
 }

@@ -26,7 +26,7 @@ func TestShapePermutations_ComputePermutations(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			presents := map[uint]*abstractions.Present{}
+			presents := map[abstractions.PresentIndex]*abstractions.Present{}
 			presents[0] = abstractions.NewPresent(
 				0,
 				abstractions.NewShape(

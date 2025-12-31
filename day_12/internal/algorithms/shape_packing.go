@@ -9,9 +9,9 @@ import (
 )
 
 func CombineShapes(
-	fixedShapeId uint,
+	fixedShapeId abstractions.PresentIndex,
 	fixedShape [][]int8,
-	movingShapeId uint,
+	movingShapeId abstractions.PresentIndex,
 	movingShape [][]int8,
 	slideOffset int,
 	verbose bool,
@@ -61,7 +61,7 @@ func CombineShapes(
 
 	/* Stable shape placed at origin (0,0) */
 	maths.PasteShape(
-		fixedShapeId,
+		fixedShapeId.AsUint(),
 		fixedShape,
 		newShape,
 		0,
@@ -69,9 +69,9 @@ func CombineShapes(
 		abstractions.E,
 	)
 
-	/* Packed shape translated by packOffset */
+	/* Packed shape translated by colsOffset */
 	maths.PasteShape(
-		movingShapeId,
+		movingShapeId.AsUint(),
 		slidedMovingShape,
 		newShape,
 		0,

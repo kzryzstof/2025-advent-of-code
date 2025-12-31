@@ -1,7 +1,10 @@
 package abstractions
 
 type Combination struct {
-	PresentIndex      uint
-	OtherPresentIndex uint
-	Shape             Shape
+	/* Index of the first present in the combination */
+	Index PresentIndex
+	/* Index of the other present in the combination */
+	OtherIndex PresentIndex
+	/* Overall shape of the combination */
+	Shape Shape
 }

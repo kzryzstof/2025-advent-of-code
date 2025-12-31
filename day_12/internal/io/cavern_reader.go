@@ -52,9 +52,9 @@ func (r *CavernReader) Read() (*abstractions.Cavern, error) {
 
 func (r *CavernReader) extractPresents(
 	scanner *bufio.Scanner,
-) map[uint]*abstractions.Present {
+) map[abstractions.PresentIndex]*abstractions.Present {
 
-	presents := make(map[uint]*abstractions.Present)
+	presents := make(map[abstractions.PresentIndex]*abstractions.Present)
 
 	for presentIndex := uint(0); presentIndex < DefaultPresentsCount; presentIndex++ {
 		/* Skips the index */
@@ -92,8 +92,8 @@ func (r *CavernReader) extractPresents(
 
 		fmt.Printf("Present %d: %d occupied, %d empty, fill ratio: %.2f\n", presentIndex+1, occupied, empty, fillRatio)
 
-		presents[presentIndex] = abstractions.NewPresent(
-			presentIndex,
+		presents[abstractions.PresentIndex(presentIndex)] = abstractions.NewPresent(
+			abstractions.PresentIndex(presentIndex),
 			abstractions.NewShape(
 				maths.Dimension{
 					Wide: 3,
@@ -130,7 +130,7 @@ func (r *CavernReader) extractChristmasTrees(
 		christmasTrees = append(christmasTrees, abstractions.NewChristmasTree(
 			wide,
 			long,
-			map[uint]uint{
+			map[abstractions.PresentIndex]uint{
 				0: presents0Count,
 				1: presents1Count,
 				2: presents2Count,
