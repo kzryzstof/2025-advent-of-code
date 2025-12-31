@@ -152,11 +152,12 @@ func (c *Cavern) PackAll(
 		if !allShapesPacked {
 			failed++
 			fmt.Printf("\nNo more space available under christmas tree #%d\n\n", christmasTreeIndex+1)
+
+			PrintShape(region)
 		} else {
 			fmt.Printf("\nAll the presents have been successfully placed under christmas tree #%d\n\n", christmasTreeIndex+1)
 		}
 
-		PrintShape(region)
 	}
 
 	return failed
