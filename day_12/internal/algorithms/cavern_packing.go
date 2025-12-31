@@ -2,7 +2,6 @@ package algorithms
 
 import (
 	"day_12/internal/abstractions"
-	"day_12/internal/io"
 	"fmt"
 	"math"
 )
@@ -11,8 +10,6 @@ func PackAll(
 	cavern *abstractions.Cavern,
 	verbose bool,
 ) uint {
-
-	failedChristmasTrees := make([]uint, 0)
 
 	if verbose {
 		fmt.Println()
@@ -32,8 +29,10 @@ func PackAll(
 
 	for christmasTreeIndex, christmasTree := range cavern.GetChristmasTrees() {
 
-		fmt.Println("------------------------------------------------------------------------")
-		fmt.Printf("Placing %d presents under Christmas tree #%d (%dx%d).\n\n", christmasTree.GetPresentsCount(), christmasTreeIndex+1, christmasTree.GetWide(), christmasTree.GetLong())
+		if verbose {
+			fmt.Println("------------------------------------------------------------------------")
+			fmt.Printf("Placing %d presents under Christmas tree #%d (%dx%d).\n", christmasTree.GetPresentsCount(), christmasTreeIndex+1, christmasTree.GetWide(), christmasTree.GetLong())
+		}
 
 		region := christmasTree.Region.GetSpace()
 
@@ -46,7 +45,9 @@ func PackAll(
 				continue
 			}
 
-			fmt.Printf("Present %d | Placing %d combined presents\n", currentPresentConfiguration.Index, currentPresentConfiguration.Count)
+			if verbose {
+				fmt.Printf("Present %d | Placing %d combined presents\n", currentPresentConfiguration.Index, currentPresentConfiguration.Count)
+			}
 
 			/* Prioritizes placing combinations of presents first */
 			for _, combination := range catalog.GetOptimalCombinations(currentPresentConfiguration.Index) {
@@ -58,7 +59,9 @@ func PackAll(
 					continue
 				}
 
-				fmt.Printf("\tUsing combination with presents %d (%.2f)\n", combination.OtherPresentIndex, combination.Shape.FillRatio)
+				if verbose {
+					fmt.Printf("\tUsing combination with presents %d (%.2f)\n", combination.OtherPresentIndex, combination.Shape.FillRatio)
+				}
 
 				presentsCount := currentPresentConfiguration.Count
 				otherPresentCount := otherPresentConfiguration.Count
@@ -98,17 +101,21 @@ func PackAll(
 				otherPresentConfiguration.Count -= shapesPackedCount
 
 				if !shapesPacked {
-					if combination.OtherPresentIndex == currentPresentConfiguration.Index {
-						fmt.Printf("\tOnly placed %d presents #%d with presents #%d instead of %d\n", shapesPackedCount, currentPresentConfiguration.Index, otherPresentConfiguration.Index, currentPresentConfiguration.Count)
-					} else {
-						fmt.Printf("\tOnly placed %d presents #%d instead of %d\n", shapesPackedCount, currentPresentConfiguration.Index, currentPresentConfiguration.Count)
+					if verbose {
+						if combination.OtherPresentIndex == currentPresentConfiguration.Index {
+							fmt.Printf("\tOnly placed %d presents #%d with presents #%d instead of %d\n", shapesPackedCount, currentPresentConfiguration.Index, otherPresentConfiguration.Index, currentPresentConfiguration.Count)
+						} else {
+							fmt.Printf("\tOnly placed %d presents #%d instead of %d\n", shapesPackedCount, currentPresentConfiguration.Index, currentPresentConfiguration.Count)
+						}
 					}
 					break
 				} else {
-					if combination.OtherPresentIndex == currentPresentConfiguration.Index {
-						fmt.Printf("\t%d presents #%d have been placed\n", 2*shapesPackedCount, currentPresentConfiguration.Index)
-					} else {
-						fmt.Printf("\t%d presents #%d combined with presents #%d have been placed\n", shapesPackedCount, currentPresentConfiguration.Index, otherPresentConfiguration.Index)
+					if verbose {
+						if combination.OtherPresentIndex == currentPresentConfiguration.Index {
+							fmt.Printf("\t%d presents #%d have been placed\n", 2*shapesPackedCount, currentPresentConfiguration.Index)
+						} else {
+							fmt.Printf("\t%d presents #%d combined with presents #%d have been placed\n", shapesPackedCount, currentPresentConfiguration.Index, otherPresentConfiguration.Index)
+						}
 					}
 				}
 
@@ -129,7 +136,9 @@ func PackAll(
 				continue
 			}
 
-			fmt.Printf("Placing presents #%d individually \n", currentPresentConfiguration.Index)
+			if verbose {
+				fmt.Printf("Placing presents #%d individually \n", currentPresentConfiguration.Index)
+			}
 
 			shapePacked := true
 			shapesPackedCount := uint(0)
@@ -146,7 +155,9 @@ func PackAll(
 
 				if !shapePacked {
 					allShapesPacked = false
-					fmt.Printf("\tOnly placed %d presents #%d instead of %d\n", shapesPackedCount, currentPresentConfiguration.Index, currentPresentConfiguration.Count)
+					if verbose {
+						fmt.Printf("\tOnly placed %d presents #%d instead of %d\n", shapesPackedCount, currentPresentConfiguration.Index, currentPresentConfiguration.Count)
+					}
 					break
 				}
 
@@ -159,22 +170,17 @@ func PackAll(
 				break
 			}
 
-			fmt.Printf("\tPlaced %d presents #%d\n", shapesPackedCount, currentPresentConfiguration.Index)
+			if verbose {
+				fmt.Printf("\tPlaced %d presents #%d\n", shapesPackedCount, currentPresentConfiguration.Index)
+			}
 		}
 
 		if !allShapesPacked {
 			failed++
-			failedChristmasTrees = append(failedChristmasTrees, uint(christmasTreeIndex))
-			fmt.Printf("\nNo more space available under christmas tree #%d\n\n", christmasTreeIndex+1)
-			io.PrintShape(region)
-
+			fmt.Printf("\nNo more space available under christmas tree #%d\n", christmasTreeIndex+1)
 		} else {
-			fmt.Printf("\nAll the presents have been successfully placed under christmas tree #%d\n\n", christmasTreeIndex+1)
+			fmt.Printf("\nAll the presents have been successfully placed under christmas tree #%d\n", christmasTreeIndex+1)
 		}
-	}
-
-	for _, failedChristmasTreeIndex := range failedChristmasTrees {
-		fmt.Printf("Christmas tree #%d has been failed\n", failedChristmasTreeIndex+1)
 	}
 
 	return failed
