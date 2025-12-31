@@ -101,6 +101,7 @@ func PackShape(
 	insertPosition, isFound := findInsertPosition(
 		region,
 		shape,
+		verbose,
 	)
 
 	if !isFound {
@@ -199,6 +200,7 @@ func computeColOffset(
 func findInsertPosition(
 	region [][]int8,
 	shape [][]int8,
+	verbose bool,
 ) (Position, bool) {
 
 	regionRows := len(region)
@@ -216,7 +218,9 @@ func findInsertPosition(
 
 	for regionRow := 0; regionRow < regionRows-shapeRows+1; regionRow++ {
 
-		fmt.Printf("Checking region row %d...\n", regionRow)
+		if verbose {
+			fmt.Printf("Checking region row %d...\n", regionRow)
+		}
 
 		regionCols := len(region[regionRow])
 
@@ -267,7 +271,10 @@ func findInsertPosition(
 				Row: regionRow,
 				Col: insertCol,
 			}
-			fmt.Printf("\tFound insert position in region at %dx%d\n", currentInsertPosition.Row, currentInsertPosition.Col)
+
+			if verbose {
+				fmt.Printf("\tFound insert position in region at %dx%d\n", currentInsertPosition.Row, currentInsertPosition.Col)
+			}
 		}
 	}
 

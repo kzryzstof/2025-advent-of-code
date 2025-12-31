@@ -32,9 +32,13 @@ func (c *Cavern) GetChristmasTreesCount() uint {
 	return uint(len(c.christmasTrees))
 }
 
-func (c *Cavern) PackAll() uint {
+func (c *Cavern) PackAll(
+	verbose bool,
+) uint {
 
-	fmt.Println()
+	if verbose {
+		fmt.Println()
+	}
 
 	/*
 		Combining presents together can yield a better fill ratio than manipulating them alone
@@ -44,7 +48,9 @@ func (c *Cavern) PackAll() uint {
 		false,
 	)
 
-	catalog.PrintOptimalCombinations()
+	if verbose {
+		catalog.PrintOptimalCombinations()
+	}
 
 	failed := uint(0)
 
@@ -65,7 +71,11 @@ func (c *Cavern) PackAll() uint {
 		*/
 		for _, currentPresentConfiguration := range presentConfigurations {
 
-			if !allShapesPacked || currentPresentConfiguration.Count == 0 {
+			if !allShapesPacked {
+				break
+			}
+
+			if currentPresentConfiguration.Count == 0 {
 				continue
 			}
 
@@ -103,17 +113,26 @@ func (c *Cavern) PackAll() uint {
 						}
 					}
 
+					shapesPacked := true
+
+					for shapeNumber := uint(0); shapeNumber < currentPresentCount; shapeNumber++ {
+						shapesPacked = PackShape(
+							region,
+							combination.PresentIndex,
+							combination.Shape.GetCopy(),
+							verbose,
+						)
+
+						if !shapesPacked {
+							break
+						}
+					}
+
 					currentPresentConfiguration.Count -= currentPresentCount
 					otherPresentConfiguration.Count -= otherPresentCount
 
-					allShapesPacked = allShapesPacked && PackShape(
-						region,
-						combination.PresentIndex,
-						combination.Shape.GetCopy(),
-						false,
-					)
-
-					if !allShapesPacked || currentPresentConfiguration.Count == 0 {
+					if !shapesPacked || currentPresentConfiguration.Count == 0 {
+						allShapesPacked = false
 						break
 					}
 				}
@@ -136,6 +155,8 @@ func (c *Cavern) PackAll() uint {
 		} else {
 			fmt.Printf("\nAll the presents have been successfully placed under christmas tree #%d\n\n", christmasTreeIndex+1)
 		}
+
+		PrintShape(region)
 	}
 
 	return failed

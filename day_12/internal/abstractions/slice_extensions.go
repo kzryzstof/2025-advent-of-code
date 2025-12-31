@@ -195,6 +195,8 @@ func PrintShape(
 		}
 		fmt.Println()
 	}
+
+	fmt.Println()
 }
 
 func PrintShapes(

@@ -28,7 +28,7 @@ func main() {
 	fmt.Printf("Found %d presents\n", cavern.GetPresentsCount())
 	fmt.Printf("Found %d Christmas trees\n", cavern.GetChristmasTreesCount())
 
-	failed := cavern.PackAll()
+	failed := cavern.PackAll(false)
 
 	//	777 too high!
 	//	589 too high!
