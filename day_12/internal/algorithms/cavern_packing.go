@@ -27,11 +27,11 @@ func PackAll(
 
 	failed := uint(0)
 
-	for christmasTreeIndex, christmasTree := range cavern.GetChristmasTrees() {
+	for _, christmasTree := range cavern.GetChristmasTrees() {
 
 		if verbose {
 			fmt.Println("------------------------------------------------------------------------")
-			fmt.Printf("Placing %d presents under Christmas tree #%d (%dx%d).\n", christmasTree.GetPresentsCount(), christmasTreeIndex+1, christmasTree.GetWide(), christmasTree.GetLong())
+			fmt.Printf("Placing %d presents under Christmas tree #%d (%dx%d).\n", christmasTree.GetPresentsCount(), christmasTree.Index, christmasTree.GetWide(), christmasTree.GetLong())
 		}
 
 		region := christmasTree.Region.GetSpace()
@@ -177,9 +177,9 @@ func PackAll(
 
 		if !allShapesPacked {
 			failed++
-			fmt.Printf("\nNo more space available under christmas tree #%d\n", christmasTreeIndex+1)
+			fmt.Printf("\nNo more space available under christmas tree #%d\n", christmasTree.Index)
 		} else {
-			fmt.Printf("\nAll the presents have been successfully placed under christmas tree #%d\n", christmasTreeIndex+1)
+			fmt.Printf("\nAll the presents have been successfully placed under christmas tree #%d\n", christmasTree.Index)
 		}
 	}
 

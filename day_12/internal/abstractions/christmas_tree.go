@@ -5,6 +5,8 @@ import (
 )
 
 type ChristmasTree struct {
+	Index ChristmasTreeIndex
+
 	/* Size available under the tree */
 	wide uint
 	long uint
@@ -16,12 +18,14 @@ type ChristmasTree struct {
 }
 
 func NewChristmasTree(
+	index ChristmasTreeIndex,
 	wide uint,
 	long uint,
 	presentConfigurations map[PresentIndex]uint,
 ) *ChristmasTree {
 
 	return &ChristmasTree{
+		index,
 		wide,
 		long,
 		buildMappedPresentConfigurations(presentConfigurations),

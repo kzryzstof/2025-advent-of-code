@@ -113,6 +113,8 @@ func (r *CavernReader) extractChristmasTrees(
 
 	christmasTrees := make([]*abstractions.ChristmasTree, 0)
 
+	christmasTreesCount := 1
+
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {
@@ -128,6 +130,7 @@ func (r *CavernReader) extractChristmasTrees(
 		}
 
 		christmasTrees = append(christmasTrees, abstractions.NewChristmasTree(
+			abstractions.ChristmasTreeIndex(christmasTreesCount),
 			wide,
 			long,
 			map[abstractions.PresentIndex]uint{
@@ -139,6 +142,8 @@ func (r *CavernReader) extractChristmasTrees(
 				5: presents5Count,
 			}),
 		)
+
+		christmasTreesCount++
 	}
 
 	return christmasTrees, nil
