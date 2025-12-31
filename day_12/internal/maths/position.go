@@ -1,4 +1,4 @@
-package abstractions
+package maths
 
 type Position struct {
 	Row int

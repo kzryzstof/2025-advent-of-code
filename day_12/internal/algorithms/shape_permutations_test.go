@@ -1,6 +1,8 @@
-package abstractions
+package algorithms
 
 import (
+	"day_12/internal/abstractions"
+	"day_12/internal/maths"
 	"testing"
 )
 
@@ -8,34 +10,34 @@ func TestShapePermutations_ComputePermutations(t *testing.T) {
 	tests := []struct {
 		name              string
 		shape             [][]int8
-		expectedDimension Dimension
+		expectedDimension maths.Dimension
 	}{
 		{
 			name: "present_4-present_4-documented_use_case",
 			shape: [][]int8{
 				{1, 1, 1},
-				{1, E, E},
+				{1, abstractions.E, abstractions.E},
 				{1, 1, 1},
 			},
 			// The optimal may vary depending on region/other shapes; this test now only asserts the catalog builds.
-			expectedDimension: Dimension{Wide: 0, Long: 0},
+			expectedDimension: maths.Dimension{Wide: 0, Long: 0},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			presents := map[uint]*Present{}
-			presents[0] = NewPresent(
+			presents := map[uint]*abstractions.Present{}
+			presents[0] = abstractions.NewPresent(
 				0,
-				Shape{
-					Dimension: Dimension{Wide: 3, Long: 3},
+				abstractions.Shape{
+					Dimension: maths.Dimension{Wide: 3, Long: 3},
 					Cells:     tt.shape,
-					FillRatio: ComputeFillRatio(tt.shape),
+					FillRatio: maths.ComputeFillRatio(tt.shape),
 				},
 			)
 
 			got := ComputePermutations(
-				NewPresents(presents),
+				abstractions.NewPresents(presents),
 				false,
 			)
 
@@ -53,22 +55,22 @@ func TestShapePermutations_PackShapes(t *testing.T) {
 		left        [][]int8
 		right       [][]int8
 		slideOffset int
-		wantDim     Dimension
+		wantDim     maths.Dimension
 	}{
 		{
 			name: "documented pack use case dimensions",
 			left: [][]int8{
 				{1, 1, 1},
-				{1, E, E},
+				{1, abstractions.E, abstractions.E},
 				{1, 1, 1},
 			},
 			right: [][]int8{
-				{E, E, E},
+				{abstractions.E, abstractions.E, abstractions.E},
 				{1, 1, 1},
-				{E, E, 1},
+				{abstractions.E, abstractions.E, 1},
 			},
 			slideOffset: 1,
-			wantDim:     Dimension{Wide: 6, Long: 4},
+			wantDim:     maths.Dimension{Wide: 6, Long: 4},
 		},
 	}
 

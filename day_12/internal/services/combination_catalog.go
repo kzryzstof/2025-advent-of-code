@@ -1,6 +1,7 @@
-package abstractions
+package services
 
 import (
+	"day_12/internal/abstractions"
 	"fmt"
 	"sort"
 )
@@ -11,26 +12,26 @@ type combinationMetadata struct {
 }
 
 type CombinationCatalog struct {
-	combinations map[uint][]Combination
+	combinations map[uint][]abstractions.Combination
 	metadata     []combinationMetadata
 }
 
 func NewCombinationCatalog() *CombinationCatalog {
 	return &CombinationCatalog{
-		combinations: make(map[uint][]Combination),
+		combinations: make(map[uint][]abstractions.Combination),
 	}
 }
 
 func (c *CombinationCatalog) StoreNewShape(
 	leftIndex uint,
 	rightIndex uint,
-	shape Shape,
+	shape abstractions.Shape,
 ) {
 	if _, ok := c.combinations[leftIndex]; !ok {
-		c.combinations[leftIndex] = make([]Combination, 0)
+		c.combinations[leftIndex] = make([]abstractions.Combination, 0)
 	}
 
-	var combination *Combination = nil
+	var combination *abstractions.Combination = nil
 
 	removedIndex := -1
 
@@ -47,7 +48,7 @@ func (c *CombinationCatalog) StoreNewShape(
 		}
 		c.combinations[leftIndex] = append(
 			c.combinations[leftIndex],
-			Combination{
+			abstractions.Combination{
 				PresentIndex:      leftIndex,
 				OtherPresentIndex: rightIndex,
 				Shape:             shape,
@@ -110,10 +111,10 @@ func (c *CombinationCatalog) GetCombinationsOrderByFillRatio() []uint {
 
 func (c *CombinationCatalog) GetOptimalCombination(
 	leftIndex uint,
-) (int, Shape) {
+) (int, abstractions.Shape) {
 
 	optimalRightIndex := -1
-	var optimalShape *Shape = nil
+	var optimalShape *abstractions.Shape = nil
 
 	for rightIndex, combination := range c.combinations[leftIndex] {
 		if optimalShape == nil {
@@ -137,7 +138,7 @@ func (c *CombinationCatalog) GetOptimalCombination(
 
 func (c *CombinationCatalog) GetOptimalCombinations(
 	leftIndex uint,
-) []Combination {
+) []abstractions.Combination {
 
 	return c.combinations[leftIndex]
 }

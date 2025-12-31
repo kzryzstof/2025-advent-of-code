@@ -1,15 +1,13 @@
-package abstractions
+package algorithms
 
 import (
+	"day_12/internal/abstractions"
+	"day_12/internal/maths"
+	"day_12/internal/services"
 	"fmt"
 )
 
 type operation func([][]int8)
-
-const (
-	// MaximumShapeSize /* All the presents occupies a 3x3 region */
-	MaximumShapeSize = 3
-)
 
 // ComputePermutations /* Precomputes the combinations of presents together
 //
@@ -22,31 +20,31 @@ const (
 //	combined shapes instead of trying all the combinations
 //	of presents every time.
 func ComputePermutations(
-	presents *Presents,
+	presents *abstractions.Presents,
 	verbose bool,
-) *CombinationCatalog {
+) *services.CombinationCatalog {
 	combinationsCount := 0
 
 	/* List of operations to apply to the presents */
 	operations := []operation{
-		NoOp,
-		RotateClockwise,
-		RotateClockwise,
-		RotateClockwise,
-		RotateClockwise,
-		VerticalFlip,
-		RotateClockwise,
-		RotateClockwise,
-		RotateClockwise,
-		RotateClockwise,
-		HorizontalFlip,
-		RotateClockwise,
-		RotateClockwise,
-		RotateClockwise,
-		RotateClockwise,
+		maths.NoOp,
+		maths.RotateClockwise,
+		maths.RotateClockwise,
+		maths.RotateClockwise,
+		maths.RotateClockwise,
+		maths.VerticalFlip,
+		maths.RotateClockwise,
+		maths.RotateClockwise,
+		maths.RotateClockwise,
+		maths.RotateClockwise,
+		maths.HorizontalFlip,
+		maths.RotateClockwise,
+		maths.RotateClockwise,
+		maths.RotateClockwise,
+		maths.RotateClockwise,
 	}
 
-	catalog := NewCombinationCatalog()
+	catalog := services.NewCombinationCatalog()
 
 	for fixedPresent := range presents.GetAllPresents() {
 
@@ -80,7 +78,7 @@ func ComputePermutations(
 						to test additional combinations
 					*/
 
-					for slideOffset := 0; slideOffset < MaximumShapeSize; slideOffset++ {
+					for slideOffset := 0; slideOffset < abstractions.MaximumShapeSize; slideOffset++ {
 
 						packedShape := PackShapes(
 							fixedPresent.GetIndex(),

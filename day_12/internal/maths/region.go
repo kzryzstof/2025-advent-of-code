@@ -1,4 +1,4 @@
-package abstractions
+package maths
 
 type Region struct {
 	wide  uint
@@ -10,12 +10,13 @@ type Region struct {
 func NewRegion(
 	wide uint,
 	long uint,
+	defaultValue int8,
 ) *Region {
 	return &Region{
 		wide,
 		long,
 		float64(wide) / float64(long),
-		NewSlice(int(long), int(wide)),
+		NewSlice(int(long), int(wide), defaultValue),
 	}
 }
 

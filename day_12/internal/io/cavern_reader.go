@@ -3,6 +3,7 @@ package io
 import (
 	"bufio"
 	"day_12/internal/abstractions"
+	"day_12/internal/maths"
 	"fmt"
 	"os"
 	"strings"
@@ -93,14 +94,13 @@ func (r *CavernReader) extractPresents(
 
 		presents[presentIndex] = abstractions.NewPresent(
 			presentIndex,
-			abstractions.Shape{
-				Dimension: abstractions.Dimension{
+			abstractions.NewShape(
+				maths.Dimension{
 					Wide: 3,
 					Long: 3,
 				},
-				FillRatio: abstractions.ComputeFillRatio(shape),
-				Cells:     shape,
-			},
+				shape,
+			),
 		)
 	}
 

@@ -1,6 +1,9 @@
 package abstractions
 
-import "sort"
+import (
+	"day_12/internal/maths"
+	"sort"
+)
 
 type ChristmasTree struct {
 	/* Size available under the tree */
@@ -11,7 +14,7 @@ type ChristmasTree struct {
 	sortedPresentConfigurations []*PresentConfiguration
 	mappedPresentConfigurations map[uint]*PresentConfiguration
 
-	Region *Region
+	Region *maths.Region
 }
 
 func NewChristmasTree(
@@ -43,8 +46,16 @@ func NewChristmasTree(
 		long,
 		sortedPresentConfigurations,
 		mappedPresentConfigurations,
-		NewRegion(wide, long),
+		maths.NewRegion(wide, long, E),
 	}
+}
+
+func (ct *ChristmasTree) GetWide() uint {
+	return ct.wide
+}
+
+func (ct *ChristmasTree) GetLong() uint {
+	return ct.long
 }
 
 func (ct *ChristmasTree) GetPresentConfiguration(

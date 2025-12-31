@@ -1,19 +1,19 @@
-package abstractions
+package maths
 
 import (
-	"fmt"
 	"math"
 )
 
 func NewSlice(
 	rows, cols int,
+	defaultVal int8,
 ) [][]int8 {
 	slice := make([][]int8, rows)
 
 	for row := range slice {
 		slice[row] = make([]int8, cols)
 		for col := range slice[row] {
-			slice[row][col] = E
+			slice[row][col] = defaultVal
 		}
 	}
 
@@ -60,7 +60,7 @@ func NoOp(
 ) {
 }
 
-func GetCopy(
+func CopySlice(
 	slice [][]int8,
 ) [][]int8 {
 
@@ -76,58 +76,53 @@ func GetCopy(
 	return sliceCopy
 }
 
-func SlideShape(
+func Slide(
 	src [][]int8,
-	shift Vector,
+	direction Vector,
+	defaultValue int8,
 ) [][]int8 {
 
 	/*
 		Defines the size of the destination slice, which can differ from the src slice
 		since we must take into account the potential shift
 	*/
-	dstRows := len(src) + int(math.Abs(float64(shift.Row)))
-	dstCols := len(src[0]) + int(math.Abs(float64(shift.Col)))
+	dstRows := len(src) + int(math.Abs(float64(direction.Row)))
+	dstCols := len(src[0]) + int(math.Abs(float64(direction.Col)))
 
-	dst := NewSlice(dstRows, dstCols)
+	dst := NewSlice(dstRows, dstCols, defaultValue)
 
 	/* Copies the src slice into the dst slice at the specified shift */
 
 	for row := 0; row < len(src); row++ {
 
-		if row+shift.Row >= dstRows || row+shift.Row < 0 {
+		if row+direction.Row >= dstRows || row+direction.Row < 0 {
 			continue
 		}
 
 		for col := 0; col < len(src[row]); col++ {
 
-			if col+shift.Col >= dstCols || col+shift.Col < 0 {
+			if col+direction.Col >= dstCols || col+direction.Col < 0 {
 				continue
 			}
 
-			dst[row+shift.Row][col+shift.Col] = src[row][col]
+			dst[row+direction.Row][col+direction.Col] = src[row][col]
 		}
 	}
 
 	return dst
 }
 
-func IsEmpty(
-	slice [][]int8,
-	position Position,
-) bool {
-	return slice[position.Row][position.Col] == E
-}
-
-func FindLastEmptyCell(
+func FindLastCellWithValueOnRow(
 	slice [][]int8,
 	position Position,
 	direction Vector,
+	value int8,
 ) (Position, bool) {
 
 	maxRow := len(slice)
 	emptyCellFound := false
 
-	for IsEmpty(slice, position) {
+	for slice[position.Row][position.Col] == value {
 
 		emptyCellFound = true
 		position = position.Add(direction)
@@ -149,25 +144,6 @@ func FindLastEmptyCell(
 	return position, emptyCellFound
 }
 
-func ComputeFillRatio(
-	slice [][]int8,
-) float64 {
-
-	empty, occupied := 0, 0
-
-	for row := 0; row < len(slice); row++ {
-		for col := 0; col < len(slice[row]); col++ {
-			if slice[row][col] == E {
-				empty++
-			} else {
-				occupied++
-			}
-		}
-	}
-
-	return float64(occupied) / float64(occupied+empty)
-}
-
 func PasteShape(
 	id uint,
 	src [][]int8,
@@ -177,65 +153,16 @@ func PasteShape(
 	for row := 0; row < len(src); row++ {
 		for col := 0; col < len(src[row]); col++ {
 
-			if src[row][col] == E {
-				continue
-			}
+			/*
+				if src[row][col] == abstractions.E {
+					continue
+				}
+			*/
 
 			rowWithOffset := row + rowOffset
 			colWithOffset := col + colOffset
 
 			dst[rowWithOffset][colWithOffset] = int8(id)
 		}
-	}
-}
-
-func PrintShape(
-	slice [][]int8,
-) {
-	for _, row := range slice {
-		for _, cell := range row {
-			if cell == E {
-				fmt.Print(".")
-			} else if cell == -1 {
-				fmt.Print("#")
-			} else {
-				fmt.Print(fmt.Sprintf("%d", cell))
-			}
-		}
-		fmt.Println()
-	}
-
-	fmt.Println()
-}
-
-func PrintShapes(
-	leftSlice [][]int8,
-	rightSlice [][]int8,
-) {
-	maxRows := int(math.Max(float64(len(leftSlice)), float64(len(rightSlice))))
-
-	printRowCell := func(row []int8) {
-		for _, cell := range row {
-			if cell == E {
-				fmt.Print(".")
-			} else {
-				fmt.Print(fmt.Sprintf("%d", cell))
-			}
-		}
-	}
-
-	for rowIndex := 0; rowIndex < maxRows; rowIndex++ {
-		if rowIndex < len(leftSlice) {
-			printRowCell(leftSlice[rowIndex])
-		} else {
-			for colIndex := 0; colIndex < MaximumShapeSize; colIndex++ {
-				fmt.Print(" ")
-			}
-		}
-		fmt.Print(" | ")
-		if rowIndex < len(rightSlice) {
-			printRowCell(rightSlice[rowIndex])
-		}
-		fmt.Println()
 	}
 }

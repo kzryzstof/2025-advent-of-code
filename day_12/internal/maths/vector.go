@@ -1,4 +1,4 @@
-package abstractions
+package maths
 
 type Vector struct {
 	Row int

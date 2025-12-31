@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day_12/internal/algorithms"
 	"day_12/internal/io"
 	"fmt"
 	"os"
@@ -28,7 +29,7 @@ func main() {
 	fmt.Printf("Found %d presents\n", cavern.GetPresentsCount())
 	fmt.Printf("Found %d Christmas trees\n", cavern.GetChristmasTreesCount())
 
-	failed := cavern.PackAll(false)
+	failed := algorithms.PackAll(cavern, false)
 
 	if failed > 0 {
 		fmt.Printf("Unable to place presents under all the Christmas trees: only %d (out of %d)\n\n", cavern.GetChristmasTreesCount()-failed, cavern.GetChristmasTreesCount())

@@ -1,4 +1,4 @@
-package abstractions
+package maths
 
 import "testing"
 

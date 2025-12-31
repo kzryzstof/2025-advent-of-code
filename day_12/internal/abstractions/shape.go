@@ -1,5 +1,7 @@
 package abstractions
 
+import "day_12/internal/maths"
+
 const (
 	// E /* Indicates an empty spot; it is not 0 since we have present with an index of 0 */
 	E = -99
@@ -8,9 +10,20 @@ const (
 )
 
 type Shape struct {
-	Dimension Dimension
+	Dimension maths.Dimension
 	Cells     [][]int8
 	FillRatio float64
+}
+
+func NewShape(
+	dimension maths.Dimension,
+	cells [][]int8,
+) Shape {
+	return Shape{
+		dimension,
+		cells,
+		computeFillRatio(cells),
+	}
 }
 
 func (s Shape) IsMoreOptimalThan(
@@ -28,5 +41,24 @@ func (s Shape) IsMoreOptimalThan(
 }
 
 func (s Shape) GetCopy() [][]int8 {
-	return GetCopy(s.Cells)
+	return maths.CopySlice(s.Cells)
+}
+
+func computeFillRatio(
+	slice [][]int8,
+) float64 {
+
+	empty, occupied := 0, 0
+
+	for row := 0; row < len(slice); row++ {
+		for col := 0; col < len(slice[row]); col++ {
+			if slice[row][col] == E {
+				empty++
+			} else {
+				occupied++
+			}
+		}
+	}
+
+	return float64(occupied) / float64(occupied+empty)
 }

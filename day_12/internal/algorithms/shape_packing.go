@@ -1,6 +1,9 @@
-package abstractions
+package algorithms
 
 import (
+	"day_12/internal/abstractions"
+	"day_12/internal/io"
+	"day_12/internal/maths"
 	"fmt"
 	"math"
 )
@@ -12,19 +15,20 @@ func PackShapes(
 	movingShape [][]int8,
 	slideOffset int,
 	verbose bool,
-) Shape {
+) abstractions.Shape {
 
-	slidedMovingShape := SlideShape(
+	slidedMovingShape := maths.Slide(
 		movingShape,
-		Vector{
+		maths.Vector{
 			Row: slideOffset,
 			Col: 0,
 		},
+		abstractions.E,
 	)
 
 	if verbose {
 		fmt.Printf("Packing shapes #%d and #%d:\n", fixedShapeId, movingShapeId)
-		PrintShapes(fixedShape, slidedMovingShape)
+		io.PrintShapes(fixedShape, slidedMovingShape)
 		fmt.Println()
 	}
 
@@ -46,13 +50,13 @@ func PackShapes(
 		the moving shape will slide to the left.
 	*/
 
-	newRowsCount := MaximumShapeSize + slideOffset
-	newColsCount := MaximumShapeSize + (MaximumShapeSize - colsOffset)
+	newRowsCount := abstractions.MaximumShapeSize + slideOffset
+	newColsCount := abstractions.MaximumShapeSize + (abstractions.MaximumShapeSize - colsOffset)
 
-	newShape := NewSlice(newRowsCount, newColsCount)
+	newShape := maths.NewSlice(newRowsCount, newColsCount, abstractions.E)
 
 	/* Stable shape placed at origin (0,0) */
-	PasteShape(
+	maths.PasteShape(
 		fixedShapeId,
 		fixedShape,
 		newShape,
@@ -61,30 +65,29 @@ func PackShapes(
 	)
 
 	/* Packed shape translated by packOffset */
-	PasteShape(
+	maths.PasteShape(
 		movingShapeId,
 		slidedMovingShape,
 		newShape,
 		0,
-		MaximumShapeSize-colsOffset,
+		abstractions.MaximumShapeSize-colsOffset,
 	)
 
 	if verbose {
 		fmt.Println()
-		PrintShape(
+		io.PrintShape(
 			newShape,
 		)
 		fmt.Println()
 	}
 
-	return Shape{
-		Dimension{
+	return abstractions.NewShape(
+		maths.Dimension{
 			Wide: newColsCount,
 			Long: newRowsCount,
 		},
 		newShape,
-		ComputeFillRatio(newShape),
-	}
+	)
 }
 
 func PackShape(
@@ -95,8 +98,8 @@ func PackShape(
 
 	for row := 0; row < len(region); row++ {
 		for col := 0; col < len(region[row]); col++ {
-			if region[row][col] != E {
-				region[row][col] = P
+			if region[row][col] != abstractions.E {
+				region[row][col] = abstractions.P
 			}
 		}
 	}
@@ -118,11 +121,11 @@ func PackShape(
 		fmt.Printf("\tInsert position found at %dx%d\n", insertPosition.Row, insertPosition.Col)
 	}
 
-	placeShape := func(shape [][]int8, insertPosition Position) {
+	placeShape := func(shape [][]int8, insertPosition maths.Position) {
 		for row := 0; row < len(shape); row++ {
 			for col := 0; col < len(shape[row]); col++ {
 
-				if shape[row][col] == E {
+				if shape[row][col] == abstractions.E {
 					continue
 				}
 
@@ -141,7 +144,7 @@ func PackShape(
 
 	if verbose {
 		fmt.Println()
-		PrintShape(
+		io.PrintShape(
 			region,
 		)
 		fmt.Println()
@@ -159,16 +162,16 @@ func computeColOffset(
 		We compute the number of empty cells between the fixed shape and the moving on each row,
 		and the smallest delta tells us how far we can pack the shape
 	*/
-	defaultEmptyCells := 2 * MaximumShapeSize
+	defaultEmptyCells := 2 * abstractions.MaximumShapeSize
 	minimumEmptyCells := defaultEmptyCells
 
-	for row := 0; row < MaximumShapeSize; row++ {
+	for row := 0; row < abstractions.MaximumShapeSize; row++ {
 
 		/* Counts the number of empty cells on the stable shape starting from right to left */
 		emptyCellsCountOnFixedShape, isEmptyCellsOnFixedShape := countEmptyCells(
 			row,
-			MaximumShapeSize-1,
-			Vector{Row: 0, Col: -1},
+			abstractions.MaximumShapeSize-1,
+			maths.Vector{Row: 0, Col: -1},
 			fixedShape,
 		)
 
@@ -176,7 +179,7 @@ func computeColOffset(
 		emptyCellsCountOnMovingShape, isEmptyCellsOnMovingShape := countEmptyCells(
 			row,
 			0,
-			Vector{Row: 0, Col: 1},
+			maths.Vector{Row: 0, Col: 1},
 			movingShape,
 		)
 
@@ -198,14 +201,14 @@ func computeColOffset(
 		}
 	}
 
-	return int(math.Min(float64(minimumEmptyCells), float64(MaximumShapeSize)))
+	return int(math.Min(float64(minimumEmptyCells), float64(abstractions.MaximumShapeSize)))
 }
 
 func findInsertPosition(
 	region [][]int8,
 	shape [][]int8,
 	verbose bool,
-) (Position, bool) {
+) (maths.Position, bool) {
 
 	regionRows := len(region)
 	shapeRows := len(shape)
@@ -215,7 +218,7 @@ func findInsertPosition(
 		and the smallest delta tells us how far we can pack the shape
 	*/
 	currentInsertPositionFound := false
-	currentInsertPosition := Position{
+	currentInsertPosition := maths.Position{
 		Row: regionRows,
 		Col: len(region[0]),
 	}
@@ -239,7 +242,7 @@ func findInsertPosition(
 				regionRow+row,
 				/* Can't start on the last column: we need space for the shape */
 				regionCols-shapeCols,
-				Vector{Row: 0, Col: -1},
+				maths.Vector{Row: 0, Col: -1},
 				region,
 			)
 
@@ -247,7 +250,7 @@ func findInsertPosition(
 			emptyCellsCountOnMovingShape, _ := countEmptyCells(
 				row,
 				0,
-				Vector{Row: 0, Col: 1},
+				maths.Vector{Row: 0, Col: 1},
 				shape,
 			)
 
@@ -271,7 +274,7 @@ func findInsertPosition(
 
 		if insertCol < currentInsertPosition.Col {
 			currentInsertPositionFound = true
-			currentInsertPosition = Position{
+			currentInsertPosition = maths.Position{
 				Row: regionRow,
 				Col: insertCol,
 			}
@@ -288,19 +291,20 @@ func findInsertPosition(
 func countEmptyCells(
 	fromRow int,
 	fromCol int,
-	direction Vector,
+	direction maths.Vector,
 	shape [][]int8,
 ) (int, bool) {
 
-	initialPosition := Position{
+	initialPosition := maths.Position{
 		Row: fromRow,
 		Col: fromCol,
 	}
 
-	lastEmptyCellPosition, isPositionFound := FindLastEmptyCell(
+	lastEmptyCellPosition, isPositionFound := maths.FindLastCellWithValueOnRow(
 		shape,
 		initialPosition,
 		direction,
+		abstractions.E,
 	)
 
 	if !isPositionFound {
