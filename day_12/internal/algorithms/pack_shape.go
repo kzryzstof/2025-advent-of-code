@@ -85,10 +85,6 @@ func findInsertPosition(
 
 	for regionRow := uint(0); regionRow < regionRows-shapeRows+1; regionRow++ {
 
-		if verbose {
-			fmt.Printf("Checking region row %d...\n", regionRow)
-		}
-
 		regionCols := uint(len(region[regionRow]))
 
 		minimumEmptyCells := regionCols
