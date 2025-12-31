@@ -6,21 +6,18 @@ import (
 	"testing"
 )
 
-func TestShapePermutations_ComputePermutations(t *testing.T) {
+func TestComputePermutations_BuildsCatalogAndReturnsNonEmptyOptimalShape(t *testing.T) {
 	tests := []struct {
-		name              string
-		shape             [][]int8
-		expectedDimension maths.Dimension
+		name  string
+		shape [][]int8
 	}{
 		{
-			name: "present_4-present_4-documented_use_case",
+			name: "single present shape -> catalog builds and optimal combination has a positive dimension",
 			shape: [][]int8{
 				{1, 1, 1},
 				{1, abstractions.E, abstractions.E},
 				{1, 1, 1},
 			},
-			// The optimal may vary depending on region/other shapes; this test now only asserts the catalog builds.
-			expectedDimension: maths.Dimension{Wide: 0, Long: 0},
 		},
 	}
 
@@ -48,7 +45,7 @@ func TestShapePermutations_ComputePermutations(t *testing.T) {
 	}
 }
 
-func TestShapePermutations_PackShapes(t *testing.T) {
+func TestCombinePresents_Dimension(t *testing.T) {
 	tests := []struct {
 		name        string
 		left        [][]int8
@@ -57,7 +54,7 @@ func TestShapePermutations_PackShapes(t *testing.T) {
 		wantDim     maths.Dimension
 	}{
 		{
-			name: "documented pack use case dimensions",
+			name: "given two shapes and slideOffset=1 when combined then expected bounding dimension",
 			left: [][]int8{
 				{1, 1, 1},
 				{1, abstractions.E, abstractions.E},

@@ -24,6 +24,41 @@ This isn’t a full exact tiling/ILP solver. It’s a pragmatic approach that pe
 
 ---
 
+## Module dependencies
+
+The solution is split into small internal packages. At a high level:
+
+```mermaid
+graph TD
+  cmd[cmd/main.go]
+
+  abstractions[internal/abstractions]
+  alg[internal/algorithms]
+  io[internal/io]
+  maths[internal/maths]
+  services[internal/services]
+
+  cmd --> abstractions
+  cmd --> alg
+  cmd --> io
+
+  %% algorithms use everything else
+  alg --> abstractions
+  alg --> maths
+  alg --> services
+  alg --> io
+
+  %% shared utilities
+  services --> abstractions
+  io --> abstractions
+  io --> maths
+
+  %% domain uses low-level maths types
+  abstractions --> maths
+```
+
+---
+
 ## Input parsing
 
 Parsing is handled by `internal/io/cavern_reader.go`.
@@ -54,91 +89,70 @@ A `Shape` is:
 
 `FillRatio` is the main heuristic measure of “goodness”: denser shapes are usually easier to place without leaving unusable holes.
 
-### Region (the space under a tree)
+### Region and tree configuration
 
-`internal/abstractions/region.go`
-
-A `Region` owns the backing grid (`space`) and tracks its dimensions. The packing algorithm writes placed shapes into this grid.
-
-### ChristmasTree present configuration
-
-`internal/abstractions/christmas_tree.go`
-
-Each tree stores remaining counts in `PresentConfiguration` objects, sorted descending by count (helpful for iterating and updating).
+- `internal/abstractions/christmas_tree.go` holds the region size and remaining present counts.
+- `internal/maths/region.go` holds the mutable 2D grid used during packing.
 
 ---
 
 ## Precomputing combined shapes (pairwise permutations)
 
-`internal/abstractions/shape_permutations.go`
+`internal/algorithms/shape_permutations.go`
 
-Before packing any tree, the code precomputes how two present shapes can be “packed together” into a single composite shape.
+Before packing any tree, the code precomputes how two present shapes can be “combined” into a single composite shape.
 
 ### Transformations (rotations / flips)
 
-The algorithm applies a sequence of in-place 3×3 operations:
+3×3 transformations live in `internal/maths/slice_extensions.go`:
 
 - `RotateClockwise`
 - `VerticalFlip`
 - `HorizontalFlip`
 - `NoOp`
 
-This generates multiple orientations.
-
 ### Combining two shapes
 
-`internal/abstractions/shape_packing.go` implements:
+The actual merge logic is implemented in `internal/algorithms/combine_presents.go` via:
 
-- `PackShapes(fixedShapeID, fixedShape, movingShapeID, movingShape, slideOffset, verbose) Shape`
+- `CombinePresents(fixedID, fixedShape, movingID, movingShape, slideOffset, verbose) Shape`
 
-Process:
+At a high level:
 
-1. Optionally **slide** the moving shape down by `slideOffset` using `SlideShape`.
-2. Compute how much the moving shape can be shifted left without overlap using `computeColOffset`.
-3. Create a new canvas sized to hold both shapes.
-4. Paste the fixed shape at `(0,0)` and the moving shape at the computed offset using `PasteShape`.
-5. Return a new `Shape` with updated `Dimension` and `FillRatio`.
+1. Optionally **slide** the moving shape down by `slideOffset`.
+2. Compute the horizontal packing offset (how far the moving shape can shift without overlap).
+3. Create a new canvas sized to hold both pieces.
+4. Paste both shapes into the canvas (using their indices as cell values).
+5. Compute `Dimension` and `FillRatio` for the merged shape.
 
 ### Choosing the “best” combination
 
-`CombinationCatalog` (`internal/abstractions/combination_catalog.go`) keeps, for each left present index, the combinations with other presents and retains the most “optimal” one based on `FillRatio`.
-
-This gives the packing stage a menu of “dense composite pieces” it can try to place first.
+`internal/services/combination_catalog.go` stores candidate combinations and keeps the most “optimal” ones based on `FillRatio`.
 
 ---
 
 ## Placing shapes into a region
 
-`internal/abstractions/shape_packing.go` also contains:
+Placement is implemented in `internal/algorithms/pack_shape.go`:
 
-- `PackShape(region, shape, verbose) bool`
+- `PackShape(region, presentIndex, shape, verbose) bool`
 
-It attempts to place the given shape into the region grid:
-
-- It searches for an insert position (`findInsertPosition`) where all occupied cells of the shape fit in empty cells of the region.
-- On success, it writes the shape cells into the region and returns `true`.
-- On failure, it returns `false`.
-
-(There are debug helpers like `PrintShape`/`PrintShapes` to visualize intermediate states when `verbose` is enabled.)
+It searches for an insert position where all occupied cells of the shape fit inside empty cells of the region, then writes the shape into the region.
 
 ---
 
 ## Packing strategy per Christmas tree
 
-`internal/abstractions/cavern.go` orchestrates the full solution.
+Packing orchestration is implemented in `internal/algorithms/cavern_packing.go`:
+
+- `PackAll(cavern, verbose) uint` returns the number of trees that failed.
 
 For each tree:
 
 1. Build the permutation catalog once for all presents:
-   - `catalog := ComputePermutations(c.presents, verbose)`
-2. For the current tree region, **place combined shapes first**:
-   - Iterate present indices in descending fill-ratio order.
-   - For each present type, try its best combinations (from the catalog).
-   - Decrement both involved present counts as combinations are placed.
-3. Then **place remaining individual presents** one by one.
-4. If any required present can’t be placed, this tree is counted as **failed**.
-
-At the end, the program prints how many trees could be fully packed.
+   - `catalog := ComputePermutations(cavern.GetPresents(), verbose)`
+2. For the current tree region, **place combined presents first** (highest fill ratio first).
+3. Place remaining individual presents.
 
 ---
 
@@ -148,7 +162,7 @@ The executable is `cmd/main.go`:
 
 - Reads the input file path from `os.Args`.
 - Uses `CavernReader` to parse presents + trees.
-- Runs `cavern.PackAll(false)`.
+- Calls `algorithms.PackAll(cavern, false)`.
 
 ### Commands
 
@@ -166,19 +180,27 @@ make run ARGS="input.txt"
 ```text
 day_12/
 ├── cmd/
-│   └── main.go                     # Entry point
+│   └── main.go                         # Entry point
 ├── internal/
+│   ├── abstractions/                   # Domain objects (presents, shapes, cavern, trees)
+│   │   ├── cavern.go
+│   │   ├── christmas_tree.go
+│   │   ├── present.go
+│   │   ├── presents.go
+│   │   └── shape.go
+│   ├── algorithms/                     # Packing + permutation algorithms
+│   │   ├── cavern_packing.go
+│   │   ├── combine_presents.go
+│   │   ├── pack_shape.go
+│   │   └── shape_permutations.go
 │   ├── io/
-│   │   └── cavern_reader.go        # Input parsing
-│   └── abstractions/
-│       ├── cavern.go               # Orchestrates packing for all trees
-│       ├── christmas_tree.go       # Tree + required counts
-│       ├── region.go               # 2D region grid
-│       ├── shape.go                # Shape + fill ratio heuristic
-│       ├── shape_permutations.go   # Precompute pairwise packed shapes
-│       ├── shape_packing.go        # PackShapes + PackShape placement
-│       ├── combination_catalog.go  # Stores best combinations per shape
-│       └── slice_extensions.go     # 3×3 transforms + helpers
+│   │   ├── cavern_reader.go            # Input parsing
+│   │   └── console.go                  # Debug printing helpers
+│   ├── maths/                          # 2D grid helpers + transforms
+│   │   ├── region.go
+│   │   ├── vector.go
+│   │   └── slice_extensions.go
+│   └── services/                       # Storage/ordering helpers
+│       └── combination_catalog.go
 └── README.md
 ```
-

@@ -11,11 +11,11 @@ type operation func([][]int8)
 
 // ComputePermutations /* Precomputes the combinations of presents together
 //
-//	The goal is to combine all the presents together, in
+//	The goal is to combine all the presents, in
 //	all angles and keep track of the width and length
 //	of the new shapes.
 //
-//	This way, when trying to fit them in the christmas tree,
+//	This way, when trying to fit them in the Christmas tree,
 //	we can quickly check if there is enough space for the
 //	combined shapes instead of trying all the combinations
 //	of presents every time.
