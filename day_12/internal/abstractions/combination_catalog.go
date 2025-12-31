@@ -5,10 +5,6 @@ import (
 	"sort"
 )
 
-/*
-	Stores combinations of presents (stored by index)
-*/
-
 type combinationMetadata struct {
 	presentIndex uint
 	fillRatioAvg float64
@@ -71,6 +67,13 @@ func (c *CombinationCatalog) updateFillRatios() {
 		fillRatioCount := float64(0)
 		for _, combination := range combinations {
 			totalFillRatio += combination.Shape.FillRatio
+			if combination.Shape.FillRatio == 1 {
+				/*
+					Adds a lot more weight to combinations with a fill ratio of 1
+					It helps prioritize the packing of the combination with more fill ratio of 1
+				*/
+				totalFillRatio += 1
+			}
 			fillRatioCount++
 		}
 		c.metadata = append(c.metadata, combinationMetadata{leftIndex, totalFillRatio / fillRatioCount})
@@ -94,7 +97,7 @@ func (c *CombinationCatalog) sort() {
 	}
 }
 
-func (c *CombinationCatalog) GetCombinations() []uint {
+func (c *CombinationCatalog) GetCombinationsOrderByFillRatio() []uint {
 
 	sortedCombinations := make([]uint, 0)
 

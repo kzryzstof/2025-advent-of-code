@@ -81,7 +81,7 @@ func (r *CavernReader) extractPresents(
 					shape[row][col] = int8(1)
 					occupied++
 				} else {
-					shape[row][col] = int8(0)
+					shape[row][col] = abstractions.E
 					empty++
 				}
 			}

@@ -30,12 +30,8 @@ func main() {
 
 	failed := cavern.PackAll(false)
 
-	//	777 too high!
-	//	589 too high!
-	//	431	incorrect.
-
 	if failed > 0 {
-		fmt.Printf("Unable to place presents %d Christmas trees (out of %d)\n\n", failed, cavern.GetChristmasTreesCount())
+		fmt.Printf("Unable to place presents under all the Christmas trees: only %d (out of %d)\n\n", cavern.GetChristmasTreesCount()-failed, cavern.GetChristmasTreesCount())
 	} else {
 		fmt.Printf("All the presents have been placed under the Christmas trees\n\n")
 	}

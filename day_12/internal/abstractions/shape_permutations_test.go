@@ -1,7 +1,6 @@
-package algorithms
+package abstractions
 
 import (
-	"day_12/internal/abstractions"
 	"testing"
 )
 
@@ -9,37 +8,34 @@ func TestShapePermutations_ComputePermutations(t *testing.T) {
 	tests := []struct {
 		name              string
 		shape             [][]int8
-		expectedDimension abstractions.Dimension
+		expectedDimension Dimension
 	}{
 		{
 			name: "present_4-present_4-documented_use_case",
 			shape: [][]int8{
 				{1, 1, 1},
-				{1, 0, 0},
+				{1, E, E},
 				{1, 1, 1},
 			},
 			// The optimal may vary depending on region/other shapes; this test now only asserts the catalog builds.
-			expectedDimension: abstractions.Dimension{Wide: 0, Long: 0},
+			expectedDimension: Dimension{Wide: 0, Long: 0},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			presents := map[uint]*abstractions.Present{}
-			presents[0] = abstractions.NewPresent(
+			presents := map[uint]*Present{}
+			presents[0] = NewPresent(
 				0,
-				abstractions.Shape{
-					Dimension: abstractions.Dimension{Wide: 3, Long: 3},
+				Shape{
+					Dimension: Dimension{Wide: 3, Long: 3},
 					Cells:     tt.shape,
-					FillRatio: abstractions.ComputeFillRatio(tt.shape),
+					FillRatio: ComputeFillRatio(tt.shape),
 				},
 			)
 
-			region := abstractions.NewRegion(100, 100)
-
-			got := abstractions.ComputePermutations(
-				abstractions.NewPresents(presents),
-				region,
+			got := ComputePermutations(
+				NewPresents(presents),
 				false,
 			)
 
@@ -57,28 +53,28 @@ func TestShapePermutations_PackShapes(t *testing.T) {
 		left        [][]int8
 		right       [][]int8
 		slideOffset int
-		wantDim     abstractions.Dimension
+		wantDim     Dimension
 	}{
 		{
 			name: "documented pack use case dimensions",
 			left: [][]int8{
 				{1, 1, 1},
-				{1, 0, 0},
+				{1, E, E},
 				{1, 1, 1},
 			},
 			right: [][]int8{
-				{0, 0, 0},
+				{E, E, E},
 				{1, 1, 1},
-				{0, 0, 1},
+				{E, E, 1},
 			},
 			slideOffset: 1,
-			wantDim:     abstractions.Dimension{Wide: 7, Long: 4},
+			wantDim:     Dimension{Wide: 6, Long: 4},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := abstractions.PackShapes(
+			got := PackShapes(
 				1,
 				tt.left,
 				2,

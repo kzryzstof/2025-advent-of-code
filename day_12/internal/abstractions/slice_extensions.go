@@ -5,9 +5,20 @@ import (
 	"math"
 )
 
-const (
-	NotFound = -1
-)
+func NewSlice(
+	rows, cols int,
+) [][]int8 {
+	slice := make([][]int8, rows)
+
+	for row := range slice {
+		slice[row] = make([]int8, cols)
+		for col := range slice[row] {
+			slice[row][col] = E
+		}
+	}
+
+	return slice
+}
 
 func Transpose(
 	slice [][]int8,
@@ -77,11 +88,7 @@ func SlideShape(
 	dstRows := len(src) + int(math.Abs(float64(shift.Row)))
 	dstCols := len(src[0]) + int(math.Abs(float64(shift.Col)))
 
-	dst := make([][]int8, dstRows)
-
-	for row := 0; row < dstRows; row++ {
-		dst[row] = make([]int8, dstCols)
-	}
+	dst := NewSlice(dstRows, dstCols)
 
 	/* Copies the src slice into the dst slice at the specified shift */
 
@@ -108,7 +115,7 @@ func IsEmpty(
 	slice [][]int8,
 	position Position,
 ) bool {
-	return slice[position.Row][position.Col] == 0
+	return slice[position.Row][position.Col] == E
 }
 
 func FindLastEmptyCell(
@@ -150,7 +157,7 @@ func ComputeFillRatio(
 
 	for row := 0; row < len(slice); row++ {
 		for col := 0; col < len(slice[row]); col++ {
-			if slice[row][col] == 0 {
+			if slice[row][col] == E {
 				empty++
 			} else {
 				occupied++
@@ -170,7 +177,7 @@ func PasteShape(
 	for row := 0; row < len(src); row++ {
 		for col := 0; col < len(src[row]); col++ {
 
-			if src[row][col] == 0 {
+			if src[row][col] == E {
 				continue
 			}
 
@@ -187,8 +194,10 @@ func PrintShape(
 ) {
 	for _, row := range slice {
 		for _, cell := range row {
-			if cell == 0 {
+			if cell == E {
 				fmt.Print(".")
+			} else if cell == -1 {
+				fmt.Print("#")
 			} else {
 				fmt.Print(fmt.Sprintf("%d", cell))
 			}
@@ -207,7 +216,7 @@ func PrintShapes(
 
 	printRowCell := func(row []int8) {
 		for _, cell := range row {
-			if cell == 0 {
+			if cell == E {
 				fmt.Print(".")
 			} else {
 				fmt.Print(fmt.Sprintf("%d", cell))

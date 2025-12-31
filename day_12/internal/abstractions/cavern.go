@@ -42,34 +42,27 @@ func (c *Cavern) PackAll(
 		fmt.Println()
 	}
 
-	/*
-		Combining presents together can yield a better fill ratio than manipulating them alone
-	*/
+	/* Combining presents together can yield a better fill ratio than manipulating them alone */
 	catalog := ComputePermutations(
 		c.GetPresents(),
 		false,
 	)
 
-	//if verbose {
-	catalog.PrintOptimalCombinations()
-	//}
+	if verbose {
+		catalog.PrintOptimalCombinations()
+	}
 
 	failed := uint(0)
 
 	for christmasTreeIndex, christmasTree := range c.christmasTrees {
-
-		//presentConfigurations := christmasTree.GetPresentConfigurations()
 
 		fmt.Println("------------------------------------------------------------------------")
 		fmt.Printf("Placing %d presents under Christmas tree #%d (%dx%d).\n\n", christmasTree.GetPresentsCount(), christmasTreeIndex+1, christmasTree.wide, christmasTree.long)
 
 		region := christmasTree.Region.GetSpace()
 
-		/*
-			It is best to start with the combined presents that have the highest count
-		*/
-		//for _, currentPresentConfiguration := range presentConfigurations {
-		for _, index := range catalog.GetCombinations() {
+		/* It is best to start with the combined presents that have the highest fill ratio */
+		for _, index := range catalog.GetCombinationsOrderByFillRatio() {
 
 			currentPresentConfiguration := christmasTree.GetPresentConfiguration(index)
 
@@ -109,11 +102,12 @@ func (c *Cavern) PackAll(
 				shapesPacked := true
 				shapesPackedCount := uint(0)
 
+				shape := combination.Shape.GetCopy()
+
 				for shapeNumber := uint(0); shapeNumber < presentsCount; shapeNumber++ {
 					shapesPacked = PackShape(
 						region,
-						combination.PresentIndex,
-						combination.Shape.GetCopy(),
+						shape,
 						verbose,
 					)
 
@@ -150,10 +144,8 @@ func (c *Cavern) PackAll(
 
 		allShapesPacked := true
 
-		/*
-			Now place the remaining individual presents
-		*/
-		for _, index := range catalog.GetCombinations() {
+		/* Now place the remaining individual presents */
+		for _, index := range catalog.GetCombinationsOrderByFillRatio() {
 
 			currentPresentConfiguration := christmasTree.GetPresentConfiguration(index)
 
@@ -172,7 +164,6 @@ func (c *Cavern) PackAll(
 
 				shapePacked = PackShape(
 					region,
-					currentPresentConfiguration.Index,
 					shape,
 					verbose,
 				)

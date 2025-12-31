@@ -47,10 +47,6 @@ func NewChristmasTree(
 	}
 }
 
-func (ct *ChristmasTree) GetPresentConfigurations() []*PresentConfiguration {
-	return ct.sortedPresentConfigurations
-}
-
 func (ct *ChristmasTree) GetPresentConfiguration(
 	presentIndex uint,
 ) *PresentConfiguration {

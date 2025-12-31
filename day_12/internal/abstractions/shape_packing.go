@@ -49,11 +49,7 @@ func PackShapes(
 	newRowsCount := MaximumShapeSize + slideOffset
 	newColsCount := MaximumShapeSize + (MaximumShapeSize - colsOffset)
 
-	newShape := make([][]int8, newRowsCount)
-
-	for row := range newShape {
-		newShape[row] = make([]int8, newColsCount)
-	}
+	newShape := NewSlice(newRowsCount, newColsCount)
 
 	/* Stable shape placed at origin (0,0) */
 	PasteShape(
@@ -93,10 +89,17 @@ func PackShapes(
 
 func PackShape(
 	region [][]int8,
-	shapeId uint,
 	shape [][]int8,
 	verbose bool,
 ) bool {
+
+	for row := 0; row < len(region); row++ {
+		for col := 0; col < len(region[row]); col++ {
+			if region[row][col] != E {
+				region[row][col] = P
+			}
+		}
+	}
 
 	insertPosition, isFound := findInsertPosition(
 		region,
@@ -105,32 +108,33 @@ func PackShape(
 	)
 
 	if !isFound {
-		fmt.Printf("Unable to insert Shape in the region\n")
+		if verbose {
+			fmt.Printf("\tUnable to insert Shape in the region\n")
+		}
 		return false
 	}
 
 	if verbose {
-		fmt.Printf("Insert position found at %dx%d\n", insertPosition.Row, insertPosition.Col)
+		fmt.Printf("\tInsert position found at %dx%d\n", insertPosition.Row, insertPosition.Col)
 	}
 
-	placeShape := func(shapeId uint, shape [][]int8, insertPosition Position) {
+	placeShape := func(shape [][]int8, insertPosition Position) {
 		for row := 0; row < len(shape); row++ {
 			for col := 0; col < len(shape[row]); col++ {
 
-				if shape[row][col] == 0 {
+				if shape[row][col] == E {
 					continue
 				}
 
 				rowWithOffset := row + insertPosition.Row
 				colWithOffset := col + insertPosition.Col
 
-				region[rowWithOffset][colWithOffset] = int8(shapeId)
+				region[rowWithOffset][colWithOffset] = shape[row][col]
 			}
 		}
 	}
 
 	placeShape(
-		shapeId,
 		shape,
 		insertPosition,
 	)
