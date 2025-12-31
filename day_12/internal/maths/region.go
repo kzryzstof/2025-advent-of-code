@@ -16,7 +16,7 @@ func NewRegion(
 		wide,
 		long,
 		float64(wide) / float64(long),
-		NewSlice(long, wide, defaultValue),
+		NewCells(long, wide, defaultValue),
 	}
 }
 

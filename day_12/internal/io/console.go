@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-func PrintShape(
+func PrintCells(
 	slice [][]int8,
 ) {
 	for _, row := range slice {
@@ -25,7 +25,7 @@ func PrintShape(
 	fmt.Println()
 }
 
-func PrintShapes(
+func PrintBothCells(
 	leftSlice [][]int8,
 	rightSlice [][]int8,
 ) {

@@ -86,6 +86,7 @@ func PackAll(
 				for shapeNumber := uint(0); shapeNumber < presentsCount; shapeNumber++ {
 					shapesPacked = PackShape(
 						region,
+						combination.Index,
 						shape,
 						verbose,
 					)
@@ -143,12 +144,14 @@ func PackAll(
 			shapePacked := true
 			shapesPackedCount := uint(0)
 
-			shape := cavern.GetPresents().GetPresent(currentPresentConfiguration.Index).GetShape()
+			present := cavern.GetPresents().GetPresent(currentPresentConfiguration.Index)
+			shape := present.GetShape()
 
 			for presentCount := uint(0); presentCount < currentPresentConfiguration.Count; presentCount++ {
 
 				shapePacked = PackShape(
 					region,
+					present.GetIndex(),
 					shape,
 					verbose,
 				)

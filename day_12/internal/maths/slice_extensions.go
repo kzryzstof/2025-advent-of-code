@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func NewSlice(
+func NewCells(
 	rows, cols uint,
 	defaultVal int8,
 ) [][]int8 {
@@ -89,7 +89,7 @@ func Slide(
 	dstRows := len(src) + int(math.Abs(float64(direction.Row)))
 	dstCols := len(src[0]) + int(math.Abs(float64(direction.Col)))
 
-	dst := NewSlice(uint(dstRows), uint(dstCols), defaultValue)
+	dst := NewCells(uint(dstRows), uint(dstCols), defaultValue)
 
 	/* Copies the src slice into the dst slice at the specified shift */
 
@@ -144,11 +144,11 @@ func FindLastCellWithValueOnRow(
 	return position, emptyCellFound
 }
 
-func PasteShape(
+func CopyCells(
 	id uint,
 	src [][]int8,
 	dst [][]int8,
-	rowOffset, colOffset uint,
+	position Position,
 	ignoredValue int8,
 ) {
 	for row := uint(0); row < uint(len(src)); row++ {
@@ -158,10 +158,43 @@ func PasteShape(
 				continue
 			}
 
-			rowWithOffset := row + rowOffset
-			colWithOffset := col + colOffset
+			rowWithOffset := row + uint(position.Row)
+			colWithOffset := col + uint(position.Col)
 
 			dst[rowWithOffset][colWithOffset] = int8(id)
 		}
 	}
+}
+
+func CountCells(
+	fromRow uint,
+	fromCol uint,
+	direction Vector,
+	shape [][]int8,
+	valueCounted int8,
+) (uint, bool) {
+
+	initialPosition := Position{
+		Row: int(fromRow),
+		Col: int(fromCol),
+	}
+
+	lastEmptyCellPosition, isPositionFound := FindLastCellWithValueOnRow(
+		shape,
+		initialPosition,
+		direction,
+		valueCounted,
+	)
+
+	if !isPositionFound {
+		return 0, false
+	}
+
+	count := math.Abs(float64(initialPosition.Col) - float64(lastEmptyCellPosition.Col))
+
+	if count < 0 {
+		return 0, false
+	}
+
+	return uint(count), true
 }

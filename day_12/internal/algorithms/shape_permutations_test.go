@@ -75,7 +75,7 @@ func TestShapePermutations_PackShapes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := CombineShapes(
+			got := CombinePresents(
 				1,
 				tt.left,
 				2,

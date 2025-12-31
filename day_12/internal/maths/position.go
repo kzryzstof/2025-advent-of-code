@@ -5,6 +5,10 @@ type Position struct {
 	Col int
 }
 
+func OriginPosition() Position {
+	return Position{0, 0}
+}
+
 func (p Position) Add(
 	d Vector,
 ) Position {

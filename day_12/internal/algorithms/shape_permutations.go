@@ -80,7 +80,7 @@ func ComputePermutations(
 
 					for slideOffset := uint(0); slideOffset < abstractions.MaximumShapeSize; slideOffset++ {
 
-						packedShape := CombineShapes(
+						packedShape := CombinePresents(
 							fixedPresent.GetIndex(),
 							fixedShape,
 							movingPresent.GetIndex(),
