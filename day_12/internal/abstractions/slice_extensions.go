@@ -115,16 +115,31 @@ func FindLastEmptyCell(
 	slice [][]int8,
 	position Position,
 	direction Vector,
-) Position {
+) (Position, bool) {
+
+	maxRow := len(slice)
+	emptyCellFound := false
 
 	for IsEmpty(slice, position) {
+
+		emptyCellFound = true
 		position = position.Add(direction)
-		if position.Col > 2 || position.Row > 2 || position.Col < 0 || position.Row < 0 {
-			return position
+
+		maxCol := len(slice[position.Row])
+
+		if position.Col >= maxCol || position.Row >= maxRow {
+			return position, true
+		}
+
+		if position.Col < 0 || position.Row < 0 {
+			return Position{
+				Row: position.Row,
+				Col: -1,
+			}, true
 		}
 	}
 
-	return position
+	return position, emptyCellFound
 }
 
 func ComputeFillRatio(
@@ -144,6 +159,27 @@ func ComputeFillRatio(
 	}
 
 	return float64(occupied) / float64(occupied+empty)
+}
+
+func PasteShape(
+	id uint,
+	src [][]int8,
+	dst [][]int8,
+	rowOffset, colOffset int,
+) {
+	for row := 0; row < len(src); row++ {
+		for col := 0; col < len(src[row]); col++ {
+
+			if src[row][col] == 0 {
+				continue
+			}
+
+			rowWithOffset := row + rowOffset
+			colWithOffset := col + colOffset
+
+			dst[rowWithOffset][colWithOffset] = int8(id)
+		}
+	}
 }
 
 func PrintShape(

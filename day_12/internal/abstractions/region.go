@@ -4,18 +4,19 @@ type Region struct {
 	wide  uint
 	long  uint
 	ratio float64
-	space [][]byte
+	space [][]int8
 }
 
 func NewRegion(
 	wide uint,
 	long uint,
 ) *Region {
-	space := make([][]byte, long)
+	space := make([][]int8, long)
+
 	for row := uint(0); row < long; row++ {
-		space[row] = make([]byte, wide)
+		space[row] = make([]int8, wide)
 		for col := uint(0); col < wide; col++ {
-			space[row][col] = byte(0)
+			space[row][col] = int8(0)
 		}
 	}
 	return &Region{
@@ -32,4 +33,10 @@ func (r *Region) GetArea() uint {
 
 func (r *Region) GetRatio() float64 {
 	return r.ratio
+}
+
+func (r *Region) PushLeft(
+	shape Shape,
+) {
+
 }

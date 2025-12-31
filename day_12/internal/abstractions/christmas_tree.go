@@ -57,13 +57,12 @@ func (ct *ChristmasTree) GetPresentConfiguration(
 	return ct.mappedPresentConfigurations[presentIndex]
 }
 
-func (ct *ChristmasTree) GetRegion() [][]byte {
-	region := make([][]byte, ct.long)
-	for row := uint(0); row < ct.long; row++ {
-		region[row] = make([]byte, ct.wide)
-		for col := uint(0); col < ct.wide; col++ {
-			region[row][col] = byte(0)
-		}
+func (ct *ChristmasTree) GetPresentsCount() uint {
+	presentsCount := uint(0)
+
+	for _, presentConfiguration := range ct.sortedPresentConfigurations {
+		presentsCount += presentConfiguration.Count
 	}
-	return region
+
+	return presentsCount
 }
